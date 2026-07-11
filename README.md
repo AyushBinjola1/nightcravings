@@ -7,9 +7,10 @@ architecture decisions. Read them before changing product behavior.
 
 ## Build status
 
-**Stage 2 of 12 (Authentication) — complete.** See the implementation order
-in [Phase 4 §24](./docs/phase-4-engineering-blueprint.html#s24) for what's
-next (Stage 3: Database). Each stage is built to completion before the next
+**Stage 3 of 12 (Database) — complete, with one honest caveat below.** See
+the implementation order in
+[Phase 4 §24](./docs/phase-4-engineering-blueprint.html#s24) for what's next
+(Stage 4: Design System). Each stage is built to completion before the next
 begins — nothing here is a shortcut or a placeholder for a later stage.
 
 Phone-OTP sign-in for customers and email/password sign-in for staff both
@@ -18,6 +19,25 @@ protected by `src/proxy.ts`, which redirects a signed-out visitor to
 `/login` and a signed-in one away from it. Without Supabase configured, the
 app still runs — every request is treated as signed out (see
 `src/lib/supabase/middleware.ts`) rather than crashing.
+
+`supabase/migrations/` implements the identity & tenancy slice of
+Phase 4 §3 — `hostels`, `profiles` (with an `auth.users` trigger), RBAC
+(`roles`/`permissions`/`role_permissions`/`profile_roles`), and `devices` —
+plus a matching RLS migration built on two shared helper functions
+(`is_staff_of`, `has_permission`) per Phase 4 §6's Self-Review, rather than
+hand-written per-table policies. Catalogue, orders, and payments arrive in
+later migrations when Stage 6/7 actually need them (Phase 4 §18's additive
+migration strategy).
+
+**Verification caveat, stated plainly:** this sandbox has no Docker (so
+`supabase start` can't run a local Postgres) and no linked hosted project.
+Both migration files are syntax-checked against Postgres's real grammar
+(via `libpg-query`, which every statement in both files passed), and
+`src/types/database.ts` is hand-authored to mirror the schema exactly — but
+neither has been _executed_ against a real database. Before this schema is
+trusted further: run `supabase link` against a real project (or install
+Docker and `supabase start`), apply the migrations, and regenerate
+`src/types/database.ts` for real via `supabase gen types typescript`.
 
 **External setup this stage still needs, outside this repo:** a Supabase
 project with the phone provider enabled and an SMS sender (e.g. Twilio)

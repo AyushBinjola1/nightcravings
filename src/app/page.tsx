@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 const STAGES = [
   { name: "Project Setup", done: true },
   { name: "Authentication", done: true },
-  { name: "Database", done: false },
+  { name: "Database", done: true },
   { name: "Design System", done: false },
   { name: "Shared Components", done: false },
   { name: "Customer Application", done: false },
@@ -34,19 +34,18 @@ export default function RootStatusPage() {
         NightCravings — Engineering Build
       </p>
       <h1 className="font-display text-ink mb-3 text-3xl font-semibold text-balance">
-        Stage 2 of 12 complete.
+        Stage 3 of 12 complete.
       </h1>
       <p className="text-ink-soft mb-10 max-w-[60ch]">
-        Project setup and authentication are done: phone-OTP sign-in for
-        customers and email/password sign-in for staff, both backed by real
-        Supabase Auth calls, with Owner Console routes protected by a
-        session-aware proxy. Try{" "}
+        Setup, authentication, and the identity/tenancy database schema are done
+        — hostels, profiles, RBAC, and devices, with RLS policies for each (see{" "}
+        <code>supabase/migrations</code>). Try{" "}
         <a href="/login" className="text-accent underline underline-offset-2">
           /login
         </a>{" "}
-        — it needs a real Supabase project in <code>.env.local</code> to
-        actually authenticate. This page will be replaced by the real customer
-        Home screen once Stage 6 begins.
+        — everything here needs a real, linked Supabase project to actually run
+        against a database. This page will be replaced by the real customer Home
+        screen once Stage 6 begins.
       </p>
       <ol className="divide-border border-border flex flex-col divide-y rounded-md border">
         {STAGES.map((stage, index) => (
