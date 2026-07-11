@@ -73,5 +73,5 @@ export async function signInStaff(
 export async function signOutStaff(): Promise<void> {
   const supabase = await createClient();
   await supabase.auth.signOut();
-  redirect("/login");
+  redirect("/console/login");
 }

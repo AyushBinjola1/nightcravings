@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { createClient } from "@/lib/supabase/server";
 import { SignOutButton } from "@/features/auth/components/SignOutButton";
@@ -8,12 +9,13 @@ export const metadata: Metadata = {
 };
 
 /**
- * A real, working authentication check — not the Phase 3 §1 Dashboard,
- * which belongs to Stage 7 (Owner Console) and isn't built yet. This page
- * exists so Stage 2's sign-in flow has a genuine, verifiable destination
- * rather than a redirect to nowhere.
+ * The full Phase 3 §1 Dashboard (sales tiles, low-stock list, revenue
+ * sparkline) needs orders/inventory data flowing for at least a day to be
+ * meaningful — deferred past this pass. This page is still real: it
+ * confirms who's signed in and is the one link every other Owner Console
+ * screen assumes exists.
  */
-export default async function DashboardPlaceholderPage() {
+export default async function DashboardPage() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -28,12 +30,18 @@ export default async function DashboardPlaceholderPage() {
         Signed in as {user?.email}.
       </h1>
       <p className="text-ink-soft mb-8 max-w-[60ch]">
-        This confirms Stage 2 authentication works end-to-end: the proxy
-        redirected you here after sign-in, and would redirect you back to{" "}
-        <code>/login</code> without a session. The real Owner Console dashboard
-        (Phase 3 §1) is built in Stage 7.
+        The full sales/inventory dashboard (Phase 3 §1) needs a day of real
+        order data to be meaningful. The Order Queue below is live now.
       </p>
-      <SignOutButton />
+      <div className="flex items-center gap-3">
+        <Link
+          href="/console/orders"
+          className="bg-accent text-paper rounded-md px-4 py-2.5 text-sm font-medium"
+        >
+          Open Order Queue
+        </Link>
+        <SignOutButton />
+      </div>
     </main>
   );
 }

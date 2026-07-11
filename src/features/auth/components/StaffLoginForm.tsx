@@ -28,7 +28,7 @@ export function StaffLoginForm() {
         form.setError("root", { message: result.error });
         return;
       }
-      router.replace("/dashboard");
+      router.replace("/console/dashboard");
       router.refresh();
     });
   });

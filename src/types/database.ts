@@ -35,6 +35,11 @@ export type Database = {
           status: Database["public"]["Enums"]["hostel_status"];
           opening_time: string | null;
           closing_time: string | null;
+          delivery_fee: number;
+          free_delivery_threshold: number;
+          upi_id: string | null;
+          upi_number: string | null;
+          upi_qr_url: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -45,6 +50,11 @@ export type Database = {
           status?: Database["public"]["Enums"]["hostel_status"];
           opening_time?: string | null;
           closing_time?: string | null;
+          delivery_fee?: number;
+          free_delivery_threshold?: number;
+          upi_id?: string | null;
+          upi_number?: string | null;
+          upi_qr_url?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -519,6 +529,18 @@ export type Database = {
           updated_at: string;
           payment_status: Database["public"]["Enums"]["payment_status"] | null;
         }[];
+      };
+      get_payment_for_order: {
+        Args: { p_order_id: string };
+        Returns: {
+          id: string;
+          status: Database["public"]["Enums"]["payment_status"];
+          claimed_amount: number;
+        }[];
+      };
+      submit_transaction_id: {
+        Args: { p_order_id: string; p_transaction_id: string };
+        Returns: undefined;
       };
     };
     Enums: {
