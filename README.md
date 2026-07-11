@@ -25,24 +25,37 @@ configured, the app still runs — every request is treated as signed out
 rather than crashing (`src/lib/supabase/middleware.ts`).
 
 A real Supabase project is now connected (`.env.local`, not committed).
-`supabase/migrations/` implements the identity & tenancy slice of Phase 4
-§3 — `hostels`, `profiles` (with an `auth.users` trigger, staff only now),
-RBAC (`roles`/`permissions`/`role_permissions`/`profile_roles`), and
-`devices` — plus a matching RLS migration built on two shared helper
-functions (`is_staff_of`, `has_permission`) per Phase 4 §6's Self-Review.
-Catalogue, orders, and payments arrive in later migrations when Stage 6/7
-actually need them (Phase 4 §18's additive migration strategy).
+`supabase/migrations/` has four files, in order:
+
+1. `20260711180000_identity_and_tenancy.sql` — `hostels`, `profiles` (staff
+   only now), RBAC (`roles`/`permissions`/`role_permissions`/`profile_roles`),
+   `devices`.
+2. `20260711180100_identity_and_tenancy_rls.sql` — RLS for the above, built
+   on two shared helper functions (`is_staff_of`, `has_permission`) per
+   Phase 4 §6's Self-Review, not hand-written per-table policies.
+3. `20260712090000_catalogue_orders_payments.sql` — `categories`,
+   `products`, `stock_history`, `customers`, `orders`, `order_items`,
+   `payments`, `payment_screenshots`, plus RLS and a `get_order_tracking()`
+   RPC. Adapted for the no-customer-auth decision above: `customers` is a
+   plain phone-keyed table (no `auth.users`), orders snapshot
+   name/phone/room directly, and post-checkout order tracking is a
+   capability-URL pattern (the order's UUID is the credential) rather than
+   `auth.uid()` ownership — documented in the migration's header as a
+   deliberate, stated tradeoff, not an oversight.
+4. `20260712091500_storage_buckets.sql` — `product-images`,
+   `category-images`, `payment-screenshots` buckets with matching
+   `storage.objects` RLS.
 
 **Verification caveat, stated plainly:** this sandbox has no Docker (so
 `supabase start` can't run a local Postgres) and only a publishable key for
 the linked project — no personal access token or DB password to run
-`supabase db push` from here. Both migration files are syntax-checked
-against Postgres's real grammar (via `libpg-query`, which every statement
-in both files passed) and staff sign-in works against the real project's
+`supabase db push` from here. All four migration files are syntax-checked
+against Postgres's real grammar (via `libpg-query` — every statement in
+every file parses clean) and staff sign-in works against the real project's
 Auth service, but **the migrations themselves have not been applied yet.**
-Fastest unblock, no extra credentials needed: paste the contents of both
-files in `supabase/migrations/`, in order, into the linked project's SQL
-Editor and run them. Then regenerate `src/types/database.ts` for real via
+Fastest unblock, no extra credentials needed: paste the four files' contents
+into the linked project's SQL Editor, in the numbered order above, and run
+them. Then regenerate `src/types/database.ts` for real via
 `supabase gen types typescript --project-id qwziuxkcbzrygmozqrad`.
 
 ## Stack
