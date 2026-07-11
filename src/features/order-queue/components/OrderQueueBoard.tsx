@@ -1,10 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-
 import { OrderCard } from "@/features/order-queue/components/OrderCard";
-import { createClient } from "@/lib/supabase/client";
+import { useHostelOrdersRealtime } from "@/hooks/useHostelOrdersRealtime";
 import type { OrderQueueRow } from "@/server/queries/order-queue";
 
 const LANES: {
@@ -33,9 +30,6 @@ const LANES: {
  * Phase 3 §2 — three lanes, oldest-first (already sorted server-side),
  * realtime-subscribed per hostel (Phase 4 §10) so a new order or a
  * change made from a second device appears without a manual refresh.
- * Re-fetches via `router.refresh()` on any change rather than patching
- * client state field-by-field — simpler, and the Server Component query
- * is cheap enough at this scale that correctness wins over micro-perf.
  */
 export function OrderQueueBoard({
   hostelId,
@@ -44,28 +38,7 @@ export function OrderQueueBoard({
   hostelId: string;
   orders: OrderQueueRow[];
 }) {
-  const router = useRouter();
-
-  useEffect(() => {
-    const supabase = createClient();
-    const channel = supabase
-      .channel(`order-queue-${hostelId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "orders",
-          filter: `hostel_id=eq.${hostelId}`,
-        },
-        () => router.refresh(),
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [hostelId, router]);
+  useHostelOrdersRealtime(hostelId);
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">

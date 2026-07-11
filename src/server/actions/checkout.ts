@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { actionError, actionOk, type ActionResult } from "@/lib/result";
+import { captureServerEvent } from "@/lib/analytics/posthog-server";
 import { placeOrderSchema } from "@/lib/zod-schemas/checkout";
 import { CURRENT_HOSTEL_SLUG } from "@/config/hostel";
 
@@ -113,6 +114,15 @@ export async function placeOrder(
         "Your order was created but payment setup failed — contact the store.",
       );
     }
+
+    // Server-side capture (Phase 4 §15): a closed tab or an ad blocker
+    // must never make the conversion funnel undercount a real order.
+    captureServerEvent(profile.phone, "order_placed", {
+      orderId: order.id,
+      total,
+      itemCount: items.length,
+      deliveryMethod,
+    });
 
     return actionOk({ orderId: order.id });
   } catch (error) {

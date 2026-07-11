@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Minus, Plus } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { captureEvent } from "@/lib/analytics/posthog-client";
 import { useCartStore } from "@/stores/cart";
 import type { Product } from "@/server/queries/catalogue";
 
@@ -33,6 +34,20 @@ export function ProductCard({
   const isLowStock =
     product.stock_qty > 0 && product.stock_qty <= LOW_STOCK_THRESHOLD;
   const isOutOfStock = product.stock_qty <= 0;
+
+  function handleAdd() {
+    addItem({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+    });
+    captureEvent("product_added_to_cart", {
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      source: "product_card",
+    });
+  }
 
   return (
     <div className="border-border bg-surface flex flex-col overflow-hidden rounded-md border">
@@ -96,13 +111,7 @@ export function ProductCard({
               <button
                 type="button"
                 aria-label={`Add one more ${product.name}`}
-                onClick={() =>
-                  addItem({
-                    productId: product.id,
-                    name: product.name,
-                    price: product.price,
-                  })
-                }
+                onClick={handleAdd}
                 className="text-ink flex h-8 w-8 items-center justify-center"
               >
                 <Plus size={14} aria-hidden="true" />
@@ -112,13 +121,7 @@ export function ProductCard({
             <button
               type="button"
               aria-label={`Add ${product.name} to cart`}
-              onClick={() =>
-                addItem({
-                  productId: product.id,
-                  name: product.name,
-                  price: product.price,
-                })
-              }
+              onClick={handleAdd}
               className="bg-accent text-paper flex h-9 w-9 items-center justify-center rounded-full transition-transform active:scale-95"
             >
               <Plus size={18} aria-hidden="true" />

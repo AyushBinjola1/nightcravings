@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { actionError, actionOk, type ActionResult } from "@/lib/result";
+import { captureServerEvent } from "@/lib/analytics/posthog-server";
 import { CURRENT_HOSTEL_SLUG } from "@/config/hostel";
 import {
   submitPaymentProofSchema,
@@ -107,6 +108,11 @@ export async function submitPaymentProof(
         );
       }
     }
+
+    captureServerEvent(parsed.data.orderId, "payment_screenshot_uploaded", {
+      orderId: parsed.data.orderId,
+      hasTransactionId: Boolean(parsed.data.transactionId),
+    });
 
     return actionOk({ submitted: true });
   } catch (error) {

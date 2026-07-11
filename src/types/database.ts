@@ -542,6 +542,14 @@ export type Database = {
         Args: { p_order_id: string; p_transaction_id: string };
         Returns: undefined;
       };
+      get_revenue_by_day: {
+        Args: { p_hostel_id: string; p_days?: number };
+        Returns: { day: string; revenue: number; order_count: number }[];
+      };
+      get_top_products: {
+        Args: { p_hostel_id: string; p_limit?: number };
+        Returns: { product_name: string; total_quantity: number }[];
+      };
     };
     Enums: {
       hostel_status: "open" | "closed" | "maintenance";

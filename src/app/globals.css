@@ -28,6 +28,12 @@
   --color-danger: #a32626;
   --color-danger-soft: #f5e1df;
 
+  /* Chart-only tokens (Phase 4 §15) — validated separately from the brand
+     hues above; never substitute --color-accent/--color-night into a
+     chart series (see src/design-tokens/colors.ts). */
+  --chart-1: #2a78d6;
+  --chart-2: #1baf7a;
+
   --font-display:
     Charter, "Iowan Old Style", "Palatino Linotype", Georgia, serif;
   --font-body:
@@ -56,6 +62,8 @@
     --color-warning-soft: #332711;
     --color-danger: #e07575;
     --color-danger-soft: #3a2020;
+    --chart-1: #3987e5;
+    --chart-2: #199e70;
   }
 }
 
@@ -76,6 +84,8 @@
   --color-warning-soft: #332711;
   --color-danger: #e07575;
   --color-danger-soft: #3a2020;
+  --chart-1: #3987e5;
+  --chart-2: #199e70;
 }
 
 :root[data-theme="light"] {
@@ -95,6 +105,8 @@
   --color-warning-soft: #f3e7ce;
   --color-danger: #a32626;
   --color-danger-soft: #f5e1df;
+  --chart-1: #2a78d6;
+  --chart-2: #1baf7a;
 }
 
 /* Maps the brand tokens above to Tailwind utilities: bg-ink, text-accent,
@@ -116,6 +128,8 @@
   --color-warning-soft: var(--color-warning-soft);
   --color-danger: var(--color-danger);
   --color-danger-soft: var(--color-danger-soft);
+  --chart-1: var(--chart-1);
+  --chart-2: var(--chart-2);
 
   --font-display: var(--font-display);
   --font-body: var(--font-body);
