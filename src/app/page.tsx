@@ -6,7 +6,7 @@ export const metadata: Metadata = {
 
 const STAGES = [
   { name: "Project Setup", done: true },
-  { name: "Authentication", done: false },
+  { name: "Authentication", done: true },
   { name: "Database", done: false },
   { name: "Design System", done: false },
   { name: "Shared Components", done: false },
@@ -34,13 +34,19 @@ export default function RootStatusPage() {
         NightCravings — Engineering Build
       </p>
       <h1 className="font-display text-ink mb-3 text-3xl font-semibold text-balance">
-        Stage 1 of 12 complete.
+        Stage 2 of 12 complete.
       </h1>
       <p className="text-ink-soft mb-10 max-w-[60ch]">
-        Project setup is done: Next.js, TypeScript (strict), Tailwind wired to
-        the approved design tokens, linting, and the approved folder structure.
-        Nothing below Stage 1 has been implemented yet — this page will be
-        replaced by the real customer Home screen once Stage 6 begins.
+        Project setup and authentication are done: phone-OTP sign-in for
+        customers and email/password sign-in for staff, both backed by real
+        Supabase Auth calls, with Owner Console routes protected by a
+        session-aware proxy. Try{" "}
+        <a href="/login" className="text-accent underline underline-offset-2">
+          /login
+        </a>{" "}
+        — it needs a real Supabase project in <code>.env.local</code> to
+        actually authenticate. This page will be replaced by the real customer
+        Home screen once Stage 6 begins.
       </p>
       <ol className="divide-border border-border flex flex-col divide-y rounded-md border">
         {STAGES.map((stage, index) => (

@@ -7,10 +7,22 @@ architecture decisions. Read them before changing product behavior.
 
 ## Build status
 
-**Stage 1 of 12 (Project Setup) — complete.** See the implementation order
+**Stage 2 of 12 (Authentication) — complete.** See the implementation order
 in [Phase 4 §24](./docs/phase-4-engineering-blueprint.html#s24) for what's
-next (Stage 2: Authentication). Each stage is built to completion before the
-next begins — nothing here is a shortcut or a placeholder for a later stage.
+next (Stage 3: Database). Each stage is built to completion before the next
+begins — nothing here is a shortcut or a placeholder for a later stage.
+
+Phone-OTP sign-in for customers and email/password sign-in for staff both
+work against a real Supabase project (Phase 4 §4); Owner Console routes are
+protected by `src/proxy.ts`, which redirects a signed-out visitor to
+`/login` and a signed-in one away from it. Without Supabase configured, the
+app still runs — every request is treated as signed out (see
+`src/lib/supabase/middleware.ts`) rather than crashing.
+
+**External setup this stage still needs, outside this repo:** a Supabase
+project with the phone provider enabled and an SMS sender (e.g. Twilio)
+configured in the dashboard — OTP delivery can't be verified until that's
+done, since there's no local emulator for actually sending an SMS.
 
 ## Stack
 
