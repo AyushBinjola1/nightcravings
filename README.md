@@ -37,7 +37,7 @@ route; caught and fixed while building Stage 6.
 ### Database
 
 A real Supabase project is connected (`.env.local`, not committed).
-`supabase/migrations/` has twelve files, in order — apply them in the
+`supabase/migrations/` has thirteen files, in order — apply them in the
 linked project's SQL Editor in this order (see the verification caveat
 below for why that's the fastest path):
 
@@ -81,6 +81,11 @@ below for why that's the fastest path):
     `set_hostel_upi_details()` (staff-only writer) and
     `get_hostel_payment_info()` (the anon-readable decrypting getter) —
     fulfills the deferral stated in migration 6's own header.
+12. `20260712130000_seed_demo_catalogue.sql` — seeds four categories and
+    nine real products (Maggi, chips, cold drinks, chocolates, etc. at
+    realistic prices) for `demo-hostel`, so Home shows an actual shelf
+    immediately rather than an empty state. Idempotent — skips itself if
+    the hostel already has any category.
 
 **Verification caveat, stated plainly:** this sandbox has no Docker (so
 `supabase start` can't run a local Postgres) and only a publishable key for
