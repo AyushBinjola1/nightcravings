@@ -16,6 +16,7 @@ import {
 } from "@/lib/zod-schemas/checkout";
 import { useCartStore, cartSubtotal } from "@/stores/cart";
 import { useCustomerProfileStore } from "@/stores/customer-profile";
+import { useOrderHistoryStore } from "@/stores/order-history";
 
 /**
  * Phase 2 §7 — exactly two required fields (room number, phone), a
@@ -30,6 +31,7 @@ export function CheckoutForm() {
   const clearCart = useCartStore((state) => state.clear);
   const storedProfile = useCustomerProfileStore((state) => state.profile);
   const setProfile = useCustomerProfileStore((state) => state.setProfile);
+  const addHistoryEntry = useOrderHistoryStore((state) => state.addEntry);
 
   const form = useForm<PlaceOrderInput>({
     resolver: zodResolver(placeOrderSchema),
@@ -55,6 +57,11 @@ export function CheckoutForm() {
         return;
       }
       setProfile(values.profile);
+      addHistoryEntry({
+        orderId: result.data.orderId,
+        placedAt: new Date().toISOString(),
+        total: subtotal,
+      });
       clearCart();
       router.push(`/payment/${result.data.orderId}`);
     });

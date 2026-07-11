@@ -58,6 +58,10 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "docs/**",
+    // One-off dev tooling, not part of the app bundle — console output is
+    // the point of a CLI script, not a lint violation.
+    "scripts/**",
+    "public/sw.js",
   ]),
 ]);
 
