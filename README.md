@@ -13,36 +13,37 @@ the implementation order in
 (Stage 4: Design System). Each stage is built to completion before the next
 begins — nothing here is a shortcut or a placeholder for a later stage.
 
-Phone-OTP sign-in for customers and email/password sign-in for staff both
-work against a real Supabase project (Phase 4 §4); Owner Console routes are
-protected by `src/proxy.ts`, which redirects a signed-out visitor to
-`/login` and a signed-in one away from it. Without Supabase configured, the
-app still runs — every request is treated as signed out (see
-`src/lib/supabase/middleware.ts`) rather than crashing.
+**Customer identity is browser-local only, by product direction, not Phase
+4 §4 as originally written.** There is no customer sign-in of any kind —
+no OTP, no account. `src/stores/customer-profile.ts` saves name/phone/room
+to this browser's `localStorage` so Checkout can prefill it on a return
+visit; that's the entire scope. Only staff (owner/manager/inventory
+manager/delivery partner) authenticate, via email/password, protected by
+`src/proxy.ts` (redirects a signed-out visitor from any Owner Console route
+to `/login`, and a signed-in one away from it). Without Supabase
+configured, the app still runs — every request is treated as signed out
+rather than crashing (`src/lib/supabase/middleware.ts`).
 
-`supabase/migrations/` implements the identity & tenancy slice of
-Phase 4 §3 — `hostels`, `profiles` (with an `auth.users` trigger), RBAC
-(`roles`/`permissions`/`role_permissions`/`profile_roles`), and `devices` —
-plus a matching RLS migration built on two shared helper functions
-(`is_staff_of`, `has_permission`) per Phase 4 §6's Self-Review, rather than
-hand-written per-table policies. Catalogue, orders, and payments arrive in
-later migrations when Stage 6/7 actually need them (Phase 4 §18's additive
-migration strategy).
+A real Supabase project is now connected (`.env.local`, not committed).
+`supabase/migrations/` implements the identity & tenancy slice of Phase 4
+§3 — `hostels`, `profiles` (with an `auth.users` trigger, staff only now),
+RBAC (`roles`/`permissions`/`role_permissions`/`profile_roles`), and
+`devices` — plus a matching RLS migration built on two shared helper
+functions (`is_staff_of`, `has_permission`) per Phase 4 §6's Self-Review.
+Catalogue, orders, and payments arrive in later migrations when Stage 6/7
+actually need them (Phase 4 §18's additive migration strategy).
 
 **Verification caveat, stated plainly:** this sandbox has no Docker (so
-`supabase start` can't run a local Postgres) and no linked hosted project.
-Both migration files are syntax-checked against Postgres's real grammar
-(via `libpg-query`, which every statement in both files passed), and
-`src/types/database.ts` is hand-authored to mirror the schema exactly — but
-neither has been _executed_ against a real database. Before this schema is
-trusted further: run `supabase link` against a real project (or install
-Docker and `supabase start`), apply the migrations, and regenerate
-`src/types/database.ts` for real via `supabase gen types typescript`.
-
-**External setup this stage still needs, outside this repo:** a Supabase
-project with the phone provider enabled and an SMS sender (e.g. Twilio)
-configured in the dashboard — OTP delivery can't be verified until that's
-done, since there's no local emulator for actually sending an SMS.
+`supabase start` can't run a local Postgres) and only a publishable key for
+the linked project — no personal access token or DB password to run
+`supabase db push` from here. Both migration files are syntax-checked
+against Postgres's real grammar (via `libpg-query`, which every statement
+in both files passed) and staff sign-in works against the real project's
+Auth service, but **the migrations themselves have not been applied yet.**
+Fastest unblock, no extra credentials needed: paste the contents of both
+files in `supabase/migrations/`, in order, into the linked project's SQL
+Editor and run them. Then regenerate `src/types/database.ts` for real via
+`supabase gen types typescript --project-id qwziuxkcbzrygmozqrad`.
 
 ## Stack
 

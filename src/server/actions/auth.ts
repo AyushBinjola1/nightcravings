@@ -3,14 +3,17 @@
 import { redirect } from "next/navigation";
 
 import { actionError, actionOk, type ActionResult } from "@/lib/result";
-import { checkOtpRequestLimit, checkStaffLoginLimit } from "@/lib/rate-limit";
+import { checkStaffLoginLimit } from "@/lib/rate-limit";
 import { createClient } from "@/lib/supabase/server";
-import {
-  requestOtpSchema,
-  staffLoginSchema,
-  toE164,
-  verifyOtpSchema,
-} from "@/lib/zod-schemas/auth";
+import { staffLoginSchema } from "@/lib/zod-schemas/auth";
+
+/**
+ * Staff-only. Customer identity is a browser-local profile, not a Supabase
+ * Auth account — see `src/stores/customer-profile.ts` and
+ * `src/features/auth/components/CustomerProfileForm.tsx`. There is no
+ * customer sign-in Server Action to keep the checkout flow free of any
+ * login step, per product direction.
+ */
 
 /**
  * Wraps a Server Action body so an unexpected failure (most commonly: no
@@ -28,74 +31,6 @@ async function runAuthAction<T>(
     console.error("[auth action] unexpected failure:", error);
     return actionError("Something went wrong — please try again.");
   }
-}
-
-/**
- * Sends a 6-digit OTP to a customer's phone via Supabase Auth's phone
- * provider (Phase 4 §4). Rate-limited per Phase 4 §13 to blunt brute-force
- * OTP requests against a single number.
- */
-export async function requestCustomerOtp(
-  input: unknown,
-): Promise<ActionResult<{ phone: string }>> {
-  return runAuthAction(async () => {
-    const parsed = requestOtpSchema.safeParse(input);
-    if (!parsed.success) {
-      return actionError(
-        parsed.error.issues[0]?.message ?? "Invalid phone number",
-      );
-    }
-
-    const limit = await checkOtpRequestLimit(parsed.data.phone);
-    if (!limit.allowed) {
-      return actionError(
-        `Too many attempts — try again in ${Math.ceil(limit.retryAfterSeconds / 60)} min.`,
-      );
-    }
-
-    const supabase = await createClient();
-    const { error } = await supabase.auth.signInWithOtp({
-      phone: toE164(parsed.data.phone),
-    });
-
-    if (error) {
-      return actionError(error.message);
-    }
-
-    return actionOk({ phone: parsed.data.phone });
-  });
-}
-
-/**
- * Verifies the OTP a customer received and establishes their session.
- * Supabase Auth itself rate-limits repeated wrong codes per phone number.
- */
-export async function verifyCustomerOtp(
-  input: unknown,
-): Promise<ActionResult<{ verified: true }>> {
-  return runAuthAction(async () => {
-    const parsed = verifyOtpSchema.safeParse(input);
-    if (!parsed.success) {
-      return actionError(parsed.error.issues[0]?.message ?? "Invalid code");
-    }
-
-    const supabase = await createClient();
-    const { error } = await supabase.auth.verifyOtp({
-      phone: toE164(parsed.data.phone),
-      token: parsed.data.token,
-      type: "sms",
-    });
-
-    if (error) {
-      return actionError(
-        error.message === "Token has expired or is invalid"
-          ? "That code is wrong or has expired — request a new one."
-          : error.message,
-      );
-    }
-
-    return actionOk({ verified: true });
-  });
 }
 
 /**

@@ -9,8 +9,8 @@ import type { Database } from "@/types/database";
  * `cookies()` API so a session established on the server stays in sync with
  * the browser client (Phase 4 §4).
  *
- * Still uses the anon key — RLS is the authorization boundary here too.
- * The service-role key is never used from this factory; see
+ * Still uses the publishable key — RLS is the authorization boundary here
+ * too. The secret/service-role key is never used from this factory; see
  * `src/server/edge-functions` for the few jobs that legitimately need it.
  */
 export async function createClient() {
@@ -18,7 +18,7 @@ export async function createClient() {
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
       cookies: {
         getAll() {
