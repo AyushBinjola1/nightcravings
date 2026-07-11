@@ -2,19 +2,30 @@ import { createClient } from "@/lib/supabase/server";
 import { CURRENT_HOSTEL_SLUG } from "@/config/hostel";
 import type { Database } from "@/types/database";
 
-export type Hostel = Database["public"]["Tables"]["hostels"]["Row"];
+export type Hostel = Omit<
+  Database["public"]["Tables"]["hostels"]["Row"],
+  "upi_id_secret_id" | "upi_number_secret_id"
+>;
 export type Category = Database["public"]["Tables"]["categories"]["Row"];
 export type Product = Omit<
   Database["public"]["Tables"]["products"]["Row"],
   "cost_price"
 >;
 
-/** The one hostel this deployment serves (Stage 22 config, Phase 1). */
+/**
+ * The one hostel this deployment serves (Stage 22 config, Phase 1).
+ * Explicit column list, not `select("*")` — `upi_id_secret_id`/
+ * `upi_number_secret_id` are revoked from anon/authenticated (Stage 12's
+ * Vault migration), and `SELECT *` fails outright in Postgres if the
+ * caller lacks privilege on even one column in the table.
+ */
 export async function getCurrentHostel(): Promise<Hostel | null> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("hostels")
-    .select("*")
+    .select(
+      "id, name, slug, status, opening_time, closing_time, delivery_fee, free_delivery_threshold, upi_qr_url, created_at, updated_at",
+    )
     .eq("slug", CURRENT_HOSTEL_SLUG)
     .maybeSingle();
 

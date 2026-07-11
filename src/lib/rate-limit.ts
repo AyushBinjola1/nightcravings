@@ -24,6 +24,26 @@ const staffLoginLimiter = redis
     })
   : null;
 
+/** Phase 4 §13: order-spam guard — 10 orders per phone number per hour. */
+const placeOrderLimiter = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(10, "1 h"),
+      prefix: "ratelimit:place-order",
+    })
+  : null;
+
+/** Phase 4 §13: payment-proof spam guard — 15 uploads per order per hour
+ * (generous — a genuine customer might retry a failed upload a few times,
+ * but this stops a scripted flood against one order's screenshot bucket). */
+const paymentProofLimiter = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(15, "1 h"),
+      prefix: "ratelimit:payment-proof",
+    })
+  : null;
+
 export type RateLimitResult =
   { allowed: true } | { allowed: false; retryAfterSeconds: number };
 
@@ -53,4 +73,14 @@ async function check(
 
 export function checkStaffLoginLimit(email: string): Promise<RateLimitResult> {
   return check(staffLoginLimiter, email, "Staff login limit");
+}
+
+export function checkPlaceOrderLimit(phone: string): Promise<RateLimitResult> {
+  return check(placeOrderLimiter, phone, "Place order limit");
+}
+
+export function checkPaymentProofLimit(
+  orderId: string,
+): Promise<RateLimitResult> {
+  return check(paymentProofLimiter, orderId, "Payment proof limit");
 }

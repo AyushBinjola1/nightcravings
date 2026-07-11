@@ -1,9 +1,7 @@
 /**
  * Supabase-generated database types.
  *
- * Hand-authored to exactly mirror both
- * `supabase/migrations/20260711180000_identity_and_tenancy.sql` and
- * `supabase/migrations/20260712090000_catalogue_orders_payments.sql`,
+ * Hand-authored to exactly mirror every file in `supabase/migrations/`,
  * because this environment has no Docker (so `supabase start` can't run
  * locally) and only a publishable key for the linked project — no access
  * token or DB password to apply migrations or run codegen against it. This
@@ -12,9 +10,9 @@
  *
  *   npx supabase gen types typescript --project-id qwziuxkcbzrygmozqrad > src/types/database.ts
  *
- * and diff against this file before trusting it further. Every table below
- * corresponds 1:1 to a `create table` in one of those two migrations;
- * nothing here exists ahead of its migration.
+ * and diff against this file before trusting it further. Every table/
+ * function below corresponds 1:1 to a `create table`/`create function` in
+ * one of those migrations; nothing here exists ahead of its migration.
  */
 export type Json =
   | string
@@ -37,8 +35,8 @@ export type Database = {
           closing_time: string | null;
           delivery_fee: number;
           free_delivery_threshold: number;
-          upi_id: string | null;
-          upi_number: string | null;
+          upi_id_secret_id: string | null;
+          upi_number_secret_id: string | null;
           upi_qr_url: string | null;
           created_at: string;
           updated_at: string;
@@ -52,8 +50,8 @@ export type Database = {
           closing_time?: string | null;
           delivery_fee?: number;
           free_delivery_threshold?: number;
-          upi_id?: string | null;
-          upi_number?: string | null;
+          upi_id_secret_id?: string | null;
+          upi_number_secret_id?: string | null;
           upi_qr_url?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -549,6 +547,18 @@ export type Database = {
       get_top_products: {
         Args: { p_hostel_id: string; p_limit?: number };
         Returns: { product_name: string; total_quantity: number }[];
+      };
+      set_hostel_upi_details: {
+        Args: { p_hostel_id: string; p_upi_id: string; p_upi_number: string };
+        Returns: undefined;
+      };
+      get_hostel_payment_info: {
+        Args: { p_hostel_id: string };
+        Returns: {
+          upi_id: string | null;
+          upi_number: string | null;
+          upi_qr_url: string | null;
+        }[];
       };
     };
     Enums: {

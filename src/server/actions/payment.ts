@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { actionError, actionOk, type ActionResult } from "@/lib/result";
 import { captureServerEvent } from "@/lib/analytics/posthog-server";
+import { checkPaymentProofLimit } from "@/lib/rate-limit";
 import { CURRENT_HOSTEL_SLUG } from "@/config/hostel";
 import {
   submitPaymentProofSchema,
@@ -43,6 +44,13 @@ export async function submitPaymentProof(
     }
     if (file.size > MAX_SCREENSHOT_BYTES) {
       return actionError("That image is too large (max 8MB).");
+    }
+
+    const limit = await checkPaymentProofLimit(parsed.data.orderId);
+    if (!limit.allowed) {
+      return actionError(
+        `Too many attempts for this order — try again in ${Math.ceil(limit.retryAfterSeconds / 60)} min, or contact the store.`,
+      );
     }
 
     const supabase = await createClient();

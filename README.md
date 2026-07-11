@@ -7,8 +7,7 @@ architecture decisions. Read them before changing product behavior.
 
 ## Build status
 
-**Stage 11 of 12 complete** — every stage through Testing. Only Stage 12
-(Production Hardening) remains. See the implementation order in
+**All 12 stages complete.** See the implementation order in
 [Phase 4 §24](./docs/phase-4-engineering-blueprint.html#s24).
 
 **What actually works right now**, against the real linked Supabase
@@ -38,9 +37,9 @@ route; caught and fixed while building Stage 6.
 ### Database
 
 A real Supabase project is connected (`.env.local`, not committed).
-`supabase/migrations/` has nine files, in order — apply them in the linked
-project's SQL Editor in this order (see the verification caveat below for
-why that's the fastest path):
+`supabase/migrations/` has twelve files, in order — apply them in the
+linked project's SQL Editor in this order (see the verification caveat
+below for why that's the fastest path):
 
 1. `20260711180000_identity_and_tenancy.sql` — `hostels`, `profiles` (staff
    only), RBAC, `devices`.
@@ -58,10 +57,7 @@ why that's the fastest path):
 5. `20260712093000_seed_demo_hostel.sql` — seeds one browsable hostel
    (`demo-hostel`) so Stage 6 has something to render immediately.
 6. `20260712094500_hostel_commerce_settings.sql` — adds
-   `delivery_fee`/`free_delivery_threshold`/UPI fields to `hostels`. UPI
-   fields are plain text pending Supabase Vault encryption (Phase 4 §13),
-   explicitly deferred to Stage 12 — noted in the file, not silently
-   skipped.
+   `delivery_fee`/`free_delivery_threshold`/UPI fields to `hostels`.
 7. `20260712095500_checkout_flow_fixes.sql` — three bugs caught while
    actually building Checkout: orders could only be placed while the
    store was open (contradicted Phase 2 §11); `customers` had no anon
@@ -76,6 +72,15 @@ why that's the fastest path):
    Supabase's realtime publication, and fixes `orders_update_staff` (the
    original policy only checked `orders.read`, which excluded the
    delivery_partner role from ever marking an order Delivered).
+10. `20260712110000_analytics_rpcs.sql` — `get_revenue_by_day()` /
+    `get_top_products()`, plain (non-`SECURITY DEFINER`) functions that
+    rely on the existing staff RLS rather than opening a new access path.
+11. `20260712120000_vault_encrypt_upi.sql` — Stage 12: replaces the plain
+    `upi_id`/`upi_number` columns from migration 6 with Supabase Vault
+    (pgsodium) encrypted secrets, accessed only through
+    `set_hostel_upi_details()` (staff-only writer) and
+    `get_hostel_payment_info()` (the anon-readable decrypting getter) —
+    fulfills the deferral stated in migration 6's own header.
 
 **Verification caveat, stated plainly:** this sandbox has no Docker (so
 `supabase start` can't run a local Postgres) and only a publishable key for
@@ -85,9 +90,9 @@ against Postgres's real grammar (via `libpg-query`) and staff sign-in works
 against the real project's Auth service, but **the migrations themselves
 have not been applied yet, and the full customer/owner flow above is
 therefore unverified against real data.** Fastest unblock, no extra
-credentials needed: paste the nine files' contents into the SQL Editor, in
-the numbered order above, then regenerate `src/types/database.ts` for real
-via `supabase gen types typescript --project-id qwziuxkcbzrygmozqrad`.
+credentials needed: paste the files' contents into the SQL Editor, in the
+numbered order above, then regenerate `src/types/database.ts` for real via
+`supabase gen types typescript --project-id qwziuxkcbzrygmozqrad`.
 
 ## Stack
 
@@ -170,6 +175,27 @@ Three layers, per Phase 4 §19 — status of each stated plainly:
 | Unit  | Vitest (`npm run test`)         | **18/18 passing.** Cart math, Zod schema edge cases, `ActionResult` discrimination, a `BarChart` render test. One of these (the room-number/pickup case) caught a real validation bug before it ever reached checkout — see `tests/unit/zod-schemas.test.ts`.                                           |
 | E2e   | Playwright (`npm run test:e2e`) | **7/7 passing**, run against a real production build in a real Chromium browser. Confirms the app shell, checkout empty state, both PWA manifest links, and the full staff-login redirect chain all work — including the app's graceful "table not found" handling with the migrations still unapplied. |
 | RLS   | pgTAP (`tests/pgtap/`)          | **Written, syntax-verified, not executed** — needs Docker or a `supabase login` token, neither available here. See `tests/pgtap/README.md` for the exact command to run them for real.                                                                                                                  |
+
+## Production hardening (Stage 12)
+
+- **Security headers** — CSP (`connect-src` scoped to exactly Supabase +
+  PostHog + Sentry, no wildcard), HSTS, `X-Frame-Options: DENY`,
+  `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`
+  — all applied globally in `next.config.ts`, manually verified with
+  `curl -D -` against a real production build.
+- **Rate limiting** extended past staff login (Stage 2) to `placeOrder`
+  (10 orders/phone/hour) and `submitPaymentProof` (15 attempts/order/hour)
+  — same Upstash-backed, fail-open-when-unconfigured helper as before.
+- **Sentry** — `src/instrumentation.ts` (server + edge) and
+  `src/instrumentation-client.ts`, both gated on `NEXT_PUBLIC_SENTRY_DSN`
+  being set. Deliberately not wrapped with `withSentryConfig` in
+  `next.config.ts` — that plugin uploads source maps at build time and
+  needs a `SENTRY_AUTH_TOKEN` this environment doesn't have; add it once a
+  real Sentry project exists rather than risk the build silently skipping
+  (or failing) source-map upload.
+- **UPI encryption** — migration 11 moves `upi_id`/`upi_number` off plain
+  columns and into Supabase Vault (pgsodium), read only through a
+  decrypting RPC. Fulfills the deferral called out in migration 6.
 
 ## Known dependency advisory
 

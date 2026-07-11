@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { actionError, actionOk, type ActionResult } from "@/lib/result";
 import { captureServerEvent } from "@/lib/analytics/posthog-server";
+import { checkPlaceOrderLimit } from "@/lib/rate-limit";
 import { placeOrderSchema } from "@/lib/zod-schemas/checkout";
 import { CURRENT_HOSTEL_SLUG } from "@/config/hostel";
 
@@ -23,6 +24,13 @@ export async function placeOrder(
       return actionError(parsed.error.issues[0]?.message ?? "Invalid order");
     }
     const { profile, deliveryMethod, notes, items } = parsed.data;
+
+    const limit = await checkPlaceOrderLimit(profile.phone);
+    if (!limit.allowed) {
+      return actionError(
+        `Too many orders from this number — try again in ${Math.ceil(limit.retryAfterSeconds / 60)} min.`,
+      );
+    }
 
     const supabase = await createClient();
 

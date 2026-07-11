@@ -3,7 +3,10 @@ import { redirect } from "next/navigation";
 
 import { PaymentForm } from "@/features/payment";
 import { getCurrentHostel } from "@/server/queries/catalogue";
-import { getPaymentForOrder } from "@/server/queries/payment";
+import {
+  getHostelPaymentInfo,
+  getPaymentForOrder,
+} from "@/server/queries/payment";
 
 export const metadata: Metadata = {
   title: "Payment — NightCravings",
@@ -38,6 +41,10 @@ export default async function PaymentPage({
     redirect(`/orders/${orderId}`);
   }
 
+  const paymentInfo = hostel
+    ? await getHostelPaymentInfo(hostel.id)
+    : { upiId: null, upiNumber: null, upiQrUrl: null };
+
   return (
     <main className="mx-auto w-full max-w-md px-4 py-8">
       <h1 className="font-display text-ink mb-6 text-xl font-semibold">
@@ -46,9 +53,9 @@ export default async function PaymentPage({
       <PaymentForm
         orderId={orderId}
         claimedAmount={payment.claimedAmount}
-        upiId={hostel?.upi_id ?? null}
-        upiNumber={hostel?.upi_number ?? null}
-        upiQrUrl={hostel?.upi_qr_url ?? null}
+        upiId={paymentInfo.upiId}
+        upiNumber={paymentInfo.upiNumber}
+        upiQrUrl={paymentInfo.upiQrUrl}
       />
     </main>
   );
