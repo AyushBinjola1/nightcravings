@@ -1,0 +1,853 @@
+<title>NightCravings — Engineering Blueprint</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{
+    --ink:#211C16; --ink-soft:#4A423A; --paper:#FBF7F0; --surface:#F3ECE0;
+    --surface2:#EDE4D3; --border:#DCD1BE; --accent:#B4520A; --accent-soft:#E8DCC8;
+    --night:#2E2A6E; --night-soft:#DEDBF2; --success:#276A45; --success-soft:#E1EEE4;
+    --warning:#966400; --warning-soft:#F3E7CE; --danger:#A32626; --danger-soft:#F5E1DF;
+    --font-display: Charter, 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    --font-mono: ui-monospace, 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+    --radius: 4px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --ink:#EEE7DA; --ink-soft:#B7AC9B; --paper:#171310; --surface:#221D18;
+      --surface2:#2A231C; --border:#3A322A; --accent:#E08A3E; --accent-soft:#3A2A18;
+      --night:#9C97E8; --night-soft:#26244A; --success:#5FAE7F; --success-soft:#1E2E22;
+      --warning:#D9A441; --warning-soft:#332711; --danger:#E07575; --danger-soft:#3A2020;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ink:#EEE7DA; --ink-soft:#B7AC9B; --paper:#171310; --surface:#221D18;
+    --surface2:#2A231C; --border:#3A322A; --accent:#E08A3E; --accent-soft:#3A2A18;
+    --night:#9C97E8; --night-soft:#26244A; --success:#5FAE7F; --success-soft:#1E2E22;
+    --warning:#D9A441; --warning-soft:#332711; --danger:#E07575; --danger-soft:#3A2020;
+  }
+  :root[data-theme="light"]{
+    --ink:#211C16; --ink-soft:#4A423A; --paper:#FBF7F0; --surface:#F3ECE0;
+    --surface2:#EDE4D3; --border:#DCD1BE; --accent:#B4520A; --accent-soft:#E8DCC8;
+    --night:#2E2A6E; --night-soft:#DEDBF2; --success:#276A45; --success-soft:#E1EEE4;
+    --warning:#966400; --warning-soft:#F3E7CE; --danger:#A32626; --danger-soft:#F5E1DF;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{ background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:15.5px; line-height:1.6; -webkit-font-smoothing:antialiased; }
+  ::selection{ background:var(--night-soft); color:var(--ink); }
+  a{ color:var(--accent); }
+  a:focus-visible, button:focus-visible, summary:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  code{ font-family:var(--font-mono); font-size:.88em; background:var(--surface2); padding:1px 5px; border-radius:3px; }
+
+  .shell{ display:grid; grid-template-columns:250px minmax(0,880px); gap:56px; max-width:1260px; margin:0 auto; padding:56px 24px 140px; justify-content:center; }
+  @media (max-width:980px){ .shell{ grid-template-columns:1fr; } .toc{ display:none; } }
+
+  .toc{ position:sticky; top:28px; align-self:start; font-size:12.5px; max-height:calc(100vh - 56px); overflow-y:auto; }
+  .toc-title{ font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); font-size:10.5px; margin-bottom:12px; }
+  .toc ol{ list-style:none; margin:0 0 20px; padding:0; counter-reset:toc; }
+  .toc li{ counter-increment:toc; margin-bottom:0; }
+  .toc a{ display:flex; gap:7px; text-decoration:none; color:var(--ink-soft); padding:3px 8px; border-radius:var(--radius); }
+  .toc a::before{ content:counter(toc,decimal-leading-zero); font-family:var(--font-mono); font-size:10.5px; color:var(--border); flex:none; padding-top:1px; }
+  .toc a:hover{ background:var(--surface); color:var(--ink); }
+
+  .cover{ margin-bottom:52px; padding-bottom:34px; border-bottom:1px solid var(--border); }
+  .kicker{ font-family:var(--font-mono); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); margin:0 0 16px; }
+  h1.title{ font-family:var(--font-display); font-size:clamp(1.9rem,4vw,2.6rem); line-height:1.1; letter-spacing:-.01em; margin:0 0 14px; text-wrap:balance; font-weight:600; }
+  .subtitle{ font-size:1.02rem; color:var(--ink-soft); max-width:64ch; margin:0 0 20px; }
+  .meta{ display:flex; flex-wrap:wrap; gap:18px; font-family:var(--font-mono); font-size:11.5px; color:var(--ink-soft); }
+  .meta b{ color:var(--ink); font-weight:600; }
+
+  section.doc{ margin-bottom:52px; scroll-margin-top:28px; }
+  .sec-head{ display:flex; align-items:baseline; gap:12px; margin-bottom:8px; }
+  .sec-num{ font-family:var(--font-mono); font-size:12.5px; color:var(--accent); }
+  h2{ font-family:var(--font-display); font-weight:600; font-size:1.42rem; margin:0; letter-spacing:-.005em; text-wrap:balance; }
+  h3{ font-family:var(--font-display); font-weight:600; font-size:1.05rem; margin:22px 0 9px; }
+  h4{ font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.05em; font-size:11px; color:var(--accent); margin:18px 0 8px; }
+  p{ margin:0 0 13px; max-width:74ch; }
+  ul{ margin:0 0 13px; padding-left:19px; }
+  li{ margin-bottom:4px; }
+  strong{ color:var(--ink); }
+  .lede{ font-size:.98rem; color:var(--ink-soft); max-width:70ch; margin-bottom:20px; }
+
+  .callout{ border-left:2px solid var(--accent); background:var(--accent-soft); padding:13px 17px; border-radius:0 var(--radius) var(--radius) 0; margin:14px 0 20px; font-size:.9rem; }
+  .callout b{ color:var(--accent); }
+  .callout.night{ border-left-color:var(--night); background:var(--night-soft); }
+  .callout.night b{ color:var(--night); }
+
+  .review{ border:1px solid var(--border); border-radius:8px; background:var(--surface); padding:20px 22px; margin-bottom:52px; }
+  .review-item{ display:grid; grid-template-columns:100px 1fr; gap:14px; padding:11px 0; border-top:1px solid var(--border); font-size:.89rem; }
+  .review-item:first-of-type{ border-top:none; }
+  .review-tag{ font-family:var(--font-mono); font-size:9.5px; text-transform:uppercase; letter-spacing:.04em; padding:3px 7px; border-radius:12px; height:fit-content; text-align:center; }
+  .review-tag.risk{ background:var(--danger-soft); color:var(--danger); }
+  .review-tag.decision{ background:var(--night-soft); color:var(--night); }
+
+  .tbl-wrap{ overflow-x:auto; margin:8px 0 18px; border:1px solid var(--border); border-radius:6px; }
+  table{ border-collapse:collapse; width:100%; font-size:.84rem; min-width:480px; }
+  th,td{ text-align:left; padding:8px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
+  th{ font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); background:var(--surface); white-space:nowrap; }
+  tr:last-child td{ border-bottom:none; }
+  td code{ white-space:nowrap; }
+
+  .schema{ border:1px solid var(--border); border-radius:8px; margin-bottom:18px; overflow:hidden; }
+  .schema-head{ padding:10px 14px; background:var(--surface2); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:baseline; }
+  .schema-name{ font-family:var(--font-mono); font-weight:600; font-size:.92rem; }
+  .schema-note{ font-size:.78rem; color:var(--ink-soft); }
+
+  pre{ font-family:var(--font-mono); font-size:12px; background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:14px 16px; overflow-x:auto; line-height:1.55; margin:10px 0 18px; }
+
+  .diagram{ border:1px solid var(--border); border-radius:8px; background:var(--surface); padding:22px; margin:14px 0 20px; overflow-x:auto; }
+  .dflow{ display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:10px; font-family:var(--font-mono); font-size:12px; }
+  .dbox{ background:var(--paper); border:1px solid var(--border); border-radius:6px; padding:8px 14px; white-space:nowrap; }
+  .dbox.accent{ border-color:var(--accent); color:var(--accent); }
+  .dbox.night{ border-color:var(--night); color:var(--night); }
+  .darrow{ color:var(--border); font-size:14px; }
+  .dcol{ display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .drow{ display:flex; gap:24px; justify-content:center; flex-wrap:wrap; margin-bottom:18px; }
+
+  .chipset{ display:flex; flex-wrap:wrap; gap:7px; margin:10px 0 18px; }
+  .chip{ font-family:var(--font-mono); font-size:11px; border:1px solid var(--border); padding:4px 10px; border-radius:16px; color:var(--ink-soft); background:var(--surface); }
+
+  details{ border:1px solid var(--border); border-radius:6px; margin-bottom:10px; background:var(--surface); }
+  summary{ cursor:pointer; padding:12px 15px; font-family:var(--font-display); font-weight:600; font-size:.95rem; list-style:none; display:flex; justify-content:space-between; align-items:center; }
+  summary::-webkit-details-marker{ display:none; }
+  summary::after{ content:'+'; font-family:var(--font-mono); color:var(--accent); font-size:15px; }
+  details[open] summary::after{ content:'–'; }
+  details .inner{ padding:0 16px 15px; }
+
+  .pill{ display:inline-block; font-family:var(--font-mono); font-size:9.5px; text-transform:uppercase; letter-spacing:.04em; padding:2px 8px; border-radius:12px; }
+  .pill.success{ background:var(--success-soft); color:var(--success); }
+  .pill.warning{ background:var(--warning-soft); color:var(--warning); }
+  .pill.danger{ background:var(--danger-soft); color:var(--danger); }
+  .pill.night{ background:var(--night-soft); color:var(--night); }
+
+  footer{ max-width:64ch; padding-top:26px; border-top:1px solid var(--border); font-size:.82rem; color:var(--ink-soft); font-family:var(--font-mono); }
+</style>
+
+<div class="shell">
+  <nav class="toc">
+    <div class="toc-title">Contents</div>
+    <ol>
+      <li><a href="#review">Self-Review</a></li>
+      <li><a href="#s1">System Architecture</a></li>
+      <li><a href="#s2">Technology Decisions</a></li>
+      <li><a href="#s3">Database Design</a></li>
+      <li><a href="#s4">Authentication</a></li>
+      <li><a href="#s5">Authorization</a></li>
+      <li><a href="#s6">Row Level Security</a></li>
+      <li><a href="#s7">Storage</a></li>
+      <li><a href="#s8">API Design</a></li>
+      <li><a href="#s9">Search Architecture</a></li>
+      <li><a href="#s10">Realtime</a></li>
+      <li><a href="#s11">State Management</a></li>
+      <li><a href="#s12">Performance</a></li>
+      <li><a href="#s13">Security</a></li>
+      <li><a href="#s14">Observability</a></li>
+      <li><a href="#s15">Analytics Architecture</a></li>
+      <li><a href="#s16">Notifications</a></li>
+      <li><a href="#s17">PWA</a></li>
+      <li><a href="#s18">Deployment</a></li>
+      <li><a href="#s19">Testing</a></li>
+      <li><a href="#s20">Folder Structure</a></li>
+      <li><a href="#s21">Coding Standards</a></li>
+      <li><a href="#s22">Scalability</a></li>
+      <li><a href="#s23">Engineering Risks</a></li>
+      <li><a href="#s24">Roadmap</a></li>
+      <li><a href="#s25">Acceptance Criteria</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <div class="cover">
+      <p class="kicker">Engineering Blueprint — Phase 4 · v1.0</p>
+      <h1 class="title">The engineering handbook for NightCravings.</h1>
+      <p class="subtitle">Translates Phases 1–3 into a buildable system. Optimized in this order when a tradeoff forces a choice: correctness of money/inventory state → security → maintainability → performance → developer experience. Written so any senior engineer can pick up any section and start implementing without a clarifying call.</p>
+      <div class="meta">
+        <span><b>Depends on</b> Phase 1 + 2 + 3</span>
+        <span><b>Status</b> Ready for implementation</span>
+        <span><b>Date</b> 11 Jul 2026</span>
+      </div>
+    </div>
+
+    <section class="review" id="review">
+      <h2>Self-Review — architectural decisions challenged before writing this blueprint</h2>
+      <p class="lede" style="margin-top:10px">Six defaults an engineer reaches for on autopilot were tested against this system's actual scale (one hostel today, thousands eventually) and actual risk profile (real money, manual verification, a solo non-technical operator).</p>
+      <div class="review-item"><span class="review-tag risk">Risk</span><div><strong>Microservices / multi-repo split "for future scale."</strong> At current and near-term scale this adds deployment complexity and cross-service consistency bugs for zero present benefit.</div></div>
+      <div class="review-item"><span class="review-tag decision">Decision</span><div>Single Next.js application + single Supabase project, <strong>modular monolith</strong> internally (feature folders, §20). Extraction into services is deferred until a specific bottleneck (e.g. search, or a payments-webhook fan-out) actually demands it — see §22 for the exact trigger conditions.</div></div>
+      <div class="review-item"><span class="review-tag risk">Risk</span><div><strong>Hand-rolled Sessions and Devices tables</strong>, as literally listed in the brief, would duplicate what Supabase Auth already manages correctly (refresh tokens, session expiry, revocation) and become a security liability the moment it drifts from the real auth state.</div></div>
+      <div class="review-item"><span class="review-tag decision">Decision</span><div>Supabase Auth owns sessions natively. A <strong>Devices</strong> table still exists, but scoped narrowly to push-notification tokens per device — not session state (§3, §4).</div></div>
+      <div class="review-item"><span class="review-tag risk">Risk</span><div><strong>Full-text search infrastructure</strong> (Algolia, Meilisearch, Postgres <code>tsvector</code> with a ranking service) is the reflexive answer to "Search Architecture" — and is over-engineering for a catalogue of a few hundred SKUs per hostel.</div></div>
+      <div class="review-item"><span class="review-tag decision">Decision</span><div>Client-side fuzzy index (confirmed in Phase 2 §2) remains correct through multi-hostel scale, since search is always scoped to one hostel's catalogue at a time. Server-side search is revisited only at the point a single hostel's catalogue exceeds ~2,000 SKUs — a trigger condition stated explicitly in §9, not a vague "later."</div></div>
+      <div class="review-item"><span class="review-tag risk">Risk</span><div><strong>Payment screenshot storage growth is unbounded by default</strong> — every order's proof-of-payment image, retained forever, is a real, compounding storage cost and a data-liability surface with no offsetting benefit past the audit window.</div></div>
+      <div class="review-item"><span class="review-tag decision">Decision</span><div>A storage lifecycle policy (§7) auto-transitions screenshots to cold/archived storage after 90 days and hard-deletes after 1 year, aligned to a stated audit retention requirement rather than "keep everything."</div></div>
+      <div class="review-item"><span class="review-tag risk">Risk</span><div><strong>Multi-tenant Row Level Security is the single highest-consequence bug class in this stack</strong> — a missing <code>tenant_id</code> check on one policy silently leaks one hostel's orders/customers to another's owner console.</div></div>
+      <div class="review-item"><span class="review-tag decision">Decision</span><div>Every tenant-scoped table carries a non-nullable <code>hostel_id</code>, RLS policies are generated from one shared helper predicate (not hand-written per table), and a pgTAP cross-tenant-leak test suite is a hard CI gate before any RLS change merges (§6, §19).</div></div>
+      <div class="review-item"><span class="review-tag risk">Risk</span><div><strong>Supabase Realtime has a per-project concurrent-connection ceiling</strong> that a naive "every screen subscribes to everything" pattern hits earlier than expected once hundreds of hostels are live simultaneously.</div></div>
+      <div class="review-item"><span class="review-tag decision">Decision</span><div>Channels are scoped per-hostel, not global (§10); the connection budget and a sharding-by-region multi-project strategy for franchise scale are stated explicitly with numbers in §22 and §23, not left implicit.</div></div>
+    </section>
+
+    <!-- 1 SYSTEM ARCHITECTURE -->
+    <section class="doc" id="s1">
+      <div class="sec-head"><span class="sec-num">01</span><h2>System Architecture</h2></div>
+      <p class="lede">One Next.js application serving both the customer PWA and the owner console as route groups, backed by one Supabase project (Postgres + Auth + Storage + Realtime), deployed on Vercel. This is a deliberate modular monolith — see Self-Review — not a microservices topology.</p>
+
+      <div class="diagram">
+        <div class="drow">
+          <div class="dcol"><div class="dbox accent">Customer PWA</div><div class="darrow">↓</div><div class="dbox">Next.js App Router</div></div>
+          <div class="dcol"><div class="dbox night">Owner Console PWA</div><div class="darrow">↓</div><div class="dbox">Next.js App Router</div></div>
+        </div>
+        <div class="dflow">
+          <span class="dbox">Server Components + Server Actions</span><span class="darrow">→</span><span class="dbox">Supabase Postgres</span><span class="darrow">↔</span><span class="dbox">Row Level Security</span>
+        </div>
+        <div class="dflow" style="margin-top:14px">
+          <span class="dbox">Supabase Realtime</span><span class="darrow">↔</span><span class="dbox">Postgres logical replication</span>
+        </div>
+        <div class="dflow" style="margin-top:14px">
+          <span class="dbox">Supabase Storage (screenshots, product images)</span><span class="darrow">↔</span><span class="dbox">CDN edge cache</span>
+        </div>
+        <div class="dflow" style="margin-top:14px">
+          <span class="dbox">Edge Functions</span><span class="darrow">→</span><span class="dbox">Push (Web Push)</span>
+          <span class="dbox">Edge Functions</span><span class="darrow">→</span><span class="dbox">Resend (email)</span>
+        </div>
+        <div class="dflow" style="margin-top:14px">
+          <span class="dbox">Sentry</span><span class="dbox">PostHog</span><span class="dbox">Vercel Analytics</span>
+        </div>
+      </div>
+
+      <h4>Mermaid source</h4>
+      <pre>flowchart TD
+  subgraph Client
+    CPWA[Customer PWA]
+    OPWA[Owner Console PWA]
+  end
+  subgraph Vercel["Vercel — Next.js App Router"]
+    RSC[Server Components]
+    SA[Server Actions]
+    EF[Edge Functions]
+  end
+  subgraph Supabase
+    PG[(Postgres + RLS)]
+    RT[Realtime]
+    ST[(Storage)]
+    AU[Auth]
+  end
+  CPWA --> RSC
+  OPWA --> RSC
+  RSC --> PG
+  SA --> PG
+  CPWA <-.realtime.-> RT
+  OPWA <-.realtime.-> RT
+  RT <-.logical replication.-> PG
+  RSC --> ST
+  EF --> Push[Web Push]
+  EF --> Resend[Resend Email]
+  AU --- PG
+  Sentry[(Sentry)] -.errors.- Vercel
+  PostHog[(PostHog)] -.events.- Client</pre>
+
+      <h4>How the pieces communicate</h4>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Path</th><th>Mechanism</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>Client → data read</td><td>Server Components fetch directly from Postgres at request time (or cached via Next.js data cache)</td><td>No client-exposed API layer to maintain for the common read path; RLS is the actual security boundary either way.</td></tr>
+          <tr><td>Client → mutation</td><td>Server Actions</td><td>Type-safe, co-located with the UI that calls them, no separate REST endpoint boilerplate for first-party mutations (§8).</td></tr>
+          <tr><td>Client ↔ live state</td><td>Supabase Realtime channel subscriptions, scoped per <code>hostel_id</code></td><td>Order Queue, Dashboard tiles, and notification badges all need push-not-poll updates (Phase 3 §2, §18).</td></tr>
+          <tr><td>Background jobs</td><td>Supabase Edge Functions, triggered by Postgres triggers/webhooks or cron</td><td>Duplicate-screenshot hashing, notification fan-out, and scheduled reports run outside the request/response cycle.</td></tr>
+          <tr><td>Payments</td><td>No payment gateway integration — manual UPI, verified by the owner (Phase 2 §8, Phase 3 §3)</td><td>This is a deliberate product decision carried into engineering: there is no PSP webhook to integrate, only an upload + human-confirm flow, which simplifies this layer considerably versus a typical commerce stack.</td></tr>
+          <tr><td>Deployment</td><td>Vercel, Git-based, preview per PR</td><td>Matches the Next.js/Edge Function runtime with zero infra to operate directly (§18).</td></tr>
+          <tr><td>Monitoring</td><td>Sentry (errors + performance), PostHog (product analytics), Vercel Observability (infra)</td><td>Three tools, three distinct jobs — never overlapping responsibility for the same signal (§14, §15).</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 2 TECHNOLOGY DECISIONS -->
+    <section class="doc" id="s2">
+      <div class="sec-head"><span class="sec-num">02</span><h2>Technology Decisions</h2></div>
+      <p class="lede">Every choice compared against its realistic alternative, not chosen by default.</p>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Technology</th><th>Role</th><th>Chosen over</th><th>Why this one</th></tr></thead>
+        <tbody>
+          <tr><td>Next.js (App Router)</td><td>Full-stack framework</td><td>Remix, plain Vite SPA</td><td>Server Components cut client JS for the catalogue-heavy customer app; Server Actions remove a hand-built API layer; one framework serves both PWAs.</td></tr>
+          <tr><td>React 19</td><td>UI runtime</td><td>—</td><td>Required by Next.js; Suspense + Server Components are load-bearing for §12's performance targets.</td></tr>
+          <tr><td>TypeScript (strict)</td><td>Language</td><td>Plain JS</td><td>Order/payment/inventory state is exactly where a silent <code>undefined</code> becomes a real refund conversation — non-negotiable for this domain.</td></tr>
+          <tr><td>Tailwind CSS</td><td>Styling</td><td>CSS Modules, styled-components</td><td>Token-driven utilities keep Phase 2's design system enforceable in code, not just in Figma; zero runtime cost.</td></tr>
+          <tr><td>shadcn/ui</td><td>Component primitives</td><td>MUI, Chakra</td><td>Unstyled, accessible, copy-into-repo primitives — we own the code outright rather than fighting an opinionated library's visual defaults (Phase 1 §7).</td></tr>
+          <tr><td>Framer Motion</td><td>Animation</td><td>CSS-only transitions</td><td>Declarative, interruptible transitions for sheet/toast/cart-pulse moments (Phase 2 §12) that plain CSS keyframes can't gesture-track.</td></tr>
+          <tr><td>Supabase (Postgres, Auth, Storage, Realtime)</td><td>Backend platform</td><td>Firebase, custom Node backend</td><td>Postgres gives us real relational integrity for money/inventory data (Firestore doesn't); Realtime is Postgres logical replication, not a bolt-on; one platform instead of assembling four separate vendors.</td></tr>
+          <tr><td>Zustand</td><td>Client state</td><td>Redux, Context API</td><td>Cart/UI state is small, local, frequent — no ceremony needed for a store this size (Phase 1 §16).</td></tr>
+          <tr><td>TanStack Query</td><td>Server state cache</td><td>SWR, manual fetch+useEffect</td><td>Cache invalidation on realtime-driven order-status change is exactly its designed job; integrates cleanly with Server Actions' returned data.</td></tr>
+          <tr><td>React Hook Form + Zod</td><td>Forms + validation</td><td>Formik, manual validation</td><td>One schema shared between client validation and the Server Action's server-side re-validation — checkout is the one place a bad input directly costs money.</td></tr>
+          <tr><td>Lucide</td><td>Icons</td><td>Heroicons, mixed sets</td><td>Single consistent stroke width across the whole icon set — never mixed styles (Phase 1 §12).</td></tr>
+          <tr><td>Vercel</td><td>Hosting</td><td>self-hosted Node, Netlify</td><td>Edge caching for the catalogue, instant PR previews, native Next.js support with zero config drift.</td></tr>
+          <tr><td>Sentry</td><td>Error + performance monitoring</td><td>Rollbar, Datadog APM</td><td>First-class Next.js SDK (server + client + edge), source-map-aware stack traces, session replay for hard-to-reproduce owner-console bugs.</td></tr>
+          <tr><td>PostHog</td><td>Product analytics</td><td>Mixpanel, Amplitude</td><td>Self-hostable later (data sovereignty for a future franchise model), session replay and feature flags in the same tool we already use for events (§15).</td></tr>
+          <tr><td>Resend</td><td>Transactional email</td><td>SendGrid, SES directly</td><td>Developer-friendly API, React Email templates keep email markup in the same component model as the rest of the app.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 3 DATABASE DESIGN -->
+    <section class="doc" id="s3">
+      <div class="sec-head"><span class="sec-num">03</span><h2>Database Design</h2></div>
+      <p class="lede">Every tenant-scoped table carries a non-nullable <code>hostel_id uuid references hostels(id)</code> — this single column is the entire multi-tenancy strategy and the entire RLS strategy (§6). Timestamps are <code>created_at timestamptz default now()</code> and, where mutable, <code>updated_at timestamptz</code> maintained by a shared trigger — stated once here rather than repeated per table below.</p>
+
+      <h4>ER overview (Mermaid source)</h4>
+      <pre>erDiagram
+  HOSTELS ||--o{ ROOMS : has
+  HOSTELS ||--o{ PRODUCTS : stocks
+  HOSTELS ||--o{ ORDERS : receives
+  HOSTELS ||--o{ CATEGORIES : defines
+  PROFILES ||--o{ ORDERS : places
+  PROFILES ||--o{ DEVICES : registers
+  ROOMS ||--o{ ORDERS : "delivered to"
+  ORDERS ||--|{ ORDER_ITEMS : contains
+  ORDERS ||--|| PAYMENTS : has
+  PAYMENTS ||--o{ PAYMENT_SCREENSHOTS : has
+  PRODUCTS ||--o{ ORDER_ITEMS : "referenced by"
+  PRODUCTS }o--|| CATEGORIES : "belongs to"
+  PRODUCTS ||--o{ STOCK_HISTORY : logs
+  PRODUCTS }o--o| SUPPLIERS : "sourced from"
+  ORDERS ||--o{ AUDIT_LOGS : generates
+  PROFILES ||--o{ ROLES : "assigned via"
+  ROLES ||--o{ PERMISSIONS : grants</pre>
+
+      <h4>Identity &amp; tenancy</h4>
+      <div class="schema"><div class="schema-head"><span class="schema-name">hostels</span><span class="schema-note">tenant root — everything else scopes to this</span></div>
+        <div class="tbl-wrap"><table><tbody>
+          <tr><td><code>id</code></td><td>uuid pk</td><td>—</td></tr>
+          <tr><td><code>name</code>, <code>slug</code></td><td>text, unique slug</td><td>Slug drives the future per-hostel subdomain/path.</td></tr>
+          <tr><td><code>opening_time</code>, <code>closing_time</code></td><td>time</td><td>Drives Phase 3 §8 Store Settings.</td></tr>
+          <tr><td><code>delivery_fee</code>, <code>free_delivery_threshold</code></td><td>numeric(10,2)</td><td>Config surfaced live to the customer cart (Phase 2 §6).</td></tr>
+          <tr><td><code>upi_id</code>, <code>upi_number</code>, <code>upi_qr_url</code></td><td>text, nullable</td><td>Encrypted at rest via Supabase Vault (see §13).</td></tr>
+          <tr><td><code>status</code></td><td>enum(<code>open</code>,<code>closed</code>,<code>maintenance</code>)</td><td>Drives Phase 2 §11.</td></tr>
+        </tbody></table></div>
+      </div>
+
+      <div class="schema"><div class="schema-head"><span class="schema-name">profiles</span><span class="schema-note">1:1 extension of Supabase <code>auth.users</code></span></div>
+        <div class="tbl-wrap"><table><tbody>
+          <tr><td><code>id</code></td><td>uuid pk, fk → <code>auth.users.id</code></td><td>Never a separate identity — one row per authenticated principal.</td></tr>
+          <tr><td><code>hostel_id</code></td><td>uuid fk, nullable for customers pre-first-order</td><td>Owner/manager profiles always set; customer profiles set on first checkout.</td></tr>
+          <tr><td><code>full_name</code>, <code>phone</code></td><td>text; <code>phone</code> unique</td><td>Phone is the true customer identity (Phase 2 §7) — email is optional.</td></tr>
+          <tr><td><code>room_number</code></td><td>text, nullable</td><td>Saved detail (Phase 2 §10).</td></tr>
+          <tr><td><code>payment_flag_count</code></td><td>int default 0</td><td>Incremented by trigger on each rejected/mismatched payment (Phase 3 §3, §6).</td></tr>
+        </tbody></table></div>
+      </div>
+
+      <div class="schema"><div class="schema-head"><span class="schema-name">roles</span> / <span class="schema-name">permissions</span> / <span class="schema-name">profile_roles</span><span class="schema-note">RBAC, §5</span></div>
+        <div class="tbl-wrap"><table><tbody>
+          <tr><td><code>roles.slug</code></td><td>enum-like text(<code>owner</code>,<code>manager</code>,<code>inventory_manager</code>,<code>delivery_partner</code>)</td><td>Customer is not a row here — customer authorization is identity-based (Phase 3 §5), not role-based.</td></tr>
+          <tr><td><code>permissions.action</code></td><td>text (<code>orders.verify_payment</code>, <code>inventory.write</code>, …)</td><td>Dot-namespaced so new permissions extend without a schema change.</td></tr>
+          <tr><td><code>profile_roles</code></td><td>join table (<code>profile_id</code>, <code>role_id</code>, <code>hostel_id</code>)</td><td>A person can hold different roles at different hostels once multi-hostel exists.</td></tr>
+        </tbody></table></div>
+      </div>
+
+      <div class="schema"><div class="schema-head"><span class="schema-name">devices</span><span class="schema-note">push tokens only — <em>not</em> session storage, see Self-Review</span></div>
+        <div class="tbl-wrap"><table><tbody>
+          <tr><td><code>id</code></td><td>uuid pk</td><td></td></tr>
+          <tr><td><code>profile_id</code></td><td>fk</td><td></td></tr>
+          <tr><td><code>push_token</code>, <code>platform</code></td><td>text; enum(<code>web</code>,<code>ios</code>,<code>android</code>)</td><td>Web Push subscription object serialized as JSON for <code>web</code>.</td></tr>
+          <tr><td><code>last_seen_at</code></td><td>timestamptz</td><td>Stale tokens (&gt;60 days unseen) pruned by a scheduled Edge Function.</td></tr>
+        </tbody></table></div>
+      </div>
+
+      <h4>Catalog</h4>
+      <div class="schema"><div class="schema-head"><span class="schema-name">categories</span></div>
+        <div class="tbl-wrap"><table><tbody>
+          <tr><td><code>id</code>, <code>hostel_id</code>, <code>name</code>, <code>icon_url</code>, <code>sort_order int</code>, <code>is_hidden bool default false</code></td><td colspan="1">Index: <code>(hostel_id, sort_order)</code> — drives Phase 3 §9 drag-reorder directly.</td></tr>
+        </tbody></table></div>
+      </div>
+      <div class="schema"><div class="schema-head"><span class="schema-name">products</span></div>
+        <div class="tbl-wrap"><table><tbody>
+          <tr><td><code>id</code>, <code>hostel_id</code>, <code>category_id</code> fk</td><td>—</td></tr>
+          <tr><td><code>name</code>, <code>description</code>, <code>image_url</code></td><td>—</td></tr>
+          <tr><td><code>price</code>, <code>cost_price</code></td><td>numeric(10,2); profit is a generated column <code>price - cost_price</code></td></tr>
+          <tr><td><code>stock_qty</code></td><td>int, check <code>&gt;= 0</code></td></tr>
+          <tr><td><code>supplier_id</code></td><td>fk, nullable</td></tr>
+          <tr><td><code>expiry_date</code></td><td>date, nullable</td></tr>
+          <tr><td><code>search_keywords</code></td><td>text[] — synonym tags (Phase 3 §5)</td></tr>
+          <tr><td><code>available_from</code>, <code>available_until</code></td><td>time, nullable — scheduled products (Phase 3 §5)</td></tr>
+          <tr><td><code>status</code></td><td>enum(<code>active</code>,<code>hidden</code>,<code>deleted</code>) — soft delete only, see Phase 3 §5</td></tr>
+          <tr><td colspan="2">Indexes: <code>(hostel_id, status)</code> partial index for the catalogue read path; GIN index on <code>search_keywords</code>.</td></tr>
+        </tbody></table></div>
+      </div>
+      <div class="schema"><div class="schema-head"><span class="schema-name">stock_history</span></div>
+        <div class="tbl-wrap"><table><tbody>
+          <tr><td><code>product_id</code> fk, <code>delta int</code>, <code>reason</code> enum(<code>sale</code>,<code>restock</code>,<code>correction</code>,<code>expiry</code>), <code>order_id</code> fk nullable, <code>actor_id</code> fk, <code>created_at</code></td><td>Append-only; never updated or deleted — the ground truth for §16's "why does the count not match the shelf."</td></tr>
+        </tbody></table></div>
+      </div>
+      <div class="schema"><div class="schema-head"><span class="schema-name">suppliers</span> / <span class="schema-name">expenses</span></div>
+        <div class="tbl-wrap"><table><tbody>
+          <tr><td><code>suppliers</code></td><td><code>id</code>, <code>hostel_id</code>, <code>name</code>, <code>contact_phone</code>, <code>notes</code></td></tr>
+          <tr><td><code>expenses</code></td><td><code>id</code>, <code>hostel_id</code>, <code>category</code> enum(<code>restock</code>,<code>delivery</code>,<code>other</code>), <code>amount</code>, <code>note</code>, <code>occurred_at date</code></td></tr>
+        </tbody></table></div>
+      </div>
+
+      <h4>Orders &amp; payments — the core transactional path</h4>
+      <div class="schema"><div class="schema-head"><span class="schema-name">orders</span></div>
+        <div class="tbl-wrap"><table><tbody>
+          <tr><td><code>id</code></td><td>uuid pk</td></tr>
+          <tr><td><code>hostel_id</code>, <code>customer_id</code> fk → profiles, <code>room_number</code></td><td>Room captured at order time (denormalized) so a later profile edit never rewrites history.</td></tr>
+          <tr><td><code>delivery_method</code></td><td>enum(<code>room_delivery</code>,<code>pickup</code>)</td></tr>
+          <tr><td><code>status</code></td><td>enum(<code>awaiting_verification</code>,<code>confirmed</code>,<code>preparing</code>,<code>out_for_delivery</code>,<code>delivered</code>,<code>cancelled</code>) — the exact state machine from Phase 3 §15</td></tr>
+          <tr><td><code>subtotal</code>, <code>delivery_fee</code>, <code>total</code></td><td>numeric(10,2), all snapshotted at order time — never recomputed from current prices later.</td></tr>
+          <tr><td><code>notes</code></td><td>text, nullable</td></tr>
+          <tr><td><code>cancelled_reason</code></td><td>text, nullable</td></tr>
+          <tr><td colspan="2">Indexes: <code>(hostel_id, status, created_at)</code> — the exact shape of the Order Queue's oldest-first-per-lane query (Phase 3 §2).</td></tr>
+        </tbody></table></div>
+      </div>
+      <div class="schema"><div class="schema-head"><span class="schema-name">order_items</span></div>
+        <div class="tbl-wrap"><table><tbody>
+          <tr><td><code>order_id</code> fk, <code>product_id</code> fk, <code>product_name_snapshot</code>, <code>unit_price_snapshot</code>, <code>quantity int check &gt; 0</code></td><td>Name/price snapshotted so a later product rename/price-change never mutates historical order data.</td></tr>
+        </tbody></table></div>
+      </div>
+      <div class="schema"><div class="schema-head"><span class="schema-name">payments</span></div>
+        <div class="tbl-wrap"><table><tbody>
+          <tr><td><code>order_id</code> fk unique (1:1)</td><td>—</td></tr>
+          <tr><td><code>claimed_amount</code>, <code>transaction_id</code> nullable</td><td>—</td></tr>
+          <tr><td><code>status</code></td><td>enum(<code>pending</code>,<code>approved</code>,<code>rejected</code>,<code>refunded</code>)</td></tr>
+          <tr><td><code>rejected_reason</code></td><td>enum(<code>wrong_amount</code>,<code>duplicate</code>,<code>unreadable</code>,<code>other</code>), nullable</td></tr>
+          <tr><td><code>verified_by</code> fk, <code>verified_at</code></td><td>Audit fields — who approved/rejected and when.</td></tr>
+        </tbody></table></div>
+      </div>
+      <div class="schema"><div class="schema-head"><span class="schema-name">payment_screenshots</span></div>
+        <div class="tbl-wrap"><table><tbody>
+          <tr><td><code>payment_id</code> fk, <code>storage_path</code>, <code>perceptual_hash char(16)</code></td><td>The hash column is what powers Phase 3 §3's duplicate-detection warning; indexed for near-neighbor lookup.</td></tr>
+        </tbody></table></div>
+      </div>
+
+      <h4>Operational &amp; system tables</h4>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Table</th><th>Purpose</th><th>Key fields</th></tr></thead>
+        <tbody>
+          <tr><td><code>notifications</code></td><td>Owner + customer notification log</td><td><code>recipient_id</code>, <code>type</code>, <code>payload jsonb</code>, <code>read_at</code>, <code>channel</code></td></tr>
+          <tr><td><code>analytics_events</code></td><td>Raw event stream feeding §15</td><td><code>event_name</code>, <code>hostel_id</code>, <code>profile_id</code> nullable, <code>props jsonb</code>, partitioned by month</td></tr>
+          <tr><td><code>recommendations</code></td><td>Materialized "frequently bought together" pairs</td><td><code>product_id_a</code>, <code>product_id_b</code>, <code>co_purchase_count</code> — recomputed nightly, not live-joined</td></tr>
+          <tr><td><code>settings</code></td><td>Per-hostel config not on the <code>hostels</code> row itself</td><td><code>hostel_id</code>, <code>key</code>, <code>value jsonb</code> — an escape hatch for config that doesn't yet deserve a first-class column</td></tr>
+          <tr><td><code>audit_logs</code></td><td>Every money/stock/state-changing action</td><td><code>actor_id</code>, <code>action</code>, <code>entity_type</code>, <code>entity_id</code>, <code>before jsonb</code>, <code>after jsonb</code> — append-only, no update/delete grants at all</td></tr>
+          <tr><td><code>feature_flags</code></td><td>Progressive rollout (e.g. Late Night Mode threshold tuning per hostel)</td><td><code>key</code>, <code>hostel_id</code> nullable (null = global default), <code>enabled bool</code>, <code>payload jsonb</code></td></tr>
+          <tr><td><code>reports</code></td><td>Generated export artifacts (§10)</td><td><code>hostel_id</code>, <code>period</code>, <code>storage_path</code>, <code>generated_at</code> — generated async, not on-request</td></tr>
+        </tbody>
+      </table></div>
+
+      <h4>Triggers worth naming explicitly</h4>
+      <ul>
+        <li><code>trg_orders_set_updated_at</code> — shared <code>updated_at</code> maintenance, reused across every mutable table.</li>
+        <li><code>trg_stock_history_apply</code> — on insert into <code>stock_history</code>, atomically adjusts <code>products.stock_qty</code> in the same transaction, so the two can never drift.</li>
+        <li><code>trg_payment_flag_increment</code> — on <code>payments.status → rejected</code>, increments <code>profiles.payment_flag_count</code> (Phase 3 §6).</li>
+        <li><code>trg_audit_log_write</code> — generic trigger attached to orders/payments/products/settings, writing before/after JSON diffs to <code>audit_logs</code> automatically, so audit logging is never something an application-layer bug can forget to call.</li>
+      </ul>
+    </section>
+
+    <!-- 4 AUTHENTICATION -->
+    <section class="doc" id="s4">
+      <div class="sec-head"><span class="sec-num">04</span><h2>Authentication</h2></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Actor</th><th>Method</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>Customer</td><td>Phone number + OTP (Supabase Auth phone provider)</td><td>Phone is the identity students already use for UPI and WhatsApp — email login would add a field nobody wants to fill in a 30-second checkout (Phase 2).</td></tr>
+          <tr><td>Owner / Manager / staff</td><td>Email + password, with magic-link as an alternate</td><td>A console operator logs in far less often than a customer orders, and typically from a remembered device — password is acceptable friction here in exchange for not depending on SMS deliverability for a business-critical login.</td></tr>
+          <tr><td>Future OAuth</td><td>Google, reserved</td><td>Deferred until a second/third staff hire makes "remembering another password" a real onboarding friction point.</td></tr>
+        </tbody>
+      </table></div>
+      <ul>
+        <li><strong>Session management:</strong> handled entirely by Supabase Auth's JWT + refresh-token rotation — no custom session table (Self-Review). Access token short-lived (1h), refresh token long-lived (30d) for "Remember me" by default on both apps, since re-entering an OTP every visit would violate Phase 2's 30-second promise.</li>
+        <li><strong>Multi-device:</strong> Supabase Auth natively supports multiple concurrent refresh tokens per user — a customer on their phone and laptop, or two staff devices on the Owner Console (Phase 3 §18), both stay signed in independently.</li>
+        <li><strong>Device management UI:</strong> Profile → Devices lists active sessions by last-seen + platform with a per-device "Sign out" — reads from <code>auth.sessions</code> via a Supabase RPC, not a hand-maintained table.</li>
+        <li><strong>Rate limiting on OTP:</strong> max 5 requests per phone number per 15 minutes, enforced at the Supabase Auth level plus an Edge Function guard — see §13.</li>
+      </ul>
+    </section>
+
+    <!-- 5 AUTHORIZATION -->
+    <section class="doc" id="s5">
+      <div class="sec-head"><span class="sec-num">05</span><h2>Authorization</h2></div>
+      <p class="lede">Two distinct models, deliberately not unified: staff authorization is role-based (RBAC); customer authorization is identity-based (a customer may only ever act on their own orders/profile — there's no "customer role" to assign).</p>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Role</th><th>Grants</th></tr></thead>
+        <tbody>
+          <tr><td><code>owner</code></td><td>All permissions, all screens, including <code>settings.write_payment_identity</code> and financial exports.</td></tr>
+          <tr><td><code>manager</code></td><td>All except <code>settings.write_payment_identity</code> and <code>reports.export_financial</code> — day-to-day operation without irreversible-feeling changes (Phase 3 §12).</td></tr>
+          <tr><td><code>inventory_manager</code></td><td><code>inventory.*</code>, <code>products.*</code>; read-only elsewhere.</td></tr>
+          <tr><td><code>delivery_partner</code></td><td><code>orders.read_out_for_delivery</code>, <code>orders.mark_delivered</code> only — no customer PII beyond room number and phone, no financial data at all.</td></tr>
+          <tr><td><code>customer</code> (implicit)</td><td><code>orders.read_own</code>, <code>orders.create</code>, <code>profile.write_own</code> — enforced entirely by RLS predicate <code>customer_id = auth.uid()</code>, no role row required.</td></tr>
+        </tbody>
+      </table></div>
+      <p>Permission checks happen twice, deliberately: once in RLS (§6) as the non-negotiable database-level boundary, and once in the UI/Server Action layer to fail fast with a good error message rather than a raw RLS-denied Postgres error reaching a user.</p>
+    </section>
+
+    <!-- 6 RLS -->
+    <section class="doc" id="s6">
+      <div class="sec-head"><span class="sec-num">06</span><h2>Row Level Security</h2></div>
+      <p class="lede">One shared predicate, reused everywhere, per Self-Review: <code>hostel_id = (select hostel_id from profile_roles where profile_id = auth.uid())</code> for staff, and <code>customer_id = auth.uid()</code> for customer-owned rows. Hand-written per-table policies are exactly the pattern that produces the "missing check on one table" leak class — so policies are generated from two Postgres functions (<code>is_staff_of(hostel_id)</code>, <code>owns_row(customer_id)</code>) and every table's policy is a one-line call to one of them.</p>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Table</th><th>Select</th><th>Insert</th><th>Update</th><th>Delete</th></tr></thead>
+        <tbody>
+          <tr><td>orders</td><td>Staff: <code>is_staff_of(hostel_id)</code>. Customer: <code>owns_row(customer_id)</code></td><td>Customer only, own row</td><td>Staff only (status transitions); customer: none after creation</td><td>Never (soft-cancel via status)</td></tr>
+          <tr><td>payments</td><td>Same as parent order</td><td>Customer, via order ownership</td><td>Staff only, with <code>role has orders.verify_payment</code></td><td>Never</td></tr>
+          <tr><td>payment_screenshots</td><td>Same as parent payment</td><td>Customer, own payment only</td><td>Never (immutable evidence)</td><td>Only via the storage lifecycle job (service role, §7)</td></tr>
+          <tr><td>products / categories</td><td>Public read for <code>status = active</code>; staff read all</td><td>Staff with <code>products.write</code></td><td>Staff with <code>products.write</code></td><td>Never (soft delete only)</td></tr>
+          <tr><td>stock_history</td><td>Staff of hostel only</td><td>System trigger + staff with <code>inventory.write</code></td><td>Never (append-only)</td><td>Never</td></tr>
+          <tr><td>profiles</td><td>Own row; staff can read customer profiles within their hostel</td><td>Self, on signup</td><td>Own row only for customer fields; <code>payment_flag_count</code> writable only by trigger, never by any client role</td><td>Never</td></tr>
+          <tr><td>audit_logs</td><td>Owner/manager only</td><td>Trigger only (service role)</td><td>Never</td><td>Never</td></tr>
+          <tr><td>settings / feature_flags</td><td>Staff of hostel (settings); public read for customer-relevant subset (delivery fee, hours)</td><td>Owner only</td><td>Owner only</td><td>Owner only</td></tr>
+        </tbody>
+      </table></div>
+      <h4>Edge cases</h4>
+      <ul>
+        <li><strong>Customer with no <code>hostel_id</code> yet</strong> (pre-first-order): can read any hostel's public catalogue (browsing before checkout) but cannot read any order/payment data — enforced by the policy checking <code>customer_id</code> ownership, which simply returns no rows for a customer who's never ordered.</li>
+        <li><strong>Delivery Partner reading an order:</strong> policy additionally requires <code>status = 'out_for_delivery'</code> — a Delivery Partner cannot see Awaiting Verification payment data even within their own hostel.</li>
+        <li><strong>Cross-tenant staff account</strong> (a manager helping at two hostels once multi-hostel exists): <code>profile_roles</code> supports multiple rows per profile, and <code>is_staff_of(hostel_id)</code> checks membership, not a single denormalized field on <code>profiles</code> — this is precisely why that helper function exists rather than a flat column.</li>
+        <li><strong>Service-role bypass:</strong> only Edge Functions running scheduled jobs (hash computation, storage lifecycle, nightly recommendation recompute) use the service-role key, and only from server-side Edge Function code that never reaches the client bundle — enumerated explicitly in §13.</li>
+      </ul>
+    </section>
+
+    <!-- 7 STORAGE -->
+    <section class="doc" id="s7">
+      <div class="sec-head"><span class="sec-num">07</span><h2>Storage</h2></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Bucket</th><th>Access</th><th>Lifecycle</th></tr></thead>
+        <tbody>
+          <tr><td><code>product-images</code></td><td>Public read, staff write</td><td>Retained indefinitely; re-compressed to WebP + 3 responsive sizes on upload via Edge Function.</td></tr>
+          <tr><td><code>category-images</code></td><td>Public read, staff write</td><td>Same as product-images.</td></tr>
+          <tr><td><code>logos</code></td><td>Public read, owner write</td><td>Retained indefinitely; small footprint.</td></tr>
+          <tr><td><code>payment-screenshots</code></td><td>Private — staff of hostel + uploading customer only</td><td><strong>Lifecycle policy (Self-Review):</strong> moved to infrequent-access tier after 90 days, hard-deleted after 365 days unless flagged as part of an open dispute.</td></tr>
+          <tr><td><code>reports</code> / <code>exports</code></td><td>Private — staff with export permission</td><td>Deleted after 30 days; regenerable on demand from source data, so never a permanence requirement.</td></tr>
+        </tbody>
+      </table></div>
+      <ul>
+        <li><strong>Compression/optimization:</strong> all image uploads pass through an Edge Function that strips EXIF (privacy — a screenshot can carry device metadata), re-encodes to WebP, and generates the size variants Next.js <code>Image</code> needs — done once at upload time, never at request time.</li>
+        <li><strong>CDN:</strong> Supabase Storage sits behind its own CDN for public buckets; private buckets (screenshots) are served via short-lived signed URLs, never a public path, even accidentally.</li>
+      </ul>
+    </section>
+
+    <!-- 8 API DESIGN -->
+    <section class="doc" id="s8">
+      <div class="sec-head"><span class="sec-num">08</span><h2>API Design</h2></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Surface</th><th>Pattern</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>Place order, verify payment, mark order stage, edit product, restock</td><td>Server Actions</td><td>First-party mutations from our own UI — type-safe end-to-end, co-located with the calling component, no separate versioned contract needed.</td></tr>
+          <tr><td>Duplicate-screenshot hashing, notification fan-out, nightly recommendation recompute, storage lifecycle</td><td>Edge Functions (cron + Postgres webhook triggers)</td><td>Work that must run outside a user's request/response cycle, with the service-role key that never belongs in a Server Action reachable from a browser trace.</td></tr>
+          <tr><td>Public catalogue read for a future third-party integration (e.g. a franchise partner's own frontend)</td><td>REST (versioned, <code>/api/v1/…</code>)</td><td>The one case where a stable, external, non-Next.js-aware contract is genuinely needed — deferred until that consumer exists, stubbed as a route group now so it doesn't require an architectural change later.</td></tr>
+          <tr><td>Realtime order/dashboard updates</td><td>Supabase Realtime channel (not an API at all)</td><td>Push-based; polling an API for this would violate Phase 3's "feels instant" requirement outright.</td></tr>
+        </tbody>
+      </table></div>
+      <p>No GraphQL layer: the query shapes here are known and finite (a console and a customer app we control), so GraphQL's main benefit — flexible client-driven queries — isn't a real need, and it would be one more piece of infrastructure to operate for no realized benefit.</p>
+    </section>
+
+    <!-- 9 SEARCH -->
+    <section class="doc" id="s9">
+      <div class="sec-head"><span class="sec-num">09</span><h2>Search Architecture</h2></div>
+      <ul>
+        <li><strong>Indexing:</strong> a per-hostel JSON index (id, name, synonyms, category) generated on every product write via a Postgres trigger → Storage, fetched once per customer session and cached in the PWA's IndexedDB — no server round-trip per keystroke (Phase 2 §2).</li>
+        <li><strong>Synonyms:</strong> the <code>products.search_keywords</code> array (§3), authored by the owner in Product Management (Phase 3 §5) — data-driven, not a hardcoded app-level map, so it scales per-hostel without a deploy.</li>
+        <li><strong>Typo tolerance:</strong> client-side Levenshtein distance-1 matching against the cached index (a small, fast library, no server dependency).</li>
+        <li><strong>Ranking:</strong> in-stock first, then personal purchase frequency (a lightweight per-customer count fetched once at session start), then hostel-wide popularity from <code>analytics_events</code>.</li>
+        <li><strong>Caching:</strong> index is versioned by a hash of the catalogue's last-modified timestamp — the client only re-fetches when that hash changes, otherwise serves entirely from IndexedDB, offline-capable.</li>
+        <li><strong>Trigger condition for server-side search:</strong> revisit (Postgres <code>tsvector</code> + <code>pg_trgm</code>, still not a separate search service) only once a single hostel's active catalogue exceeds ~2,000 SKUs, at which point a client-side index stops being reasonably small to ship.</li>
+        <li><strong>Future AI search:</strong> a natural-language "I want something spicy and quick" query, reserved as a v2 Edge Function calling an embeddings model against product descriptions — explicitly not built now, since the current catalogue size makes keyword search sufficiently good.</li>
+      </ul>
+    </section>
+
+    <!-- 10 REALTIME -->
+    <section class="doc" id="s10">
+      <div class="sec-head"><span class="sec-num">10</span><h2>Realtime Architecture</h2></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Channel</th><th>Scope</th><th>Consumers</th></tr></thead>
+        <tbody>
+          <tr><td><code>orders:hostel_id</code></td><td>Per-hostel, filtered server-side by RLS-aware Realtime policy</td><td>Owner Console Order Queue, Dashboard tiles</td></tr>
+          <tr><td><code>orders:id</code></td><td>Per-order</td><td>Customer's own order tracking screen (Phase 2 §9)</td></tr>
+          <tr><td><code>inventory:hostel_id</code></td><td>Per-hostel</td><td>Owner Console Inventory low-stock badges; customer catalogue "just went out of stock" state</td></tr>
+          <tr><td><code>presence:hostel_id</code></td><td>Per-hostel</td><td>"Which staff device is currently online" — feeds the multi-device model in Phase 3 §18</td></tr>
+        </tbody>
+      </table></div>
+      <ul>
+        <li><strong>Never a global/unscoped channel:</strong> every subscription is hostel-scoped from day one — this is both the security boundary (paired with RLS) and the connection-budget control named in the Self-Review.</li>
+        <li><strong>Conflict resolution:</strong> order <code>status</code> transitions are last-write-wins at the database level, but only one actor legitimately writes a given transition (the owner console for stage advances) — the actual conflict this system faces is optimistic-UI-vs-server-truth, not concurrent writers, resolved by treating the realtime event as authoritative and silently reconciling any optimistic local state that disagrees (Phase 3 §2).</li>
+        <li><strong>Connection budget:</strong> Supabase's per-project concurrent Realtime connection ceiling is planned against explicitly in §22/§23 — the mitigation is one Supabase project per region/shard at franchise scale, not a single global project absorbing every hostel's connections.</li>
+      </ul>
+    </section>
+
+    <!-- 11 STATE MANAGEMENT -->
+    <section class="doc" id="s11">
+      <div class="sec-head"><span class="sec-num">11</span><h2>State Management</h2></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Layer</th><th>Tool</th><th>Owns</th></tr></thead>
+        <tbody>
+          <tr><td>Client (local, ephemeral)</td><td>Zustand</td><td>Cart contents, UI toggles (sheet open/closed, theme) — never anything that also lives on the server.</td></tr>
+          <tr><td>Server state (cached)</td><td>TanStack Query</td><td>Catalogue, order history, analytics query results — cache key includes <code>hostel_id</code> always.</td></tr>
+          <tr><td>Realtime state</td><td>Supabase Realtime → TanStack Query cache patch</td><td>Order status, inventory counts — realtime events directly patch the relevant query cache entry rather than triggering a full refetch.</td></tr>
+          <tr><td>Offline state</td><td>Service worker + IndexedDB queue</td><td>Actions taken with no connectivity (owner marking Delivered mid-dead-zone) — queued and replayed on reconnect (Phase 3 §16).</td></tr>
+          <tr><td>Optimistic updates</td><td>TanStack Query's <code>onMutate</code> + manual rollback</td><td>Every stage-change/payment-decision button in the Owner Console (Phase 3 §2) — UI updates instantly, rolls back with a toast only on genuine failure.</td></tr>
+        </tbody>
+      </table></div>
+      <p><strong>Invalidation strategy:</strong> mutations invalidate by tag (<code>['orders', hostelId]</code>, not a blanket <code>['orders']</code>) so an update to one hostel's queue never triggers a refetch storm across unrelated open sessions once multi-hostel exists.</p>
+    </section>
+
+    <!-- 12 PERFORMANCE -->
+    <section class="doc" id="s12">
+      <div class="sec-head"><span class="sec-num">12</span><h2>Performance</h2></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Technique</th><th>Applied where</th></tr></thead>
+        <tbody>
+          <tr><td>Server Components by default</td><td>Entire customer catalogue tree — client JS shipped only for interactive leaves (Add button, sheets, cart).</td></tr>
+          <tr><td>Streaming + Suspense</td><td>Home page rows below the fold (Phase 2 §1) stream independently so Store Status/Your Usual never wait on a slower row.</td></tr>
+          <tr><td>Edge caching</td><td>Public catalogue reads cached at Vercel's edge, revalidated via on-demand tag invalidation the instant a product/price changes.</td></tr>
+          <tr><td>Image optimization</td><td>Next.js <code>Image</code> against the pre-generated WebP variants from §7 — no on-request transformation.</td></tr>
+          <tr><td>Code splitting</td><td>Owner Console and Customer app are separate route-group bundles — a customer never downloads console JS and vice versa.</td></tr>
+          <tr><td>Virtualization</td><td>Inventory table, Order History, Customer list beyond ~50 rows (Phase 3 §4, §18).</td></tr>
+          <tr><td>Database indexes</td><td><code>(hostel_id, status, created_at)</code> on orders; GIN on <code>search_keywords</code>; partial index on <code>products(hostel_id) where status='active'</code> — each justified by a named query pattern above, not speculative.</td></tr>
+          <tr><td>Query optimization</td><td>No N+1: order cards fetch items via a single joined query per page, never per-row.</td></tr>
+        </tbody>
+      </table></div>
+      <p><strong>Core Web Vitals targets</strong> (carried from Phase 1 §14): LCP &lt; 1.8s, INP &lt; 150ms, CLS &lt; 0.05 — LCP element is always the Store Status bar or the first product-grid row, never an image, per Phase 2 §1.</p>
+    </section>
+
+    <!-- 13 SECURITY -->
+    <section class="doc" id="s13">
+      <div class="sec-head"><span class="sec-num">13</span><h2>Security</h2></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Concern</th><th>Control</th></tr></thead>
+        <tbody>
+          <tr><td>Authentication</td><td>Supabase Auth, OTP rate-limited (§4); JWT signature verified server-side on every Server Action, never trusted from client-supplied claims alone.</td></tr>
+          <tr><td>Authorization / RLS</td><td>Every table policy-gated (§6); no table ships with RLS disabled, including new tables — enforced by a CI check that fails the build if a migration adds a table without a corresponding policy file.</td></tr>
+          <tr><td>CSRF</td><td>Server Actions use Next.js's built-in origin-check + action-encrypted tokens — no bespoke CSRF middleware needed.</td></tr>
+          <tr><td>XSS</td><td>React's default escaping everywhere; the one raw-HTML surface (product descriptions) is sanitized server-side on write (DOMPurify-equivalent) before storage, not just on render.</td></tr>
+          <tr><td>SQL injection</td><td>No raw SQL string concatenation anywhere — all queries via Supabase's parameterized client or typed query builder.</td></tr>
+          <tr><td>Rate limiting</td><td>Edge middleware rate-limits OTP requests, order creation, and payment-screenshot upload per IP + per phone number (sliding window, Upstash Redis) — specifically to blunt both brute-force OTP guessing and order-spam.</td></tr>
+          <tr><td>Brute force</td><td>OTP lockout after 5 failed attempts per 15 minutes; owner/manager password login lockout after 10 failed attempts per hour with an email alert.</td></tr>
+          <tr><td>Secrets / env vars</td><td>Service-role key and UPI credentials live only in Vercel encrypted env vars and Supabase Vault respectively — never in client bundles, never in the repo, verified by a pre-commit secret-scanner.</td></tr>
+          <tr><td>File upload validation</td><td>Payment screenshots and product images: MIME-type allowlist (JPEG/PNG/WebP only), max 8MB, dimension sanity check — rejected client-side first for UX, re-validated server-side as the actual gate.</td></tr>
+          <tr><td>Image / malware prevention</td><td>All uploads re-encoded server-side (§7) rather than stored as-uploaded — re-encoding strips any polyglot-file attack surface, since the stored bytes are never the original upload.</td></tr>
+          <tr><td>Payment screenshot integrity</td><td>Perceptual hash (§3, §6) plus the fraud-flag counter on the customer profile — the two mitigations named in the Self-Review, working together.</td></tr>
+          <tr><td>Encryption</td><td>TLS everywhere (Vercel/Supabase default); UPI ID/number encrypted at rest via Supabase Vault, decrypted only server-side when rendering the payment screen.</td></tr>
+          <tr><td>CSP / headers</td><td><code>Content-Security-Policy</code> restricting script/style/connect-src to Vercel + Supabase + Sentry/PostHog origins only; <code>Strict-Transport-Security</code>, <code>X-Frame-Options: DENY</code>, <code>X-Content-Type-Options: nosniff</code> set globally via Next.js middleware.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 14 OBSERVABILITY -->
+    <section class="doc" id="s14">
+      <div class="sec-head"><span class="sec-num">14</span><h2>Observability</h2></div>
+      <ul>
+        <li><strong>Logging:</strong> structured JSON logs from Edge Functions and Server Actions, shipped to Vercel's log drain; every log line carries <code>hostel_id</code> and <code>request_id</code> for traceability.</li>
+        <li><strong>Error monitoring:</strong> Sentry across client, server, and Edge runtimes, with source maps for real stack traces and session replay scoped to the Owner Console (the surface where a hard-to-reproduce bug costs real operational time).</li>
+        <li><strong>Tracing:</strong> Sentry's performance tracing on Server Actions and Postgres queries — flags any query exceeding 200ms as a named issue, not just an aggregate p95.</li>
+        <li><strong>Health checks:</strong> a <code>/api/health</code> edge route checking Postgres and Storage reachability, polled by Vercel's monitoring and an external uptime check (so a Vercel-side outage is also caught).</li>
+        <li><strong>Alerts:</strong> Sentry alert → Slack/email on any error affecting the order/payment path specifically (tagged separately from general UI errors) — these page the on-call engineer; everything else is triaged next business day.</li>
+        <li><strong>Database monitoring:</strong> Supabase's built-in query performance dashboard, reviewed weekly against the named indexes in §12 to catch drift as the catalogue and order volume grow.</li>
+      </ul>
+    </section>
+
+    <!-- 15 ANALYTICS -->
+    <section class="doc" id="s15">
+      <div class="sec-head"><span class="sec-num">15</span><h2>Analytics Architecture</h2></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>PostHog capability</th><th>Used for</th></tr></thead>
+        <tbody>
+          <tr><td>Custom events</td><td><code>order_placed</code>, <code>payment_screenshot_uploaded</code>, <code>product_added_to_cart</code>, <code>search_zero_match</code> — each carries <code>hostel_id</code> and relevant entity IDs, feeding both Phase 3 §7 Analytics and Phase 1's success metrics.</td></tr>
+          <tr><td>Funnels</td><td>Home → Product Sheet → Cart → Checkout → Payment → Confirmed — the exact conversion funnel the whole product is judged against (Phase 1 §3).</td></tr>
+          <tr><td>Retention</td><td>Cohort retention curves feeding Phase 3 §7's repeat-customer chart directly from the same event stream, not a separately computed metric.</td></tr>
+          <tr><td>Feature usage</td><td>Adoption of "Your Usual" / "Reorder" — the retention features Phase 2 flagged as highest-leverage; tracked to validate that flag was right.</td></tr>
+          <tr><td>Session replay</td><td>Sparingly enabled, Owner Console only, for diagnosing operational UX friction — never on the customer app, where it would be a privacy cost without a matched benefit.</td></tr>
+          <tr><td>Revenue tracking</td><td>Order value events reconciled nightly against the Postgres `orders` table as the source of truth — PostHog is for behavior, Postgres is for money, and the two are never allowed to silently disagree without an alert.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 16 NOTIFICATIONS -->
+    <section class="doc" id="s16">
+      <div class="sec-head"><span class="sec-num">16</span><h2>Notifications</h2></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Channel</th><th>Delivery</th><th>Retry strategy</th></tr></thead>
+        <tbody>
+          <tr><td>Push (Web Push)</td><td>Edge Function on order/payment state change, using tokens from <code>devices</code></td><td>3 attempts with exponential backoff; stale/invalid tokens pruned on first hard failure.</td></tr>
+          <tr><td>Realtime (in-app)</td><td>Supabase Realtime channel — the primary channel while the app is foregrounded</td><td>N/A — delivery is implicit in the open connection; push exists specifically for the backgrounded case.</td></tr>
+          <tr><td>Email (Resend)</td><td>Order confirmation receipt, weekly owner summary report</td><td>Resend's built-in retry + a dead-letter log surfaced in Sentry if a send permanently fails.</td></tr>
+          <tr><td>Future SMS</td><td>Reserved for OTP fallback if phone-based push proves unreliable on a given device/OS, and for a customer who's uninstalled the PWA</td><td>Deferred until a measured push-delivery failure rate justifies the added cost.</td></tr>
+        </tbody>
+      </table></div>
+      <p><strong>Queue:</strong> all outbound notifications are written to the <code>notifications</code> table first (§3) and dispatched by an Edge Function reading that table — the table is the durable queue, so a dispatch failure never loses the notification, only delays it to the next retry pass.</p>
+    </section>
+
+    <!-- 17 PWA -->
+    <section class="doc" id="s17">
+      <div class="sec-head"><span class="sec-num">17</span><h2>PWA</h2></div>
+      <ul>
+        <li><strong>Manifest:</strong> separate manifests for the customer app and Owner Console (different name, icon, theme color) even though they share one codebase — installed as two distinct "apps" on a device, matching how the owner and a resident actually think about them.</li>
+        <li><strong>Service worker caching:</strong> stale-while-revalidate for the catalogue/search index (Phase 1 §14, §9 above); network-only for checkout/payment submission — money-moving requests are never served from cache or allowed to silently queue as if they'd succeeded.</li>
+        <li><strong>Offline queue:</strong> non-money-moving owner actions (Mark Delivered, stock adjustments) queue in IndexedDB when offline and sync on reconnect (Phase 3 §16, §18); customer checkout instead shows an explicit "you're offline" state rather than a false queued-success.</li>
+        <li><strong>Install prompt:</strong> deferred and shown contextually after a customer's second order (proven intent) rather than on first visit, where it reads as an interruption.</li>
+        <li><strong>App icons / splash:</strong> generated from the Phase 1 design tokens — warm paper background, amber mark — consistent with the brand across both installed apps.</li>
+        <li><strong>Shortcuts:</strong> manifest shortcuts for "Reorder Last Order" (customer) and "Order Queue" (owner) — one long-press from the home screen icon straight to the highest-frequency action.</li>
+      </ul>
+    </section>
+
+    <!-- 18 DEPLOYMENT -->
+    <section class="doc" id="s18">
+      <div class="sec-head"><span class="sec-num">18</span><h2>Deployment</h2></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Environment</th><th>Purpose</th><th>Data</th></tr></thead>
+        <tbody>
+          <tr><td>Development</td><td>Local, against a branch Supabase database (Supabase branching)</td><td>Seeded synthetic data — never production copies.</td></tr>
+          <tr><td>Preview</td><td>One per PR, auto-deployed by Vercel + a matching Supabase preview branch</td><td>Isolated per-PR data, torn down on merge/close.</td></tr>
+          <tr><td>Production</td><td>Main branch, manual promote</td><td>Live data, protected by all controls in §13.</td></tr>
+        </tbody>
+      </table></div>
+      <ul>
+        <li><strong>CI/CD:</strong> GitHub Actions runs typecheck, lint, unit tests, and the pgTAP RLS-leak suite (§19) on every PR; Vercel handles the actual build/deploy on green.</li>
+        <li><strong>Environment variables:</strong> managed in Vercel per-environment, mirrored to Supabase Vault for anything the database layer itself needs (e.g. Resend key inside an Edge Function).</li>
+        <li><strong>Release strategy:</strong> trunk-based, small PRs, feature flags (§3's <code>feature_flags</code> table) for anything customer-visible that needs a staged rollout rather than a long-lived feature branch.</li>
+        <li><strong>Rollback:</strong> Vercel's instant rollback to the previous deployment for app-layer regressions; database migrations are always additive/backward-compatible within a release (expand-then-contract pattern) so a code rollback never requires a matching destructive schema rollback.</li>
+      </ul>
+    </section>
+
+    <!-- 19 TESTING -->
+    <section class="doc" id="s19">
+      <div class="sec-head"><span class="sec-num">19</span><h2>Testing</h2></div>
+      <p class="lede">The pyramid is weighted toward the layer that actually catches this system's real failure modes: RLS/data-integrity bugs, not UI snapshot noise.</p>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Layer</th><th>Tool</th><th>Focus</th></tr></thead>
+        <tbody>
+          <tr><td>Unit</td><td>Vitest</td><td>Pure logic — order total calculation, velocity-model low-stock math, duplicate-hash comparison.</td></tr>
+          <tr><td>Integration</td><td>Vitest + Supabase local</td><td>Server Actions against a real (local) Postgres — the order-placement and payment-verification flows end-to-end at the data layer.</td></tr>
+          <tr><td>Database / RLS</td><td>pgTAP</td><td>A hard CI gate: for every table, assert a cross-tenant read/write is denied and an in-tenant, correctly-permissioned one succeeds. This suite is treated as more critical than UI test coverage, given the risk named in the Self-Review.</td></tr>
+          <tr><td>E2E</td><td>Playwright</td><td>The full Phase 2 customer journey and Phase 3 order-fulfillment workflow, run against preview deployments.</td></tr>
+          <tr><td>Accessibility</td><td>axe-core in CI + manual screen-reader pass before release</td><td>Every screen against the WCAG AA bar set in Phase 1/2/3.</td></tr>
+          <tr><td>Performance</td><td>Lighthouse CI</td><td>Budget-gated on the Core Web Vitals targets in §12 — a PR that regresses LCP past budget fails CI, not just a dashboard warning after the fact.</td></tr>
+          <tr><td>Visual regression</td><td>Playwright screenshot diffing on core screens (Home, Order Card, Payment)</td><td>Catches unintended design-token drift across the three approved phases.</td></tr>
+          <tr><td>Security</td><td>Automated dependency scanning (Dependabot) + the pgTAP RLS suite doubles as the primary security test layer for this data model</td><td>—</td></tr>
+          <tr><td>Manual QA</td><td>A written test script per release covering the edge cases enumerated in Phase 2 §17 and Phase 3 §16</td><td>Run against a real UPI payment in staging before every production release touching the payment path.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 20 FOLDER STRUCTURE -->
+    <section class="doc" id="s20">
+      <div class="sec-head"><span class="sec-num">20</span><h2>Folder Structure</h2></div>
+      <p>Extends the Phase 1 §16 structure with the depth an implementing engineer actually needs — still one app, still no monorepo (Self-Review: deferred until a genuine extraction trigger, named in §22).</p>
+      <pre>src/
+├── app/
+│   ├── (storefront)/                 # customer PWA route group
+│   │   ├── page.tsx                  # Home
+│   │   ├── search/ ...
+│   │   ├── cart/ ...
+│   │   └── checkout/ payment/ ...
+│   ├── (account)/orders/ profile/ ...
+│   ├── (owner-console)/              # separate manifest + bundle (§17)
+│   │   ├── dashboard/ orders/ inventory/
+│   │   ├── customers/ analytics/ settings/
+│   ├── api/v1/                       # reserved external REST surface (§8)
+│   └── manifest.ts (×2 — storefront, console)
+├── features/
+│   ├── catalogue/ cart/ checkout/ orders/
+│   ├── payments/ inventory/ customers/ analytics/
+├── components/ui/                    # shadcn primitives, themed via tokens
+├── design-tokens/                    # Phase 1 §9–10, chart tokens (Phase 3 §7)
+├── server/
+│   ├── actions/                       # Server Actions, one file per feature
+│   ├── queries/                       # typed read helpers
+│   └── edge-functions/                # duplicate-hash, notifications, lifecycle jobs
+├── lib/
+│   ├── supabase/ (client.ts, server.ts, middleware.ts)
+│   ├── zod-schemas/
+│   └── rls-helpers/                   # is_staff_of, owns_row — mirrored from Postgres functions
+├── hooks/ stores/ (Zustand) types/
+├── config/                            # per-hostel config resolution
+└── tests/
+    ├── unit/ integration/ e2e/ pgtap/</pre>
+      <p><strong>Aliases:</strong> <code>@/features/*</code>, <code>@/components/*</code>, <code>@/server/*</code>, <code>@/lib/*</code> — no deep relative imports (<code>../../../..</code>) permitted, enforced by lint rule (§21).</p>
+    </section>
+
+    <!-- 21 CODING STANDARDS -->
+    <section class="doc" id="s21">
+      <div class="sec-head"><span class="sec-num">21</span><h2>Coding Standards</h2></div>
+      <ul>
+        <li><strong>TypeScript:</strong> <code>strict</code> mode, no <code>any</code> (lint error, not warning), exhaustive switch/enum handling enforced by <code>@typescript-eslint/switch-exhaustiveness-check</code> — critical for the order-status state machine.</li>
+        <li><strong>React:</strong> Server Components by default; a component opts into <code>'use client'</code> only when it needs interactivity, state, or a browser API — never as a reflex.</li>
+        <li><strong>Hooks:</strong> no business logic inside components — data-fetching and mutation logic lives in <code>features/*/hooks</code>, components stay presentational.</li>
+        <li><strong>Naming:</strong> files match their default export (<code>OrderCard.tsx</code> exports <code>OrderCard</code>); booleans read as questions (<code>isOpen</code>, not <code>open</code>); Server Actions are verbs (<code>approvePayment</code>, not <code>paymentApproval</code>).</li>
+        <li><strong>Imports:</strong> absolute via the aliases in §20; no cross-feature deep imports — a feature exposes what other features need via its own <code>index.ts</code>.</li>
+        <li><strong>Comments:</strong> only where the why isn't obvious from the code (per Phase 1's own stated principle) — never restating what a line does.</li>
+        <li><strong>Error handling:</strong> Server Actions return a typed <code>{ data } | { error }</code> result, never throw across the client/server boundary — callers handle both branches explicitly, no silent catch-and-ignore.</li>
+        <li><strong>Logging:</strong> structured, never <code>console.log</code> left in committed code (lint-enforced) — use the shared logger that tags <code>hostel_id</code>/<code>request_id</code> automatically.</li>
+        <li><strong>Validation:</strong> one Zod schema per entity, imported by both the client form and the Server Action — never two separate validation definitions that can drift.</li>
+        <li><strong>Code review checklist:</strong> does this table have an RLS policy? does this mutation have a rollback/optimistic-update path? does this touch money/stock — if so, is it covered by an integration or pgTAP test? is any new UI checked against both themes and WCAG AA?</li>
+      </ul>
+    </section>
+
+    <!-- 22 SCALABILITY -->
+    <section class="doc" id="s22">
+      <div class="sec-head"><span class="sec-num">22</span><h2>Scalability</h2></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Stage</th><th>What changes</th><th>What doesn't (already built for it)</th></tr></thead>
+        <tbody>
+          <tr><td>Single hostel</td><td>One <code>hostels</code> row; everything else as specified above.</td><td>Full schema, RLS, and realtime scoping already assume &gt;1.</td></tr>
+          <tr><td>Multi-hostel</td><td>Additional <code>hostels</code> rows; hostel switcher in the Owner Console for a multi-location owner; per-hostel realtime channels naturally multiply.</td><td>No migration — <code>hostel_id</code> was never optional.</td></tr>
+          <tr><td>Multi-campus / multi-tenant SaaS</td><td>Onboarding self-serve flow; billing (Stripe, deliberately not built pre-need); per-tenant feature flags via the existing <code>feature_flags</code> table.</td><td>RLS already enforces tenant isolation at the row level — no new isolation mechanism needed.</td></tr>
+          <tr><td>Franchise / regional deployments</td><td>Explicit trigger: once concurrent Realtime connections across all hostels approach Supabase's per-project ceiling, shard by region into separate Supabase projects, each with the identical schema, fronted by one Next.js deployment routing by region.</td><td>Schema and RLS helper functions are copy-identical per shard — no per-region code fork.</td></tr>
+          <tr><td>Internationalization</td><td>Reserved: all customer-facing copy already lives in a strings layer (not inlined JSX text) specifically so a translation pass doesn't require touching component code.</td><td>Currency/number formatting already goes through <code>Intl</code>, not hand-formatted strings.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 23 ENGINEERING RISKS -->
+    <section class="doc" id="s23">
+      <div class="sec-head"><span class="sec-num">23</span><h2>Engineering Risks</h2></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Risk</th><th>Impact</th><th>Mitigation</th></tr></thead>
+        <tbody>
+          <tr><td>Missing/incorrect RLS policy on a new table</td><td>Cross-tenant data leak — the single worst-case bug in this system</td><td>pgTAP suite as a CI gate (§19); CI fails outright if a migration adds a table with no matching policy file.</td></tr>
+          <tr><td>Payment screenshot storage growth</td><td>Unbounded storage cost, growing data-liability surface</td><td>90-day cold tier / 365-day deletion lifecycle (§7), exempting rows flagged as part of an open dispute.</td></tr>
+          <tr><td>Realtime connection ceiling at franchise scale</td><td>Dropped/delayed live updates precisely during rush hours</td><td>Per-hostel channel scoping now; region-sharded Supabase projects at the stated trigger point (§22).</td></tr>
+          <tr><td>Database bottleneck: Order Queue query under load</td><td>Slow queue = slower fulfillment = broken 10-minute promise</td><td>The <code>(hostel_id, status, created_at)</code> composite index (§3, §12) is the single highest-leverage index in the schema; monitored explicitly in §14.</td></tr>
+          <tr><td>Duplicate-hash false negative (a genuinely new but visually similar screenshot)</td><td>A real fraud attempt slips through</td><td>Hash match is a warning surfaced to a human, never an automatic block — the owner's judgment is the actual final control, matching Phase 3's "review before approving" design.</td></tr>
+          <tr><td>Single owner device offline during a network outage</td><td>Order fulfillment stalls entirely</td><td>PWA offline action queue (§17) plus the multi-device model (§4, §10) — a second device can take over without any handoff step.</td></tr>
+          <tr><td>Schema drift between Postgres source of truth and PostHog behavioral events</td><td>Revenue/analytics numbers quietly disagree, undermining trust in the dashboard</td><td>Nightly reconciliation job comparing PostHog revenue events against <code>orders.total</code>, alerting on any discrepancy (§15).</td></tr>
+          <tr><td>Premature microservice extraction</td><td>Deployment complexity and cross-service consistency bugs with no present benefit</td><td>Explicitly deferred (Self-Review, §22) until a named bottleneck — not a calendar date — justifies it.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 24 ROADMAP -->
+    <section class="doc" id="s24">
+      <div class="sec-head"><span class="sec-num">24</span><h2>Implementation Roadmap</h2></div>
+      <details open>
+        <summary>Sprint 1 — Foundation</summary>
+        <div class="inner"><p>Schema + RLS (§3, §6) for hostels/profiles/products/categories/orders/order_items/payments; Supabase Auth (phone OTP + email/password); base Next.js app shell with both route groups and design tokens carried over from Phase 1. <strong>Dependency:</strong> nothing downstream can start until RLS is in place and pgTAP-tested — this sprint is the one everything else depends on.</p></div>
+      </details>
+      <details>
+        <summary>Sprint 2 — Customer ordering path</summary>
+        <div class="inner"><p>Home, Search, Category, Product Card/Sheet, Cart, Checkout (Phase 2 §1–7). <strong>Depends on:</strong> Sprint 1 schema; client-side search index generation (§9) can start in parallel once <code>products</code> exists.</p></div>
+      </details>
+      <details>
+        <summary>Sprint 3 — Payment &amp; order fulfillment</summary>
+        <div class="inner"><p>Payment upload flow (Phase 2 §8), Owner Console Order Queue + inline verification (Phase 3 §2–3), duplicate-hash Edge Function, realtime channels (§10). <strong>Depends on:</strong> Sprint 2's checkout producing real orders to verify against; this is the highest-risk sprint given the Self-Review's payment-fraud and RLS concerns, and should not be compressed.</p></div>
+      </details>
+      <details>
+        <summary>Sprint 4 — Operations</summary>
+        <div class="inner"><p>Inventory (velocity-model low stock), Product Management, Customers, Store Settings, Notifications (Phase 3 §4–6, §8, §11, §16). <strong>Depends on:</strong> Sprint 3's order/payment data existing to compute velocity and customer stats against.</p></div>
+      </details>
+      <details>
+        <summary>Sprint 5 — Analytics, PWA, hardening</summary>
+        <div class="inner"><p>Analytics dashboards (§7/§15), PWA install/offline (§17), full security pass (§13), Lighthouse/axe/pgTAP CI gates (§19), Reports export (Phase 3 §10). <strong>Depends on:</strong> a full sprint's worth of real order data to make Analytics meaningful; everything else in this sprint can run in parallel with Sprint 4.</p></div>
+      </details>
+    </section>
+
+    <!-- 25 ACCEPTANCE CRITERIA -->
+    <section class="doc" id="s25">
+      <div class="sec-head"><span class="sec-num">25</span><h2>Acceptance Criteria</h2></div>
+      <p class="lede">The engineering architecture is complete when all of the following hold simultaneously:</p>
+      <ul>
+        <li>Every table has a corresponding RLS policy, and the pgTAP suite passes for every cross-tenant and role-boundary case enumerated in §6.</li>
+        <li>The full order lifecycle (Phase 3 §15) executes end-to-end against a real Postgres instance via the integration test suite, including every branch in Phase 3 §16's edge-case table.</li>
+        <li>Lighthouse CI passes the Core Web Vitals budget in §12 on both the customer Home and the Owner Console Order Queue.</li>
+        <li>A payment can be uploaded, hashed, flagged for duplication where applicable, and approved/rejected with the resulting state reflected on both the customer and owner side within 1 second via realtime.</li>
+        <li>Two simultaneous devices logged into the same hostel's Owner Console see and can act on consistent realtime state, with no double-fulfillment of a single order.</li>
+        <li>Every environment variable and secret is confirmed absent from the client bundle via a build-time bundle-analysis check.</li>
+        <li>The folder structure, alias set, and lint rules in §20–21 are enforced by CI, not just documented.</li>
+      </ul>
+    </section>
+
+    <footer>NightCravings — Engineering Blueprint · Phase 4 · v1.0 · Prepared 11 Jul 2026 · Builds on Foundation Doc + Customer Experience Spec + Owner Console Specification (v1.0 each)</footer>
+  </main>
+</div>

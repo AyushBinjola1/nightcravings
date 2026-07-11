@@ -1,0 +1,689 @@
+<title>NightCravings — Customer Experience Specification</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{
+    --ink:#211C16; --ink-soft:#4A423A; --paper:#FBF7F0; --surface:#F3ECE0;
+    --surface2:#EDE4D3; --border:#DCD1BE; --accent:#B4520A; --accent-soft:#E8DCC8;
+    --night:#2E2A6E; --night-soft:#DEDBF2; --success:#276A45; --success-soft:#E1EEE4;
+    --warning:#966400; --warning-soft:#F3E7CE; --danger:#A32626; --danger-soft:#F5E1DF;
+    --font-display: Charter, 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    --font-mono: ui-monospace, 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+    --radius: 4px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --ink:#EEE7DA; --ink-soft:#B7AC9B; --paper:#171310; --surface:#221D18;
+      --surface2:#2A231C; --border:#3A322A; --accent:#E08A3E; --accent-soft:#3A2A18;
+      --night:#9C97E8; --night-soft:#26244A; --success:#5FAE7F; --success-soft:#1E2E22;
+      --warning:#D9A441; --warning-soft:#332711; --danger:#E07575; --danger-soft:#3A2020;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ink:#EEE7DA; --ink-soft:#B7AC9B; --paper:#171310; --surface:#221D18;
+    --surface2:#2A231C; --border:#3A322A; --accent:#E08A3E; --accent-soft:#3A2A18;
+    --night:#9C97E8; --night-soft:#26244A; --success:#5FAE7F; --success-soft:#1E2E22;
+    --warning:#D9A441; --warning-soft:#332711; --danger:#E07575; --danger-soft:#3A2020;
+  }
+  :root[data-theme="light"]{
+    --ink:#211C16; --ink-soft:#4A423A; --paper:#FBF7F0; --surface:#F3ECE0;
+    --surface2:#EDE4D3; --border:#DCD1BE; --accent:#B4520A; --accent-soft:#E8DCC8;
+    --night:#2E2A6E; --night-soft:#DEDBF2; --success:#276A45; --success-soft:#E1EEE4;
+    --warning:#966400; --warning-soft:#F3E7CE; --danger:#A32626; --danger-soft:#F5E1DF;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{ background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased; }
+  ::selection{ background:var(--night-soft); color:var(--ink); }
+  a{ color:var(--accent); }
+  a:focus-visible, button:focus-visible, summary:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+  .shell{ display:grid; grid-template-columns:260px minmax(0,820px); gap:64px; max-width:1220px; margin:0 auto; padding:56px 24px 140px; justify-content:center; }
+  @media (max-width:980px){ .shell{ grid-template-columns:1fr; } .toc{ display:none; } }
+
+  .toc{ position:sticky; top:32px; align-self:start; font-size:13px; max-height:calc(100vh - 64px); overflow-y:auto; }
+  .toc-title{ font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); font-size:11px; margin-bottom:14px; }
+  .toc ol{ list-style:none; margin:0 0 20px; padding:0; counter-reset:toc; }
+  .toc li{ counter-increment:toc; margin-bottom:1px; }
+  .toc a{ display:flex; gap:8px; text-decoration:none; color:var(--ink-soft); padding:4px 8px; border-radius:var(--radius); }
+  .toc a::before{ content:counter(toc,decimal-leading-zero); font-family:var(--font-mono); font-size:11px; color:var(--border); flex:none; padding-top:1px; }
+  .toc a:hover{ background:var(--surface); color:var(--ink); }
+
+  .cover{ margin-bottom:56px; padding-bottom:36px; border-bottom:1px solid var(--border); }
+  .kicker{ font-family:var(--font-mono); font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); margin:0 0 18px; }
+  h1.title{ font-family:var(--font-display); font-size:clamp(2rem,4.2vw,2.8rem); line-height:1.08; letter-spacing:-.01em; margin:0 0 14px; text-wrap:balance; font-weight:600; }
+  .subtitle{ font-size:1.05rem; color:var(--ink-soft); max-width:60ch; margin:0 0 22px; }
+  .meta{ display:flex; flex-wrap:wrap; gap:20px; font-family:var(--font-mono); font-size:12px; color:var(--ink-soft); }
+  .meta b{ color:var(--ink); font-weight:600; }
+
+  section.doc{ margin-bottom:60px; scroll-margin-top:32px; }
+  .sec-head{ display:flex; align-items:baseline; gap:14px; margin-bottom:8px; }
+  .sec-num{ font-family:var(--font-mono); font-size:13px; color:var(--accent); }
+  h2{ font-family:var(--font-display); font-weight:600; font-size:1.55rem; margin:0; letter-spacing:-.005em; text-wrap:balance; }
+  h3{ font-family:var(--font-display); font-weight:600; font-size:1.1rem; margin:26px 0 10px; }
+  p{ margin:0 0 14px; max-width:68ch; }
+  ul{ margin:0 0 14px; padding-left:20px; }
+  li{ margin-bottom:5px; }
+  strong{ color:var(--ink); }
+  .lede{ font-size:1rem; color:var(--ink-soft); max-width:66ch; margin-bottom:22px; }
+
+  .callout{ border-left:2px solid var(--accent); background:var(--accent-soft); padding:14px 18px; border-radius:0 var(--radius) var(--radius) 0; margin:14px 0 22px; font-size:.93rem; }
+  .callout b{ color:var(--accent); }
+  .callout.night{ border-left-color:var(--night); background:var(--night-soft); }
+  .callout.night b{ color:var(--night); }
+
+  /* review panel */
+  .review{ border:1px solid var(--border); border-radius:8px; background:var(--surface); padding:22px 24px; margin-bottom:60px; }
+  .review h2{ margin-bottom:14px; }
+  .review-item{ display:grid; grid-template-columns:96px 1fr; gap:14px; padding:12px 0; border-top:1px solid var(--border); font-size:.92rem; }
+  .review-item:first-of-type{ border-top:none; }
+  .review-tag{ font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; padding:3px 8px; border-radius:12px; height:fit-content; text-align:center; }
+  .review-tag.cut{ background:var(--danger-soft); color:var(--danger); }
+  .review-tag.kept{ background:var(--success-soft); color:var(--success); }
+  .review-tag.new{ background:var(--night-soft); color:var(--night); }
+
+  /* spec card */
+  .spec{ border:1px solid var(--border); border-radius:8px; margin-bottom:22px; overflow:hidden; background:var(--paper); }
+  .spec-head{ padding:16px 20px; background:var(--surface); border-bottom:1px solid var(--border); }
+  .spec-name{ font-family:var(--font-display); font-weight:600; font-size:1.2rem; margin:0 0 4px; }
+  .spec-purpose{ font-size:.9rem; color:var(--ink-soft); margin:0; }
+  .field-grid{ display:grid; grid-template-columns:1fr 1fr; gap:0; }
+  @media (max-width:640px){ .field-grid{ grid-template-columns:1fr; } }
+  .field{ padding:13px 20px; border-top:1px solid var(--border); }
+  .field:nth-child(odd){ border-right:1px solid var(--border); }
+  @media (max-width:640px){ .field:nth-child(odd){ border-right:none; } }
+  .field-label{ font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--accent); margin-bottom:4px; display:block; }
+  .field-val{ font-size:.89rem; color:var(--ink-soft); margin:0; }
+  .field-val strong{ color:var(--ink); }
+
+  /* why-strip: home section reasoning rows */
+  .why-strip{ list-style:none; margin:0 0 24px; padding:0; }
+  .why-strip li{ display:grid; grid-template-columns:180px 1fr; gap:16px; padding:12px 0; border-bottom:1px solid var(--border); font-size:.9rem; }
+  @media (max-width:640px){ .why-strip li{ grid-template-columns:1fr; gap:4px; } }
+  .why-strip .wname{ font-family:var(--font-display); font-weight:600; color:var(--ink); }
+  .why-strip .wreason{ color:var(--ink-soft); }
+
+  .tbl-wrap{ overflow-x:auto; margin:8px 0 20px; border:1px solid var(--border); border-radius:6px; }
+  table{ border-collapse:collapse; width:100%; font-size:.88rem; min-width:520px; }
+  th,td{ text-align:left; padding:9px 13px; border-bottom:1px solid var(--border); vertical-align:top; }
+  th{ font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); background:var(--surface); }
+  tr:last-child td{ border-bottom:none; }
+
+  .chipset{ display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 22px; }
+  .chip{ font-family:var(--font-mono); font-size:11.5px; border:1px solid var(--border); padding:5px 11px; border-radius:20px; color:var(--ink-soft); background:var(--surface); }
+  .chip.accent{ border-color:var(--accent); color:var(--accent); }
+  .chip.night{ border-color:var(--night); color:var(--night); }
+
+  .flow{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:16px 0 26px; font-family:var(--font-mono); font-size:12px; }
+  .flow span.step{ background:var(--surface); border:1px solid var(--border); padding:6px 12px; border-radius:20px; }
+  .flow span.arrow{ color:var(--border); }
+
+  details{ border:1px solid var(--border); border-radius:6px; margin-bottom:12px; background:var(--surface); }
+  summary{ cursor:pointer; padding:13px 16px; font-family:var(--font-display); font-weight:600; font-size:.98rem; list-style:none; display:flex; justify-content:space-between; align-items:center; }
+  summary::-webkit-details-marker{ display:none; }
+  summary::after{ content:'+'; font-family:var(--font-mono); color:var(--accent); font-size:16px; }
+  details[open] summary::after{ content:'–'; }
+  details .inner{ padding:0 18px 16px; }
+  details .inner p:last-child{ margin-bottom:0; }
+
+  .pill{ display:inline-block; font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; padding:3px 9px; border-radius:12px; }
+  .pill.success{ background:var(--success-soft); color:var(--success); }
+  .pill.warning{ background:var(--warning-soft); color:var(--warning); }
+  .pill.danger{ background:var(--danger-soft); color:var(--danger); }
+  .pill.night{ background:var(--night-soft); color:var(--night); }
+
+  footer{ max-width:66ch; padding-top:28px; border-top:1px solid var(--border); font-size:.85rem; color:var(--ink-soft); font-family:var(--font-mono); }
+</style>
+
+<div class="shell">
+  <nav class="toc">
+    <div class="toc-title">Contents</div>
+    <ol>
+      <li><a href="#review">Design Review</a></li>
+      <li><a href="#s1">Home</a></li>
+      <li><a href="#s2">Search</a></li>
+      <li><a href="#s3">Category</a></li>
+      <li><a href="#s4">Product Card</a></li>
+      <li><a href="#s5">Product Sheet</a></li>
+      <li><a href="#s6">Cart</a></li>
+      <li><a href="#s7">Checkout</a></li>
+      <li><a href="#s8">Payment</a></li>
+      <li><a href="#s9">Order Tracking</a></li>
+      <li><a href="#s10">Profile</a></li>
+      <li><a href="#s11">Store Closed</a></li>
+      <li><a href="#s12">Conversion</a></li>
+      <li><a href="#s13">Mobile UX</a></li>
+      <li><a href="#s14">Responsive</a></li>
+      <li><a href="#s15">Micro-interactions</a></li>
+      <li><a href="#s16">Empty States</a></li>
+      <li><a href="#s17">Error States</a></li>
+      <li><a href="#s18">Notifications</a></li>
+      <li><a href="#s19">Accessibility</a></li>
+      <li><a href="#s20">Acceptance Criteria</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <div class="cover">
+      <p class="kicker">Customer Experience Specification — Phase 2 · v1.0</p>
+      <h1 class="title">The complete NightCravings customer experience.</h1>
+      <p class="subtitle">Builds on the approved Product Foundation Document. This spec defines every screen, state and interaction in the customer-facing web app — not as ecommerce boilerplate, but as a purpose-built late-night experience judged against four numbers: checkout speed, trust, AOV, retention.</p>
+      <div class="meta">
+        <span><b>Depends on</b> Foundation Doc v1.0</span>
+        <span><b>Status</b> Draft for build</span>
+        <span><b>Date</b> 11 Jul 2026</span>
+      </div>
+    </div>
+
+    <section class="review" id="review">
+      <h2>Design Review — what we challenged before writing this spec</h2>
+      <p class="lede" style="margin-top:10px">Per brief, every screen and pattern below was tested against one question: does this measurably improve checkout speed, trust, AOV, or retention? Anything that didn't survive was cut or rebuilt. The table is the receipt for that process.</p>
+      <div class="review-item"><span class="review-tag cut">Cut</span><div><strong>Fake urgency</strong> — "Only 2 left!" banners, countdown-to-discount timers, fake viewer counts. These are the default quick-commerce toolkit and they actively work against trust with a fresher persona who is already unsure if this is a real, credible operation. Replaced with real signals only: true stock counts, true average delivery time, computed live.</div></div>
+      <div class="review-item"><span class="review-tag cut">Cut</span><div><strong>Wishlist / save-for-later as a v1 feature.</strong> It optimizes for a browsing behaviour that doesn't exist in this category — nobody "saves" a Maggi for next month. Demoted to Section 11 (Store Closed) as a genuine future "Notify Me," not a permanent nav item.</div></div>
+      <div class="review-item"><span class="review-tag new">Added</span><div><strong>Verification Heartbeat</strong> on the payment-awaiting screen (Section 8). The brief's biggest unsolved trust gap: this business runs on manual UPI verification, so there's an inherent wait with no card network confirming anything automatically. Rather than a spinner, the customer sees a live, honest countdown built from the owner's actual median confirmation time — turning the scariest moment in the flow (did my money just disappear?) into the most reassuring one.</div></div>
+      <div class="review-item"><span class="review-tag new">Added</span><div><strong>Named recommendation reasons.</strong> "Recommended for you" as an unexplained black box reads as manipulative even when it isn't. Every suggestion in this spec carries a visible, true reason — "because you order this every Tuesday," "goes with Maggi," "3 of your floor ordered this tonight" — so upsell reads as helpful, not algorithmic pressure.</div></div>
+      <div class="review-item"><span class="review-tag new">Added</span><div><strong>Late Night Mode.</strong> Not just a dark theme — after the store's evening threshold, Home silently reorders its own sections (Late Night Picks and Your Usual jump above Best Sellers) because the browsing intent at 1am is measurably different from 6pm. One home page, two priority orders, zero extra taps.</div></div>
+      <div class="review-item"><span class="review-tag kept">Kept, elevated</span><div><strong>Payment (Section 8)</strong> is written in as much depth as Home, even though the brief names Home the most detailed section. Home is where trust is <em>built</em>; for a manual-UPI, human-verified business, Payment is where trust is <em>proven or broken</em>. Both get full treatment; Home additionally carries the section-by-section "why here" reasoning the brief asked for explicitly.</div></div>
+    </section>
+
+    <div class="callout night" style="margin-bottom:56px;">
+      <b>Full customer flow —</b> every screen below sits on this spine. Nothing branches off it; nothing requires backtracking.
+      <div class="flow" style="margin:14px 0 0;">
+        <span class="step">Landing</span><span class="arrow">→</span><span class="step">Home</span><span class="arrow">→</span><span class="step">Search / Browse</span><span class="arrow">→</span><span class="step">Product Sheet</span><span class="arrow">→</span><span class="step">Cart</span><span class="arrow">→</span><span class="step">Checkout</span><span class="arrow">→</span><span class="step">Payment</span><span class="arrow">→</span><span class="step">Awaiting Verification</span><span class="arrow">→</span><span class="step">Confirmed</span><span class="arrow">→</span><span class="step">Delivery Coming</span><span class="arrow">→</span><span class="step">Delivered</span><span class="arrow">→</span><span class="step">History</span><span class="arrow">→</span><span class="step">Reorder</span>
+      </div>
+    </div>
+
+    <!-- SECTION 1: HOME -->
+    <section class="doc" id="s1">
+      <div class="sec-head"><span class="sec-num">01</span><h2>Home</h2></div>
+      <p class="lede">Home is not a landing page — "Landing" and "Home" are the same screen for a returning visitor, and even a first-time visitor sees the live shelf within one scroll. The psychology: a hostel resident opening this at 11pm already knows roughly what they want (a craving, not a shopping mission), so Home's only job is to get out of the way between that craving and the cart.</p>
+
+      <h3>Section-by-section reasoning</h3>
+      <ul class="why-strip">
+        <li><span class="wname">Top Navigation</span><span class="wreason">Logo, hostel-block selector, search icon, cart icon with live count. Nothing else — no mega-menu, because there's nothing under it worth navigating to.</span></li>
+        <li><span class="wname">Store Status</span><span class="wreason">Open/closed + live ETA, rendered as the first thing painted (server-rendered, not a client fetch) — the single highest-anxiety question a new visitor has, answered before they can even ask it.</span></li>
+        <li><span class="wname">Estimated Delivery Time</span><span class="wreason">A real number ("Delivering in ~8 min right now"), computed from the last hour's actual fulfillment times, not a static "10-30 min" range — specificity reads as operational competence.</span></li>
+        <li><span class="wname">Search</span><span class="wreason">Persistent, one tap from anywhere, because a fraction of visits are pure lookups ("do you have Sprite") with zero interest in browsing.</span></li>
+        <li><span class="wname">Categories</span><span class="wreason">Six tiles max, image-led not text-led — this is the "front of the shop" and should be scannable in under two seconds.</span></li>
+        <li><span class="wname">Your Usual</span><span class="wreason">Placed <strong>above</strong> Best Sellers for any resident with 2+ past orders — the single highest-conversion, highest-margin row on the entire site, because it removes the browsing step entirely for a repeat need.</span></li>
+        <li><span class="wname">Continue Shopping</span><span class="wreason">Resumes an abandoned cart/session from earlier the same day (e.g. closed the tab mid-browse) — recovers intent that would otherwise be a lost order, shown only when it's genuinely still relevant (same day).</span></li>
+        <li><span class="wname">Late Night Picks</span><span class="wreason">Curated for the post-9pm craving profile (instant food, caffeine, sugar) — see Late Night Mode below. Absent entirely before evening; showing it at noon would be noise, not personalization.</span></li>
+        <li><span class="wname">Trending Tonight</span><span class="wreason">A true, live "most-ordered in the last 3 hours across the hostel" row — real social proof (your actual floor, tonight), which is the non-manipulative version of "trending."</span></li>
+        <li><span class="wname">Best Sellers</span><span class="wreason">All-time popularity, for the majority of sessions with no order history yet — a safe, proven default when personalization has nothing to work with.</span></li>
+        <li><span class="wname">Recommended For You</span><span class="wreason">Collaborative-filter suggestions, but each card is labeled with its actual reason (see Section 12) — never shown as an unexplained "for you."</span></li>
+        <li><span class="wname">Frequently Bought Together</span><span class="wreason">Lives primarily inside the Product Sheet and Cart (Sections 5 &amp; 6); a light version appears on Home only under Trending Tonight, so Home doesn't turn into a second cart page.</span></li>
+        <li><span class="wname">Recently Ordered</span><span class="wreason">A compact strip distinct from Your Usual — Your Usual is "what you always get," Recently Ordered is "what you got last time," useful when the two diverge (e.g. a one-off bulk order for friends).</span></li>
+        <li><span class="wname">Combos</span><span class="wreason">Pre-built bundles at a small effective discount (e.g. Maggi + Egg + Cold Drink) — genuine AOV lever, priced transparently as "3 items, ₹10 off" rather than a manufactured "deal" percentage.</span></li>
+        <li><span class="wname">Daily Essentials</span><span class="wreason">Milk, bread, eggs — low-emotion, high-frequency items grouped separately from snacks so Kavya (Daily Regular persona) never has to hunt through chocolate categories for curd.</span></li>
+        <li><span class="wname">New Arrivals</span><span class="wreason">Serves the Impulse Buyer persona's actual trigger (novelty) — kept to a single row, never a takeover, since novelty-seeking is a minority behaviour, not the majority use case.</span></li>
+        <li><span class="wname">Footer</span><span class="wreason">Support contact, store timings, About/Privacy/Terms — present for trust and legal completeness, deliberately unremarkable so it never competes with the shelf above it.</span></li>
+      </ul>
+
+      <h3>Late Night Mode — a NightCravings-original pattern</h3>
+      <p>Past a configurable evening threshold (default 9:00pm, owner-configurable per hostel), Home doesn't just darken — its <strong>row order re-ranks</strong>: Late Night Picks and Your Usual move to the top, Daily Essentials and New Arrivals drop below the fold. This is a re-ranking of the same components already on the page, not a different page — so there's no additional route, loading state, or maintenance burden, only a re-ordered data query keyed on time-of-day.</p>
+
+      <div class="spec">
+        <div class="spec-head"><p class="spec-name">Home</p><p class="spec-purpose">Get a craving into a cart with zero unnecessary steps, while quietly proving the store is real, open, and fast.</p></div>
+        <div class="field-grid">
+          <div class="field"><span class="field-label">UX reasoning</span><p class="field-val">Vertical single-column scroll on mobile (the overwhelming majority surface) — no horizontal-only rows that can be missed, only horizontally-scrolling <em>within</em> a labeled row.</p></div>
+          <div class="field"><span class="field-label">Business reasoning</span><p class="field-val">Row order is a direct AOV lever: Your Usual and Combos are placed to be seen without scrolling on a standard phone viewport (~700px above the fold).</p></div>
+          <div class="field"><span class="field-label">Layout hierarchy</span><p class="field-val">Status bar → Search → Categories → Your Usual → Late Night Picks / Trending → Best Sellers → Recommended → Combos → Daily Essentials → New Arrivals → Footer.</p></div>
+          <div class="field"><span class="field-label">Component hierarchy</span><p class="field-val">StatusBar → SearchBar → CategoryRail → ProductRow (reused 8×, data-driven, one component) → Footer.</p></div>
+          <div class="field"><span class="field-label">User interactions</span><p class="field-val">Tap category → in-place filter, no route change. Tap product card → Product Sheet opens over Home (Home stays mounted underneath). Long-press/hold on a repeat item → quick re-add without opening the sheet.</p></div>
+          <div class="field"><span class="field-label">Animations</span><p class="field-val">Rows fade-and-rise 12px on first paint, staggered 40ms apart, capped at 200ms total — reads as "arrived," never as a loading sequence the user has to wait through.</p></div>
+          <div class="field"><span class="field-label">Loading strategy</span><p class="field-val">Store status and Your Usual are server-rendered (critical path); rows below the fold stream in with skeletons, never blocking first paint.</p></div>
+          <div class="field"><span class="field-label">Empty state</span><p class="field-val">First-ever visit with no order history: Your Usual and Recently Ordered rows are omitted entirely (not shown empty) — Best Sellers takes their visual slot so the layout never looks broken.</p></div>
+          <div class="field"><span class="field-label">Error states</span><p class="field-val">Catalogue fetch failure shows the last successfully cached catalogue (PWA cache) with a small "showing saved menu" notice, rather than a blank page.</p></div>
+          <div class="field"><span class="field-label">Responsive behaviour</span><p class="field-val">Mobile: single column, horizontally-scrolling rows. Tablet: 2-up category grid. Desktop: persistent left category sidebar replaces the horizontal category rail; product rows become fixed 4-column grids.</p></div>
+          <div class="field"><span class="field-label">Accessibility</span><p class="field-val">Each row is a labeled landmark (<code>aria-label="Your Usual"</code>); horizontal scroll rows are keyboard-scrollable with visible focus rings on each card.</p></div>
+          <div class="field"><span class="field-label">Edge cases</span><p class="field-val">Store closes mid-session → status bar updates in place via realtime subscription, non-destructively (cart and scroll position untouched); see Section 11 for the full closed state.</p></div>
+          <div class="field"><span class="field-label">Performance</span><p class="field-val">LCP target is the Store Status bar, not an image — text-based, server-rendered, sub-1.8s even on hostel wifi.</p></div>
+          <div class="field"><span class="field-label">Future scalability</span><p class="field-val">Row composition and order become a per-hostel config object (Section 16 of the Foundation Doc) — a second hostel can reorder or hide rows without a code change.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: SEARCH -->
+    <section class="doc" id="s2">
+      <div class="sec-head"><span class="sec-num">02</span><h2>Search</h2></div>
+      <p class="lede">Search exists for the minority of visits that are lookups, not browsing — so its entire design goal is to never dead-end. A catalogue of a few hundred SKUs means search can be exhaustively synonym-mapped by hand; there is no excuse for a zero-result screen in this category.</p>
+      <div class="spec">
+        <div class="spec-head"><p class="spec-name">Search</p><p class="spec-purpose">Get a named craving into the cart in under three keystrokes, and never show a dead end.</p></div>
+        <div class="field-grid">
+          <div class="field"><span class="field-label">Autocomplete</span><p class="field-val">Fires after the 2nd character, client-side fuzzy match against a cached catalogue index — no network round-trip needed for a few hundred SKUs.</p></div>
+          <div class="field"><span class="field-label">Suggestions</span><p class="field-val">Empty query shows Recent Searches (max 5) above Popular Searches (hostel-wide, real) — recent first because it's the higher-intent signal.</p></div>
+          <div class="field"><span class="field-label">Synonym &amp; typo tolerance</span><p class="field-val">Hand-curated synonym map ("maggi"↔"instant noodles", "cold drink"↔"soft drink"↔"soda") plus edit-distance-1 typo correction — both run before falling back to "no exact match."</p></div>
+          <div class="field"><span class="field-label">Category search</span><p class="field-val">Typing a category word ("snacks") returns the category page inline as the top result, not just individual products.</p></div>
+          <div class="field"><span class="field-label">Instant results</span><p class="field-val">Results render per keystroke from the local index; perceived latency is 0ms since nothing leaves the device until Add to Cart.</p></div>
+          <div class="field"><span class="field-label">Loading state</span><p class="field-val">None visible in the common case (local index); a thin top progress bar only if the index itself is still hydrating on a cold load.</p></div>
+          <div class="field"><span class="field-label">Empty results</span><p class="field-val">Never truly empty — worst case falls back to "closest category" plus a direct "Message the store" link, so a genuinely missing item still becomes a conversation, not a dead end.</p></div>
+          <div class="field"><span class="field-label">Search ranking</span><p class="field-val">In-stock first, then personal purchase frequency, then hostel-wide popularity — a rare item you buy weekly should outrank a popular item you've never touched.</p></div>
+          <div class="field"><span class="field-label">Search analytics</span><p class="field-val">Every zero-exact-match query is logged for the owner console — the cheapest, most honest source of "what should I stock next."</p></div>
+          <div class="field"><span class="field-label">Future: voice search</span><p class="field-val">Mic icon reserved in the search bar layout now; deferred until there's evidence residents actually want hands-free search mid-task (e.g. while cooking Maggi).</p></div>
+          <div class="field"><span class="field-label">Keyboard shortcuts</span><p class="field-val">Desktop: <code>/</code> focuses search from anywhere, <code>Esc</code> clears and blurs — a Linear-style convention for the console-adjacent power users (owner + frequent orderers on laptop).</p></div>
+          <div class="field"><span class="field-label">Accessibility</span><p class="field-val">Results announced via <code>aria-live="polite"</code> as they update; full keyboard traversal of the results list with arrow keys.</p></div>
+          <div class="field"><span class="field-label">Performance</span><p class="field-val">Search index (~few hundred rows) is a single small JSON payload cached at the PWA layer — works fully offline, degrades gracefully if network drops mid-search.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: CATEGORY -->
+    <section class="doc" id="s3">
+      <div class="sec-head"><span class="sec-num">03</span><h2>Category</h2></div>
+      <p class="lede">Categories are a shortcut into the shelf, not a taxonomy to navigate deeply — one tap in, one tap to a product, no sub-category mazes.</p>
+      <div class="spec">
+        <div class="spec-head"><p class="spec-name">Category</p><p class="spec-purpose">Narrow the shelf to what's relevant without ever feeling like a filter form.</p></div>
+        <div class="field-grid">
+          <div class="field"><span class="field-label">Category cards</span><p class="field-val">Photo-led tile, category name, item count — six on Home, always visible, never collapsed behind a "see all."</p></div>
+          <div class="field"><span class="field-label">Category page</span><p class="field-val">Opens in-place (grid re-filters below the same sticky header) on mobile; a genuine route on desktop for shareable/bookmarkable URLs.</p></div>
+          <div class="field"><span class="field-label">Filtering</span><p class="field-val">Only two filters exist: "In stock" (default on) and price range — deliberately not replicating a full ecommerce filter panel this catalogue doesn't need.</p></div>
+          <div class="field"><span class="field-label">Sorting</span><p class="field-val">Default sort is personal-relevance (as in Search); explicit alternatives are Price and Popularity, exposed as a single-tap chip row, not a dropdown.</p></div>
+          <div class="field"><span class="field-label">Sticky category rail</span><p class="field-val">Horizontal on mobile (pinned under the status bar), vertical on desktop (persistent left column) — always shows which category is active.</p></div>
+          <div class="field"><span class="field-label">Desktop</span><p class="field-val">4-column product grid beside a persistent category sidebar; hover reveals the quick-add button without a click.</p></div>
+          <div class="field"><span class="field-label">Mobile</span><p class="field-val">2-column grid, sticky rail scrolls independently from the product grid beneath it.</p></div>
+          <div class="field"><span class="field-label">Animations</span><p class="field-val">Switching category cross-fades the grid (120ms) rather than a hard cut or a slide, since it's a filter change, not a navigation.</p></div>
+          <div class="field"><span class="field-label">Loading</span><p class="field-val">Skeleton grid matching the exact card dimensions, so nothing reflows when real content arrives.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: PRODUCT CARD -->
+    <section class="doc" id="s4">
+      <div class="sec-head"><span class="sec-num">04</span><h2>Product Card</h2></div>
+      <p class="lede">The card is the single most-rendered component in the app — every pixel on it is either driving a decision or it's being removed.</p>
+      <div class="spec">
+        <div class="spec-head"><p class="spec-name">Product Card</p><p class="spec-purpose">Let a resident decide "yes, add it" without opening anything.</p></div>
+        <div class="field-grid">
+          <div class="field"><span class="field-label">Image</span><p class="field-val">Real photography of the actual stocked item (never a stock/generic packshot) — square, consistent lighting, top 55% of the card. This alone is a trust decision: a fresher recognizing the exact packet on her shelf later builds more confidence than any copy could.</p></div>
+          <div class="field"><span class="field-label">Price</span><p class="field-val">Tabular numerals, bottom-left, always visible without interaction — never hidden behind a "view price" tap.</p></div>
+          <div class="field"><span class="field-label">Stock</span><p class="field-val">Silent when comfortably in stock (absence of a badge is itself the signal); a small "Only 3 left" pill appears only when true and low — real scarcity, never fabricated.</p></div>
+          <div class="field"><span class="field-label">Discount / badges</span><p class="field-val">Single badge slot max, e.g. "Combo," "New" — never stacked badges competing for attention.</p></div>
+          <div class="field"><span class="field-label">Quantity selector</span><p class="field-val">Hidden until the item is already in cart, at which point the Add button morphs into a stepper (− 1 +) in place — no separate quantity UI before commitment.</p></div>
+          <div class="field"><span class="field-label">Add button</span><p class="field-val">Bottom-right, thumb-reachable, filled amber circle with a plus glyph — the single most-tapped target in the app, sized 44px minimum regardless of card size.</p></div>
+          <div class="field"><span class="field-label">Hover (desktop)</span><p class="field-val">Card lifts 2px with a soft border-color shift (no drop shadow); Add button becomes fully opaque from a resting 85% opacity.</p></div>
+          <div class="field"><span class="field-label">Tap (mobile)</span><p class="field-val">Card body tap opens the Product Sheet; Add button tap is a separate hit target that never triggers the sheet — critical so quick re-adds don't accidentally open a detail view.</p></div>
+          <div class="field"><span class="field-label">Animations</span><p class="field-val">Add button press: 2% scale-down + immediate morph to stepper, 150ms. Quantity change: the number cross-fades, never jump-cuts.</p></div>
+          <div class="field"><span class="field-label">Loading</span><p class="field-val">Skeleton is image-block + two grey bars at exact final dimensions — zero layout shift on real content arrival.</p></div>
+          <div class="field"><span class="field-label">Responsive</span><p class="field-val">Card aspect ratio is fixed (1:1.3) across all breakpoints; only the grid column count changes, never the card's internal proportions.</p></div>
+          <div class="field"><span class="field-label">Accessibility</span><p class="field-val">Whole card exposed as one <code>button</code>-labeled region ("Maggi 2-Minute Noodles, ₹18, in stock") for screen readers, with the Add control independently reachable and labeled ("Add Maggi 2-Minute Noodles to cart").</p></div>
+          <div class="field"><span class="field-label">Business reasoning</span><p class="field-val">Every element on this card either speeds up the add-to-cart decision or builds trust in the item being real and available — nothing on it exists to be decorative.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: PRODUCT SHEET -->
+    <section class="doc" id="s5">
+      <div class="sec-head"><span class="sec-num">05</span><h2>Product Sheet</h2></div>
+      <p class="lede">A bottom sheet, never a route — the underlying grid stays mounted and scrolled to the same position when it closes, so opening a product to check something never costs the user their place.</p>
+      <div class="spec">
+        <div class="spec-head"><p class="spec-name">Product Sheet</p><p class="spec-purpose">Answer the one remaining doubt (what exactly is this, how big, how fast) and convert it into an add.</p></div>
+        <div class="field-grid">
+          <div class="field"><span class="field-label">Large image / gallery</span><p class="field-val">Full-width hero photo, swipeable to 1–2 secondary angles for packaged goods where size/pack-count is a real question (e.g. "is this the family pack or single").</p></div>
+          <div class="field"><span class="field-label">Description</span><p class="field-val">One honest sentence, written by a human, not scraped manufacturer copy — e.g. "The 2-minute classic, made fresh in the pantry microwave if you don't have one."</p></div>
+          <div class="field"><span class="field-label">Nutrition / ingredients</span><p class="field-val">Collapsed by default behind a small "Nutrition" toggle — present for the minority who care (dietary restriction, allergy), invisible cost to everyone else.</p></div>
+          <div class="field"><span class="field-label">Preparation &amp; delivery time</span><p class="field-val">Shown together as one line — "Ready to eat in 2 min · delivered in ~8 min" — because for instant food, total time-to-eating is the actual decision driver, not delivery time alone.</p></div>
+          <div class="field"><span class="field-label">Stock</span><p class="field-val">Same honest-only-when-low convention as the card; if genuinely out of stock, Add is replaced by "Notify when back" (Section 11 pattern reused here).</p></div>
+          <div class="field"><span class="field-label">Quantity + Add to Cart</span><p class="field-val">Full-width sticky footer button inside the sheet, so it's reachable without scrolling regardless of how much detail content is above it.</p></div>
+          <div class="field"><span class="field-label">Frequently bought together</span><p class="field-val">2–3 items with a true co-purchase rate, each individually addable with its own checkbox — never a forced bundle.</p></div>
+          <div class="field"><span class="field-label">Recommendations</span><p class="field-val">A single row below FBT, labeled with its real reason (see Section 12), not a second unlabeled "you may also like."</p></div>
+          <div class="field"><span class="field-label">Share</span><p class="field-val">One tap → native share sheet with a deep link straight to this product's sheet, useful for the Wing (friend-group) persona coordinating an order.</p></div>
+          <div class="field"><span class="field-label">Future: reviews</span><p class="field-val">Reserved as a collapsed section once order volume is high enough for reviews to be meaningful signal rather than noise from 1–2 opinions.</p></div>
+          <div class="field"><span class="field-label">Animations</span><p class="field-val">Slides up from the bottom over a dimmed backdrop, 220ms ease-out; dismiss via swipe-down or backdrop tap, tracked 1:1 with the gesture (interruptible, not a fixed-duration animation).</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 6: CART -->
+    <section class="doc" id="s6">
+      <div class="sec-head"><span class="sec-num">06</span><h2>Cart</h2></div>
+      <p class="lede">The cart is a persistent surface, not a page you can lose — it exists simultaneously as a mini-bar, a full sheet, and a running total, all reflecting one source of truth.</p>
+      <div class="spec">
+        <div class="spec-head"><p class="spec-name">Cart</p><p class="spec-purpose">Make the running total and the path to checkout impossible to lose track of, while offering one honest nudge toward free delivery.</p></div>
+        <div class="field-grid">
+          <div class="field"><span class="field-label">Sticky mini-cart</span><p class="field-val">A slim bottom bar appears the instant the first item is added — item count, total, and a "View Cart" affordance, present on every screen until checkout.</p></div>
+          <div class="field"><span class="field-label">Cart sheet/page</span><p class="field-val">Bottom sheet on mobile, side panel on desktop (per Foundation Doc Section 11) — never a full route change on mobile.</p></div>
+          <div class="field"><span class="field-label">Free delivery progress</span><p class="field-val">A slim real progress bar — "₹43 more for free delivery" — genuinely true and recalculated live; removed entirely once crossed (replaced by a quiet "Free delivery unlocked" pill, no longer a bar with nothing left to fill).</p></div>
+          <div class="field"><span class="field-label">Recommended products</span><p class="field-val">Shown only below the free-delivery bar, and only while the customer hasn't yet crossed the threshold — the one place a suggestion is explicitly tied to a real, disclosed cost benefit ("add this, hit free delivery").</p></div>
+          <div class="field"><span class="field-label">Undo remove</span><p class="field-val">Removing an item swaps its row for a 4-second "Removed · Undo" state before it actually disappears — protects against an accidental swipe on a crowded bus/bed scenario.</p></div>
+          <div class="field"><span class="field-label">Swipe interactions</span><p class="field-val">Swipe-left on a cart row reveals Remove; swipe never auto-triggers past a hold threshold, avoiding accidental deletes.</p></div>
+          <div class="field"><span class="field-label">Quantity animations</span><p class="field-val">Stepper +/− cross-fades the number and recomputes the total with a brief tabular-number roll, never a hard jump.</p></div>
+          <div class="field"><span class="field-label">Price updates</span><p class="field-val">Total recalculates on every change with zero perceptible delay (pure client-side arithmetic against already-loaded prices) — no spinner ever appears for a quantity change.</p></div>
+          <div class="field"><span class="field-label">Coupons (future)</span><p class="field-val">Field reserved but hidden until a real promotions system exists — an empty, unused coupon input is a worse trust signal than no coupon field at all.</p></div>
+          <div class="field"><span class="field-label">Empty cart</span><p class="field-val">See Section 16 — never a dead end, always a direct route back to Your Usual or Best Sellers.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 7: CHECKOUT -->
+    <section class="doc" id="s7">
+      <div class="sec-head"><span class="sec-num">07</span><h2>Checkout</h2></div>
+      <p class="lede">Checkout has exactly two required fields — room number and phone — because the entire "address" in this business is a room number. Anything resembling a standard ecommerce address form is actively wrong here.</p>
+      <div class="spec">
+        <div class="spec-head"><p class="spec-name">Checkout</p><p class="spec-purpose">Confirm where and how, in the fewest fields that are physically possible for this delivery model.</p></div>
+        <div class="field-grid">
+          <div class="field"><span class="field-label">Customer details</span><p class="field-val">Room number (required) and phone (required, pre-filled after first order) — that's the complete address model; no city/pincode/landmark fields exist.</p></div>
+          <div class="field"><span class="field-label">Delivery method</span><p class="field-val">Two clear options as large tappable cards, not a dropdown: <strong>Room Delivery</strong> (₹25, or free above ₹250) and <strong>Pickup</strong> (₹0, for residents who'd rather grab it themselves) — Pickup exists because forcing delivery on someone one floor away is friction, not service.</p></div>
+          <div class="field"><span class="field-label">Free delivery threshold</span><p class="field-val">₹250, same number shown consistently from the Cart's progress bar through to this screen — no surprise recalculation at the last step.</p></div>
+          <div class="field"><span class="field-label">Payment method</span><p class="field-val">UPI only, selected here, executed in Section 8 — no method choice paralysis (cards/wallets/COD aren't offered because they don't fit a manual-verification, cash-averse operation).</p></div>
+          <div class="field"><span class="field-label">Order notes</span><p class="field-val">Optional single-line field ("no ice," "leave at door") — collapsed behind a "+ Add a note" link so it never adds visual weight to the default path.</p></div>
+          <div class="field"><span class="field-label">Validation</span><p class="field-val">Inline, on blur, never on submit-then-scroll-to-error — a malformed phone number is flagged the moment focus leaves the field.</p></div>
+          <div class="field"><span class="field-label">Errors</span><p class="field-val">Field-level red microcopy stating exactly what's wrong ("Enter a 10-digit number") — never a generic top-of-form banner.</p></div>
+          <div class="field"><span class="field-label">Loading</span><p class="field-val">"Continue to Payment" shows an inline spinner inside the button itself (button stays the same size) while the order draft is created server-side.</p></div>
+          <div class="field"><span class="field-label">Animations</span><p class="field-val">Delivery method cards use a single accent-border highlight on selection, no scale/bounce — checkout is the one place motion is minimized further than the rest of the app, to keep the moment feeling serious and fast.</p></div>
+          <div class="field"><span class="field-label">Accessibility</span><p class="field-val">Delivery method cards are a proper radio group under the hood, fully operable with arrow keys and announced as "Delivery method, 1 of 2, Room Delivery, selected."</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 8: PAYMENT -->
+    <section class="doc" id="s8">
+      <div class="sec-head"><span class="sec-num">08</span><h2>Payment</h2></div>
+      <p class="lede">This is the single highest-trust-risk screen in the product. There is no payment gateway silently confirming anything — a human on the other end has to see the money land and tap "confirm." Every design decision here exists to make that wait feel safe instead of uncertain.</p>
+
+      <h3>The eight moments, in order</h3>
+      <div class="spec">
+        <div class="spec-head"><p class="spec-name">1 · QR Code</p><p class="spec-purpose">The default path for most UPI apps.</p></div>
+        <div class="field-grid">
+          <div class="field"><span class="field-label">Interaction</span><p class="field-val">Tap to enlarge to near-fullscreen with a soft zoom (180ms) — small QR codes are the #1 real-world scan failure point, so this is the single highest-value micro-interaction on the screen.</p></div>
+          <div class="field"><span class="field-label">Trust detail</span><p class="field-val">The store's verified UPI name is printed directly beneath the code in large type, so the customer can visually confirm they're paying the actual NightCravings account before scanning.</p></div>
+        </div>
+      </div>
+      <div class="spec">
+        <div class="spec-head"><p class="spec-name">2–3 · UPI ID &amp; Mobile Number</p><p class="spec-purpose">Fallback paths for apps/situations where scanning isn't convenient.</p></div>
+        <div class="field-grid">
+          <div class="field"><span class="field-label">Copy button</span><p class="field-val">One tap copies to clipboard and swaps the button label to "Copied" with a checkmark for 2 seconds — immediate, unambiguous feedback with zero toast/dialog interruption.</p></div>
+          <div class="field"><span class="field-label">Layout</span><p class="field-val">Both shown as secondary, smaller rows beneath the QR — the hierarchy communicates "scan first, these are backups," matching real usage.</p></div>
+        </div>
+      </div>
+      <div class="spec">
+        <div class="spec-head"><p class="spec-name">4 · Copy Amount</p><p class="spec-purpose">Remove the single most error-prone manual step in a manual-payment flow.</p></div>
+        <div class="field-grid">
+          <div class="field"><span class="field-label">Interaction</span><p class="field-val">The exact order total, tabular numerals, with its own dedicated Copy button right beside it — a mistyped amount is the most common real-world failure in manual UPI, and this removes typing entirely.</p></div>
+        </div>
+      </div>
+      <div class="spec">
+        <div class="spec-head"><p class="spec-name">5 · Upload Payment Screenshot</p><p class="spec-purpose">Give the owner (and the customer) tangible proof the payment happened.</p></div>
+        <div class="field-grid">
+          <div class="field"><span class="field-label">Interaction</span><p class="field-val">Native file/camera picker; immediate thumbnail preview with a retake/remove option — the customer sees exactly what the owner is about to see, so there's no "did it upload correctly" doubt.</p></div>
+          <div class="field"><span class="field-label">Validation</span><p class="field-val">Required to proceed (this business's only real proof-of-payment); a clear inline reason if the file fails to upload, with automatic retry on flaky hostel wifi.</p></div>
+        </div>
+      </div>
+      <div class="spec">
+        <div class="spec-head"><p class="spec-name">6 · Transaction ID (optional)</p><p class="spec-purpose">A secondary, faster-to-verify signal for customers whose UPI app surfaces it easily.</p></div>
+        <div class="field-grid">
+          <div class="field"><span class="field-label">Interaction</span><p class="field-val">Optional text field, clearly marked as such — never blocks submission, since not all UPI apps expose this cleanly.</p></div>
+        </div>
+      </div>
+      <div class="spec">
+        <div class="spec-head"><p class="spec-name">7 · Payment Submitted</p><p class="spec-purpose">Confirm the customer's action landed, distinct from confirming the money landed.</p></div>
+        <div class="field-grid">
+          <div class="field"><span class="field-label">Animation</span><p class="field-val">A single, calm checkmark draw-in (250ms) — deliberately not a confetti/celebration moment, because the order isn't actually confirmed yet and celebrating early would be dishonest.</p></div>
+          <div class="field"><span class="field-label">Copy</span><p class="field-val">"We've got your payment details — confirming now" — states plainly what has and hasn't happened yet.</p></div>
+        </div>
+      </div>
+      <div class="spec">
+        <div class="spec-head"><p class="spec-name">8 · Awaiting Verification — the "Verification Heartbeat"</p><p class="spec-purpose">Turn an inherent wait into the most reassuring moment in the flow, not the most anxious one.</p></div>
+        <div class="field-grid">
+          <div class="field"><span class="field-label">Interaction</span><p class="field-val">A live status card shows a gentle pulsing indicator plus an honest estimate — "Usually confirmed in under 3 min" — computed from the owner's real rolling median confirmation time, not a fixed promise.</p></div>
+          <div class="field"><span class="field-label">Realtime update</span><p class="field-val">Transitions to Order Confirmed automatically the instant the owner taps confirm (Supabase realtime push) — the customer never has to refresh or wonder.</p></div>
+          <div class="field"><span class="field-label">Escalation path</span><p class="field-val">If the estimate window passes without confirmation, the card itself surfaces a direct "Message the store" action — proactive, not something the anxious customer has to go dig for in Support.</p></div>
+          <div class="field"><span class="field-label">Failure case</span><p class="field-val">If the owner marks payment as not received/mismatched, the customer gets a clear, blame-free explanation and a direct re-upload path — see Section 17.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 9: ORDER TRACKING -->
+    <section class="doc" id="s9">
+      <div class="sec-head"><span class="sec-num">09</span><h2>Order Tracking</h2></div>
+      <p class="lede">Four honest stages, each backed by a real state change on the owner's side — never a fake progress animation implying movement that isn't happening.</p>
+      <div class="spec">
+        <div class="spec-head"><p class="spec-name">Order Tracking</p><p class="spec-purpose">Answer "where's my order" before the question forms, for the entire 5–10 minute wait.</p></div>
+        <div class="field-grid">
+          <div class="field"><span class="field-label">Stages</span><p class="field-val">Payment Submitted → Order Confirmed → Delivery Coming → Delivered — a vertical stepper, each stage timestamped as it's reached.</p></div>
+          <div class="field"><span class="field-label">Notifications</span><p class="field-val">Push/web notification fires on every stage change, so the resident doesn't need to keep the tab open (critical for the Gamer persona mid-session).</p></div>
+          <div class="field"><span class="field-label">Animations</span><p class="field-val">Each stage transition draws the connecting line and settles the new active dot with a soft pulse — a single 300ms moment per transition, never continuous motion.</p></div>
+          <div class="field"><span class="field-label">Estimated time</span><p class="field-val">A live countdown appears only from "Delivery Coming" onward — this is a 40-meter walk, not a GPS-tracked vehicle, so a map is deliberately not used; an honest number is more trustworthy than a fake moving pin.</p></div>
+          <div class="field"><span class="field-label">Progress</span><p class="field-val">Persists across app backgrounding/tab close — reopening the site resumes exactly at the current stage, never resets to Home.</p></div>
+          <div class="field"><span class="field-label">History</span><p class="field-val">Every completed order becomes a row in Order History (Section 10) automatically, no separate save action.</p></div>
+          <div class="field"><span class="field-label">Failure cases</span><p class="field-val">Owner-side cancellation (e.g. item actually out of stock after all) triggers an explicit stage — "Order Cancelled" — with a stated reason and an automatic, visible refund-status note, never a silent disappearance.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 10: PROFILE -->
+    <section class="doc" id="s10">
+      <div class="sec-head"><span class="sec-num">10</span><h2>Profile</h2></div>
+      <p class="lede">The least-visited but highest-retention-leverage section — this is where a one-off order becomes a habit.</p>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Item</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td>Order History</td><td>Every past order, each with a single "Reorder" button that rebuilds the exact cart in one tap — the highest-leverage retention feature in the entire spec.</td></tr>
+          <tr><td>Saved Details</td><td>Room number and phone, editable in place — set once, needed nowhere else again.</td></tr>
+          <tr><td>Theme</td><td>Light / Dark / System — a simple three-way switch, respecting whichever the OS already prefers by default.</td></tr>
+          <tr><td>Support</td><td>Direct message/call to the owner — one tap, no ticket system for a business this size.</td></tr>
+          <tr><td>FAQ</td><td>Answers the handful of real recurring questions (delivery radius, payment verification time, timings) — kept short enough to actually be read.</td></tr>
+          <tr><td>About / Privacy / Terms</td><td>Legal and trust completeness — plainly written, never templated boilerplate that reads as evasive.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- SECTION 11: STORE CLOSED -->
+    <section class="doc" id="s11">
+      <div class="sec-head"><span class="sec-num">11</span><h2>Store Closed</h2></div>
+      <p class="lede">Closed is not a wall — the catalogue stays fully browsable, because browsing while closed is exactly how tomorrow's order gets decided tonight.</p>
+      <div class="spec">
+        <div class="spec-head"><p class="spec-name">Store Closed</p><p class="spec-purpose">Keep the resident engaged with the catalogue and turn "closed" into a specific, trustworthy reopening moment.</p></div>
+        <div class="field-grid">
+          <div class="field"><span class="field-label">Opening countdown</span><p class="field-val">Replaces the Store Status bar with "Opens in 6h 12m" — same slot, same prominence as the open-state ETA, so the information hierarchy doesn't change, only its content.</p></div>
+          <div class="field"><span class="field-label">Browse catalogue</span><p class="field-val">Fully intact; Add to Cart still works and simply queues the order, clearly labeled "Order will be placed when we open" rather than disabling the whole site.</p></div>
+          <div class="field"><span class="field-label">Notify me (future)</span><p class="field-val">A single opt-in per session — "Notify me when open" — deferred to a real push-notification build, not a fake button that does nothing today.</p></div>
+          <div class="field"><span class="field-label">Store timings</span><p class="field-val">Always visible, one tap from the status bar — removes any guessing about when to come back.</p></div>
+          <div class="field"><span class="field-label">Support</span><p class="field-val">Direct message link stays available even when closed, for genuine emergencies (e.g. a wrong delivery from earlier).</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 12: CONVERSION -->
+    <section class="doc" id="s12">
+      <div class="sec-head"><span class="sec-num">12</span><h2>Conversion Optimization</h2></div>
+      <p class="lede">Every technique here is required to disclose its own reasoning to the customer — that single rule is what separates this list from a dark-pattern playbook.</p>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Technique</th><th>Where it lives</th><th>Disclosed reason shown to customer</th></tr></thead>
+        <tbody>
+          <tr><td>Your Usual</td><td>Home, Profile</td><td>"Based on your last 6 orders"</td></tr>
+          <tr><td>Frequently Bought Together</td><td>Product Sheet, Cart</td><td>"Goes with [item]" — a true co-purchase statistic</td></tr>
+          <tr><td>Trending Tonight</td><td>Home</td><td>"Most ordered in your hostel in the last 3 hours" — real, timestamped</td></tr>
+          <tr><td>Combos</td><td>Home, Cart</td><td>Price shown as "3 items, ₹10 off list price" — never a manufactured percentage</td></tr>
+          <tr><td>Free delivery nudge</td><td>Cart, Checkout</td><td>"₹43 more for free delivery" — a real, recalculated threshold</td></tr>
+          <tr><td>Recently Viewed / Continue Shopping</td><td>Home</td><td>"You looked at this earlier today" — recovers real, recent intent</td></tr>
+          <tr><td>Recommended For You</td><td>Home, Product Sheet</td><td>Always carries a named reason string, never a bare "recommended"</td></tr>
+        </tbody>
+      </table></div>
+      <p><strong>Explicitly rejected:</strong> countdown-timer discounts, fake stock scarcity, pre-checked add-ons, hidden fees revealed at the last step, exit-intent popups, and any "recommended" surface without a stated reason. Product placement follows attention naturally earned by genuine relevance (Your Usual, real trending) rather than manufactured pressure.</p>
+    </section>
+
+    <!-- SECTION 13: MOBILE UX -->
+    <section class="doc" id="s13">
+      <div class="sec-head"><span class="sec-num">13</span><h2>Mobile UX</h2></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Concern</th><th>Rule</th></tr></thead>
+        <tbody>
+          <tr><td>Thumb zone</td><td>Add-to-cart, cart bar, and primary CTAs always sit in the bottom third of the viewport — never top-anchored.</td></tr>
+          <tr><td>Reachability</td><td>Category rail and search remain reachable via a single upward thumb stretch at most; nothing critical lives in the top corners.</td></tr>
+          <tr><td>Gestures</td><td>Swipe-down dismisses sheets; swipe-left reveals cart-row Remove; no gesture is ever the <em>only</em> way to do something — every gesture has a tappable equivalent.</td></tr>
+          <tr><td>Bottom sheets</td><td>Used for Product Detail and Cart specifically because they preserve context (the page beneath stays alive) — reserved for exactly those two, not applied everywhere by default.</td></tr>
+          <tr><td>Keyboard</td><td>Checkout inputs use the correct <code>inputmode</code> (numeric for room/phone) so the OS shows the right keypad automatically.</td></tr>
+          <tr><td>Safe areas</td><td>Bottom cart bar and sheet footers respect <code>env(safe-area-inset-bottom)</code> on notched devices — never obscured by a home indicator.</td></tr>
+          <tr><td>Landscape</td><td>Product grid reflows to more columns; sticky bottom bar stays bottom-anchored, never floats mid-screen.</td></tr>
+          <tr><td>Foldables</td><td>Fluid grid via CSS <code>minmax()</code> means the unfolded wider viewport simply resolves to more columns — no special-cased breakpoint required.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- SECTION 14: RESPONSIVE -->
+    <section class="doc" id="s14">
+      <div class="sec-head"><span class="sec-num">14</span><h2>Responsive Design</h2></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Class</th><th>Range</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Small phone</td><td>&lt; 360px</td><td>2-column grid, cart bar text abbreviates to icon + total only.</td></tr>
+          <tr><td>Large phone</td><td>360–430px</td><td>Primary target; 2-column grid, full cart bar text.</td></tr>
+          <tr><td>Tablet / iPad</td><td>431–1023px</td><td>3-column grid, category rail begins transitioning to a side column near the top of this range.</td></tr>
+          <tr><td>Laptop / Desktop</td><td>1024–1439px</td><td>4-column grid, persistent sidebar, cart becomes a side panel.</td></tr>
+          <tr><td>Foldable (unfolded)</td><td>Variable, often ~700–900px</td><td>Treated as a fluid width, not a named breakpoint — grid simply resolves via <code>minmax()</code>.</td></tr>
+          <tr><td>Landscape (any device)</td><td>—</td><td>Height-constrained sheets (Product, Cart) cap at 85vh with internal scroll, so the sticky Add button is never pushed off-screen.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- SECTION 15: MICRO-INTERACTIONS -->
+    <section class="doc" id="s15">
+      <div class="sec-head"><span class="sec-num">15</span><h2>Micro-interactions</h2></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Interaction</th><th>Feedback</th><th>Duration</th></tr></thead>
+        <tbody>
+          <tr><td>Hover (desktop)</td><td>2px lift + border-color shift, no shadow</td><td>100ms</td></tr>
+          <tr><td>Tap / click (any button)</td><td>2% scale-down on press, release on lift</td><td>80ms</td></tr>
+          <tr><td>Add to cart</td><td>Button morphs to stepper in place; cart bar badge does a single scale-pulse</td><td>150ms</td></tr>
+          <tr><td>Remove from cart</td><td>Row collapses to an "Undo" state before removal</td><td>4000ms window</td></tr>
+          <tr><td>Copy (UPI ID / amount)</td><td>Label swaps to "Copied ✓" in place</td><td>2000ms hold</td></tr>
+          <tr><td>Success (order confirmed)</td><td>Single calm checkmark draw, no confetti</td><td>250ms</td></tr>
+          <tr><td>Failure (payment issue)</td><td>Icon swaps to a plain outlined alert, inline explanation appears below</td><td>150ms</td></tr>
+          <tr><td>Checkout submit</td><td>In-button spinner, button retains its size</td><td>until response</td></tr>
+        </tbody>
+      </table></div>
+      <p>Every entry above respects <code>prefers-reduced-motion</code> by collapsing to an opacity-only equivalent; nothing in this table exceeds 250ms.</p>
+    </section>
+
+    <!-- SECTION 16: EMPTY STATES -->
+    <section class="doc" id="s16">
+      <div class="sec-head"><span class="sec-num">16</span><h2>Empty States</h2></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Screen</th><th>Design</th></tr></thead>
+        <tbody>
+          <tr><td>Cart</td><td>Illustration-free, plain copy — "Nothing here yet" — with a direct button back to Your Usual (if it exists) or Best Sellers.</td></tr>
+          <tr><td>Orders</td><td>"No orders yet" with a single CTA into Home — never a blank page with no way forward.</td></tr>
+          <tr><td>Search (no exact match)</td><td>Nearest category fallback plus "Message the store about [query]" — never a dead "0 results."</td></tr>
+          <tr><td>Recommendations</td><td>Row is omitted entirely rather than shown empty — an empty recommendation row looks broken, not honest.</td></tr>
+          <tr><td>Store Closed</td><td>See Section 11 — catalogue stays fully present, only the status bar content changes.</td></tr>
+          <tr><td>No internet</td><td>Cached catalogue remains browsable (PWA); a slim, non-blocking banner states "You're offline — showing saved menu," cart/checkout disabled with a clear explanation rather than a silent failure.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- SECTION 17: ERROR STATES -->
+    <section class="doc" id="s17">
+      <div class="sec-head"><span class="sec-num">17</span><h2>Error States</h2></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Error</th><th>What the customer sees</th></tr></thead>
+        <tbody>
+          <tr><td>Network drop mid-checkout</td><td>Form state is preserved client-side; a retry banner appears rather than the form resetting or silently failing.</td></tr>
+          <tr><td>Payment failed / mismatch</td><td>Plain, blame-free explanation ("We couldn't match this payment — please re-check the amount or re-upload") with a direct re-upload action, never just "Payment Failed."</td></tr>
+          <tr><td>Payment timeout (no owner response)</td><td>The Verification Heartbeat itself surfaces "Taking longer than usual — message the store" as a proactive escalation, not a dead spinner.</td></tr>
+          <tr><td>Product out of stock (after adding)</td><td>Flagged inline in the cart before checkout, with the item auto-marked and one tap to remove — never discovered for the first time after payment.</td></tr>
+          <tr><td>Store closed mid-session</td><td>Status bar updates live; cart is preserved and the customer is told the order will queue for opening (Section 11), not blocked outright.</td></tr>
+          <tr><td>Owner rejects order</td><td>Explicit "Order Cancelled" stage with a stated reason and visible refund-status note (see Section 9).</td></tr>
+          <tr><td>Form validation</td><td>Field-level, inline, on blur — states exactly what's wrong and how to fix it, no generic banners.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- SECTION 18: NOTIFICATIONS -->
+    <section class="doc" id="s18">
+      <div class="sec-head"><span class="sec-num">18</span><h2>Notifications</h2></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Type</th><th>Trigger</th><th>Presentation</th></tr></thead>
+        <tbody>
+          <tr><td>Success</td><td>Copy action, order stage advance</td><td>Inline state change (label swap, stepper progress) — no toast for low-stakes confirmations.</td></tr>
+          <tr><td>Warning</td><td>Approaching a validation issue, low stock</td><td>Inline pill, amber, non-blocking.</td></tr>
+          <tr><td>Error</td><td>Payment mismatch, network failure</td><td>Inline banner at point of failure, red, with a stated next step.</td></tr>
+          <tr><td>Order updates</td><td>Every tracking stage change</td><td>Push/web notification + live in-app stepper update, simultaneously.</td></tr>
+          <tr><td>Payment verification</td><td>Owner confirms or rejects payment</td><td>Push notification the instant it happens — this is the one notification residents actively wait for.</td></tr>
+          <tr><td>Delivery updates</td><td>"Delivery Coming" → "Delivered"</td><td>Push notification, since this is often background-tab territory (studying, gaming).</td></tr>
+          <tr><td>Promotions (future)</td><td>New combo, seasonal item</td><td>Deferred until opt-in preferences exist — never sent by default without explicit consent.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- SECTION 19: ACCESSIBILITY -->
+    <section class="doc" id="s19">
+      <div class="sec-head"><span class="sec-num">19</span><h2>Accessibility</h2></div>
+      <p class="lede">WCAG 2.1 AA across every screen in this document, verified independently in both themes — carried over from the Foundation Doc's standards, applied screen-by-screen here.</p>
+      <ul>
+        <li>Every interactive element (card, button, stepper, radio) is reachable and operable by keyboard alone, with a visible focus ring that is never suppressed.</li>
+        <li>Product cards, cart rows, and tracking stages expose their full state (name, price, stock, stage) as one announced unit to screen readers — never split across ambiguous fragments.</li>
+        <li>All copy/success/error feedback is announced via <code>aria-live</code> regions, matching the visual timing exactly.</li>
+        <li>Color is never the only signal — stock, success, and error states pair color with icon and text.</li>
+        <li>Minimum 44×44px touch targets everywhere, following directly from the one-handed, often-lying-down usage model.</li>
+        <li><code>prefers-reduced-motion</code> collapses every animation in Sections 15 and elsewhere to opacity-only equivalents.</li>
+      </ul>
+    </section>
+
+    <!-- SECTION 20: ACCEPTANCE CRITERIA -->
+    <section class="doc" id="s20">
+      <div class="sec-head"><span class="sec-num">20</span><h2>Acceptance Criteria</h2></div>
+      <p class="lede">"Done" for each screen, stated as a checklist an engineer or reviewer can literally tick against.</p>
+      <details>
+        <summary>Home</summary>
+        <div class="inner"><ul>
+          <li>Store status and ETA are server-rendered and visible with zero scroll, in both themes.</li>
+          <li>Your Usual appears above Best Sellers for any account with 2+ prior orders; is omitted (not empty) otherwise.</li>
+          <li>Late Night Mode re-ranks rows automatically past the configured evening threshold with no extra request.</li>
+          <li>LCP &lt; 1.8s on a throttled 3G profile.</li>
+        </ul></div>
+      </details>
+      <details>
+        <summary>Search</summary>
+        <div class="inner"><ul>
+          <li>Zero exact matches never renders a dead end — always falls back to nearest category or a message-the-store link.</li>
+          <li>Common typos and synonyms in the hand-curated map resolve to the correct product.</li>
+          <li>Every zero-match query is logged and visible in the owner console.</li>
+        </ul></div>
+      </details>
+      <details>
+        <summary>Cart</summary>
+        <div class="inner"><ul>
+          <li>Free-delivery progress bar recalculates instantly and disappears (replaced by a confirmation pill) once crossed.</li>
+          <li>Remove always passes through a 4-second Undo state before permanent deletion.</li>
+          <li>Persists across a closed tab/app background for the same day.</li>
+        </ul></div>
+      </details>
+      <details>
+        <summary>Checkout</summary>
+        <div class="inner"><ul>
+          <li>Only room number and phone are required fields; no other address field exists anywhere in the flow.</li>
+          <li>Delivery fee and free-delivery threshold shown match exactly what was shown in Cart, with no last-step change.</li>
+          <li>All validation is inline, on blur, field-specific.</li>
+        </ul></div>
+      </details>
+      <details>
+        <summary>Payment</summary>
+        <div class="inner"><ul>
+          <li>QR enlarges to near-fullscreen on tap; UPI ID, number, and amount each have independent, working copy buttons with visible confirmation.</li>
+          <li>Screenshot upload is required to proceed and shows an immediate thumbnail preview.</li>
+          <li>Awaiting Verification shows a live, real (not fixed) estimated confirmation time and transitions automatically via realtime push — no manual refresh required.</li>
+          <li>A rejection/mismatch state gives a blame-free explanation and a direct re-upload path.</li>
+        </ul></div>
+      </details>
+      <details>
+        <summary>Order Tracking</summary>
+        <div class="inner"><ul>
+          <li>All four stages (Payment Submitted → Confirmed → Coming → Delivered) are individually timestamped and persist across sessions.</li>
+          <li>A push notification fires on every stage change.</li>
+          <li>Cancellation always shows a stated reason and a visible refund-status note.</li>
+        </ul></div>
+      </details>
+      <details>
+        <summary>Cross-cutting</summary>
+        <div class="inner"><ul>
+          <li>Every screen passes WCAG 2.1 AA contrast checks independently in light and dark themes.</li>
+          <li>No animation anywhere in the product exceeds 250ms or ignores <code>prefers-reduced-motion</code>.</li>
+          <li>No recommendation surface anywhere ships without a visible, true, disclosed reason.</li>
+        </ul></div>
+      </details>
+    </section>
+
+    <footer>NightCravings — Customer Experience Specification · Phase 2 · v1.0 · Prepared 11 Jul 2026 · Builds on Product Foundation Document v1.0</footer>
+  </main>
+</div>

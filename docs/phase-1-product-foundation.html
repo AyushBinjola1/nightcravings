@@ -1,0 +1,784 @@
+<title>NightCravings — Product Foundation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{
+    --ink:#211C16;
+    --ink-soft:#4A423A;
+    --paper:#FBF7F0;
+    --surface:#F3ECE0;
+    --border:#DCD1BE;
+    --accent:#B4520A;
+    --accent-soft:#E8DCC8;
+    --night:#2E2A6E;
+    --night-soft:#DEDBF2;
+    --success:#276A45;
+    --warning:#966400;
+    --danger:#A32626;
+    --font-display: Charter, 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    --font-mono: ui-monospace, 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+    --radius: 3px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --ink:#EEE7DA;
+      --ink-soft:#B7AC9B;
+      --paper:#171310;
+      --surface:#221D18;
+      --border:#3A322A;
+      --accent:#E08A3E;
+      --accent-soft:#3A2A18;
+      --night:#9C97E8;
+      --night-soft:#26244A;
+      --success:#5FAE7F;
+      --warning:#D9A441;
+      --danger:#E07575;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ink:#EEE7DA; --ink-soft:#B7AC9B; --paper:#171310; --surface:#221D18;
+    --border:#3A322A; --accent:#E08A3E; --accent-soft:#3A2A18; --night:#9C97E8;
+    --night-soft:#26244A; --success:#5FAE7F; --warning:#D9A441; --danger:#E07575;
+  }
+  :root[data-theme="light"]{
+    --ink:#211C16; --ink-soft:#4A423A; --paper:#FBF7F0; --surface:#F3ECE0;
+    --border:#DCD1BE; --accent:#B4520A; --accent-soft:#E8DCC8; --night:#2E2A6E;
+    --night-soft:#DEDBF2; --success:#276A45; --warning:#966400; --danger:#A32626;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:16px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--night-soft); color:var(--ink); }
+
+  a{ color:var(--accent); }
+  a:focus-visible, button:focus-visible, summary:focus-visible{
+    outline:2px solid var(--accent); outline-offset:2px;
+  }
+
+  .shell{
+    display:grid;
+    grid-template-columns: 260px minmax(0,760px);
+    gap:64px;
+    max-width:1180px;
+    margin:0 auto;
+    padding:56px 24px 120px;
+    justify-content:center;
+  }
+  @media (max-width:960px){
+    .shell{ grid-template-columns: 1fr; }
+    .toc{ display:none; }
+  }
+
+  /* ---------- TOC ---------- */
+  .toc{ position:sticky; top:40px; align-self:start; font-size:13px; }
+  .toc-title{
+    font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.08em;
+    color:var(--ink-soft); font-size:11px; margin-bottom:14px;
+  }
+  .toc ol{ list-style:none; margin:0; padding:0; counter-reset:toc; }
+  .toc li{ counter-increment:toc; margin-bottom:2px; }
+  .toc a{
+    display:flex; gap:8px; text-decoration:none; color:var(--ink-soft);
+    padding:5px 8px; border-radius:var(--radius);
+  }
+  .toc a::before{
+    content:counter(toc,decimal-leading-zero);
+    font-family:var(--font-mono); font-size:11px; color:var(--border); flex:none;
+    padding-top:1px;
+  }
+  .toc a:hover{ background:var(--surface); color:var(--ink); }
+
+  /* ---------- Cover ---------- */
+  .cover{ margin-bottom:64px; padding-bottom:40px; border-bottom:1px solid var(--border); }
+  .kicker{
+    font-family:var(--font-mono); font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--accent); margin:0 0 18px;
+  }
+  h1.title{
+    font-family:var(--font-display); font-size:clamp(2.1rem,4.5vw,3rem);
+    line-height:1.06; letter-spacing:-.01em; margin:0 0 14px; text-wrap:balance;
+    font-weight:600;
+  }
+  .subtitle{ font-size:1.08rem; color:var(--ink-soft); max-width:56ch; margin:0 0 22px; }
+  .meta{
+    display:flex; flex-wrap:wrap; gap:20px; font-family:var(--font-mono); font-size:12px;
+    color:var(--ink-soft);
+  }
+  .meta b{ color:var(--ink); font-weight:600; }
+
+  /* ---------- Section rhythm ---------- */
+  section.doc{ margin-bottom:64px; scroll-margin-top:32px; }
+  .sec-head{ display:flex; align-items:baseline; gap:14px; margin-bottom:22px; }
+  .sec-num{ font-family:var(--font-mono); font-size:13px; color:var(--accent); }
+  h2{
+    font-family:var(--font-display); font-weight:600; font-size:1.6rem; margin:0;
+    letter-spacing:-.005em; text-wrap:balance;
+  }
+  h3{ font-family:var(--font-display); font-weight:600; font-size:1.15rem; margin:28px 0 10px; }
+  p{ margin:0 0 14px; max-width:66ch; }
+  ul, ol.plain{ margin:0 0 14px; padding-left:22px; }
+  li{ margin-bottom:6px; }
+  strong{ color:var(--ink); }
+
+  .lede{ font-size:1.02rem; color:var(--ink-soft); max-width:64ch; }
+
+  /* ---------- Callout ---------- */
+  .callout{
+    border-left:2px solid var(--accent); background:var(--accent-soft);
+    padding:14px 18px; border-radius:0 var(--radius) var(--radius) 0; margin:18px 0;
+    font-size:.95rem;
+  }
+  .callout b{ color:var(--accent); }
+
+  /* ---------- Tables ---------- */
+  .tbl-wrap{ overflow-x:auto; margin:8px 0 20px; border:1px solid var(--border); border-radius:6px; }
+  table{ border-collapse:collapse; width:100%; font-size:.92rem; min-width:520px; }
+  th,td{ text-align:left; padding:10px 14px; border-bottom:1px solid var(--border); vertical-align:top; }
+  th{
+    font-family:var(--font-mono); font-size:11px; text-transform:uppercase; letter-spacing:.06em;
+    color:var(--ink-soft); background:var(--surface);
+  }
+  tr:last-child td{ border-bottom:none; }
+  td.num{ font-variant-numeric:tabular-nums; }
+
+  /* ---------- Persona cards ---------- */
+  .persona-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:18px 0; }
+  @media (max-width:640px){ .persona-grid{ grid-template-columns:1fr; } }
+  .persona{
+    border:1px solid var(--border); border-radius:6px; padding:18px 20px; background:var(--surface);
+  }
+  .persona-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; }
+  .persona-name{ font-family:var(--font-display); font-weight:600; font-size:1.05rem; }
+  .persona-age{ font-family:var(--font-mono); font-size:12px; color:var(--ink-soft); }
+  .persona dl{ margin:0; font-size:.88rem; }
+  .persona dt{
+    font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--accent); margin-top:9px;
+  }
+  .persona dd{ margin:2px 0 0; color:var(--ink-soft); }
+
+  /* ---------- Journey stepper ---------- */
+  .journey{ list-style:none; margin:20px 0; padding:0; border-left:1px solid var(--border); }
+  .journey li{ position:relative; padding:2px 0 26px 26px; margin:0; }
+  .journey li::before{
+    content:''; position:absolute; left:-5px; top:5px; width:9px; height:9px;
+    border-radius:50%; background:var(--paper); border:2px solid var(--night);
+  }
+  .j-stage{ font-family:var(--font-display); font-weight:600; font-size:1.02rem; margin-bottom:4px; }
+  .j-row{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:8px; }
+  @media (max-width:640px){ .j-row{ grid-template-columns:1fr; } }
+  .j-label{
+    font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--ink-soft); display:block; margin-bottom:3px;
+  }
+  .j-val{ font-size:.9rem; }
+
+  /* ---------- Swatches ---------- */
+  .swatch-row{ display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; margin:14px 0 22px; }
+  .swatch{ border:1px solid var(--border); border-radius:6px; overflow:hidden; }
+  .swatch-fill{ height:56px; }
+  .swatch-info{ padding:8px 10px; font-family:var(--font-mono); font-size:11px; background:var(--surface); }
+  .swatch-info b{ display:block; font-family:var(--font-body); font-size:12.5px; margin-bottom:2px; }
+
+  /* ---------- Type scale ---------- */
+  .type-row{ display:flex; align-items:baseline; gap:18px; padding:10px 0; border-bottom:1px solid var(--border); }
+  .type-row:last-child{ border-bottom:none; }
+  .type-label{ font-family:var(--font-mono); font-size:11px; color:var(--ink-soft); width:120px; flex:none; }
+  .type-sample{ font-family:var(--font-display); }
+
+  /* ---------- Chips ---------- */
+  .chipset{ display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 22px; }
+  .chip{
+    font-family:var(--font-mono); font-size:11.5px; border:1px solid var(--border);
+    padding:5px 11px; border-radius:20px; color:var(--ink-soft); background:var(--surface);
+  }
+
+  /* ---------- Code / tree ---------- */
+  pre{
+    font-family:var(--font-mono); font-size:12.5px; background:var(--surface);
+    border:1px solid var(--border); border-radius:6px; padding:16px 18px;
+    overflow-x:auto; line-height:1.55; margin:12px 0 22px;
+  }
+
+  /* ---------- Details ---------- */
+  details{ border:1px solid var(--border); border-radius:6px; margin-bottom:12px; background:var(--surface); }
+  summary{
+    cursor:pointer; padding:13px 16px; font-family:var(--font-display); font-weight:600;
+    font-size:.98rem; list-style:none; display:flex; justify-content:space-between; align-items:center;
+  }
+  summary::-webkit-details-marker{ display:none; }
+  summary::after{ content:'+'; font-family:var(--font-mono); color:var(--accent); font-size:16px; }
+  details[open] summary::after{ content:'–'; }
+  details .inner{ padding:0 18px 16px; }
+
+  /* ---------- Principles list ---------- */
+  .principles{ counter-reset:pr; list-style:none; margin:16px 0; padding:0; }
+  .principles li{
+    counter-increment:pr; display:flex; gap:14px; padding:12px 0; border-bottom:1px solid var(--border);
+  }
+  .principles li:last-child{ border-bottom:none; }
+  .principles li::before{
+    content:counter(pr,decimal-leading-zero); font-family:var(--font-mono); font-size:12px;
+    color:var(--accent); flex:none; padding-top:2px;
+  }
+
+  footer{
+    max-width:66ch; padding-top:28px; border-top:1px solid var(--border);
+    font-size:.85rem; color:var(--ink-soft); font-family:var(--font-mono);
+  }
+
+  @media (prefers-reduced-motion:no-preference){
+    a, .toc a{ transition:background .12s ease, color .12s ease; }
+  }
+</style>
+
+<div class="shell">
+  <nav class="toc">
+    <div class="toc-title">Contents</div>
+    <ol>
+      <li><a href="#vision">Product Vision</a></li>
+      <li><a href="#philosophy">Product Philosophy</a></li>
+      <li><a href="#goals">Business Goals</a></li>
+      <li><a href="#personas">User Personas</a></li>
+      <li><a href="#uxstrategy">UX Strategy</a></li>
+      <li><a href="#ia">Information Architecture</a></li>
+      <li><a href="#language">Design Language</a></li>
+      <li><a href="#system">Design System</a></li>
+      <li><a href="#color">Color System</a></li>
+      <li><a href="#type">Typography</a></li>
+      <li><a href="#responsive">Responsive Strategy</a></li>
+      <li><a href="#motion">Motion Guidelines</a></li>
+      <li><a href="#a11y">Accessibility</a></li>
+      <li><a href="#perf">Performance Standards</a></li>
+      <li><a href="#stack">Technology Decisions</a></li>
+      <li><a href="#arch">Project Architecture</a></li>
+      <li><a href="#eng">Engineering Standards</a></li>
+      <li><a href="#risks">Risks</a></li>
+      <li><a href="#scale">Future Scalability</a></li>
+      <li><a href="#principles">Product Principles</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <div class="cover">
+      <p class="kicker">Product Foundation Document — v1.0</p>
+      <h1 class="title">NightCravings<br>The convenience store already inside your hostel.</h1>
+      <p class="subtitle">A foundation document for a hostel quick-commerce platform, built to feel as trustworthy as the person who already runs it — and to scale from one room to one country.</p>
+      <div class="meta">
+        <span><b>Prepared for</b> Founding team</span>
+        <span><b>Status</b> Pre-development</span>
+        <span><b>Date</b> 11 July 2026</span>
+      </div>
+    </div>
+
+    <section class="doc" id="vision">
+      <div class="sec-head"><span class="sec-num">01</span><h2>Product Vision</h2></div>
+      <p class="lede">Every hostel already has an unofficial "dabba guy" — the room down the hall that quietly stocks Maggi, Lay's, and cold Coke for the 1am crowd. It works because it's <em>fast, known, and near</em>. It fails because it's undiscoverable, cash-only, unpredictable in stock, and invisible until you already know the room number.</p>
+      <p>NightCravings is that room, made legible. Not a food-delivery app shrunk down for students — a different category: <strong>proximity commerce</strong>, where the entire fulfillment radius is one building and the entire promise is "what you want, in the time it takes to walk downstairs." We are not competing with Swiggy or Zomato on selection. We are competing with them on the fact that they were never designed for a 40-meter delivery radius, and it shows in their price, their wait time, and their ceremony.</p>
+      <p>The long-term shape of the company is a network of these rooms — one per hostel block, then one per campus, then a national layer of hyper-local inventory nodes running on one ordering, payments, and operations platform. The website is the first proof that this can feel like a real company and not a WhatsApp order to a warden's nephew.</p>
+      <div class="callout"><b>North star:</b> a student should be able to think "I want something," open the site, and be drinking/eating it in under ten minutes — with zero moments of doubt about whether the order went through.</div>
+    </section>
+
+    <section class="doc" id="philosophy">
+      <div class="sec-head"><span class="sec-num">02</span><h2>Product Philosophy</h2></div>
+      <p class="lede">These are load-bearing rules, not aspirations — every screen in this document is checked against them.</p>
+      <ol class="principles">
+        <li>Speed over complexity — a faster ugly flow beats a slower beautiful one; we just don't have to choose.</li>
+        <li>Beautiful without being distracting — restraint is the aesthetic, not an afterthought.</li>
+        <li>Every animation must justify its own existence in milliseconds of user benefit, or it's cut.</li>
+        <li>Every tap acknowledges itself immediately — state changes are felt, not just eventually visible.</li>
+        <li>Never overwhelm — one primary action per screen, always identifiable in under a second.</li>
+        <li>Never require unnecessary thinking — defaults are pre-chosen; the obvious next step is the biggest button.</li>
+        <li>Everything feels premium — premium is a function of consistency and restraint, not gradients.</li>
+        <li>Everything feels trustworthy — status is always visible; nothing is ever "probably fine."</li>
+        <li>Every page nudges toward one more relevant item, never toward an irrelevant one.</li>
+        <li>Less friction is a revenue lever, not just a UX nicety — treat it with the same rigor as pricing.</li>
+      </ol>
+    </section>
+
+    <section class="doc" id="goals">
+      <div class="sec-head"><span class="sec-num">03</span><h2>Business Goals &amp; Success Metrics</h2></div>
+      <p>The product exists to move eight numbers. Each has an owner-relevant reason, not just a dashboard reason.</p>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Metric</th><th>Why it matters here</th><th>Early target</th></tr></thead>
+        <tbody>
+          <tr><td>Time to checkout</td><td>The entire pitch is speed; this is the metric that either proves or kills it.</td><td class="num">&lt; 30s, cart→paid</td></tr>
+          <tr><td>Conversion rate (session→order)</td><td>Hostel traffic is captive and repeat; low conversion means friction, not lack of demand.</td><td class="num">&gt; 35%</td></tr>
+          <tr><td>Average Order Value</td><td>Delivery cost is fixed per trip regardless of basket size — AOV is pure margin lever.</td><td class="num">₹120+</td></tr>
+          <tr><td>Products per order</td><td>Directly upstream of AOV; cross-sell surfaces are judged against this.</td><td class="num">2.4+</td></tr>
+          <tr><td>Repeat purchase rate (30-day)</td><td>A hostel resident who orders twice tends to become a subscriber for the semester.</td><td class="num">&gt; 55%</td></tr>
+          <tr><td>Order-to-delivery time</td><td>The core promise vs. Swiggy/Zomato; this is the number we'll put on the homepage.</td><td class="num">&lt; 10 min</td></tr>
+          <tr><td>Monthly active residents / hostel capacity</td><td>Real measure of penetration inside a captive, finite population.</td><td class="num">&gt; 60%</td></tr>
+          <tr><td>Revenue per resident / month</td><td>The unit that actually determines when "one hostel" becomes "one campus."</td><td class="num">₹250+</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="doc" id="personas">
+      <div class="sec-head"><span class="sec-num">04</span><h2>User Personas</h2></div>
+      <p class="lede">Six behavioral patterns, not six demographics — the same student can move between these across one week.</p>
+      <div class="persona-grid">
+        <div class="persona">
+          <div class="persona-head"><span class="persona-name">Priya, the Fresher</span><span class="persona-age">18–19</span></div>
+          <dl>
+            <dt>Behaviour</dt><dd>Hasn't mapped the hostel's informal economy yet — doesn't know which floor sells what, or whom to trust with cash.</dd>
+            <dt>Spending</dt><dd>Cautious; parent-funded UPI, checks prices before adding.</dd>
+            <dt>Pain point</dt><dd>Social anxiety around asking seniors "where do I even get maggi here."</dd>
+            <dt>Motivation</dt><dd>Wants an option that requires zero local knowledge or awkward asking.</dd>
+            <dt>Pattern</dt><dd>Small, tentative first orders; browses more than she buys in week one.</dd>
+            <dt>Most ordered</dt><dd>Instant noodles, biscuits, bottled water.</dd>
+            <dt>UX expectation</dt><dd>Obvious trust signals — real photos, clear pricing, visible delivery time — before she'll try it once.</dd>
+          </dl>
+        </div>
+        <div class="persona">
+          <div class="persona-head"><span class="persona-name">Arjun, the Gamer</span><span class="persona-age">19–22</span></div>
+          <dl>
+            <dt>Behaviour</dt><dd>Orders mid-session without pausing the game; hates any flow that takes his eyes off screen for long.</dd>
+            <dt>Spending</dt><dd>High-frequency, low-guilt; snacks are a small tax on a long night.</dd>
+            <dt>Pain point</dt><dd>Multi-step forms; anything that isn't reorderable in two taps.</dd>
+            <dt>Motivation</dt><dd>Sustained energy — caffeine, sugar, salt — without leaving the setup.</dd>
+            <dt>Pattern</dt><dd>Late-night (11pm–3am), same 3–4 items on repeat, high reorder rate.</dd>
+            <dt>Most ordered</dt><dd>Energy drinks, chips, chocolate, instant noodles.</dd>
+            <dt>UX expectation</dt><dd>One-tap "order again," large touch targets, dark mode by default at that hour.</dd>
+          </dl>
+        </div>
+        <div class="persona">
+          <div class="persona-head"><span class="persona-name">Sneha, Late-Night Studier</span><span class="persona-age">19–23</span></div>
+          <dl>
+            <dt>Behaviour</dt><dd>Orders during exam weeks specifically because the canteen is shut and she can't leave notes unattended.</dd>
+            <dt>Spending</dt><dd>Spikes hard during exam season, near-zero otherwise.</dd>
+            <dt>Pain point</dt><dd>Uncertainty about whether "the shop" is even open right now.</dd>
+            <dt>Motivation</dt><dd>Stay alert without a real break; protein/caffeine over sugar.</dd>
+            <dt>Pattern</dt><dd>Single-item, high-urgency orders; checks "open now" status before anything else.</dd>
+            <dt>Most ordered</dt><dd>Coffee/tea, nuts, protein bars, glucose biscuits.</dd>
+            <dt>UX expectation</dt><dd>Live open/closed state front and center; no login wall between her and the order.</dd>
+          </dl>
+        </div>
+        <div class="persona">
+          <div class="persona-head"><span class="persona-name">The Wing (friend group)</span><span class="persona-age">19–23</span></div>
+          <dl>
+            <dt>Behaviour</dt><dd>One person orders for four to six; the rest reimburse via UPI after.</dd>
+            <dt>Spending</dt><dd>Largest basket size of any segment; price-insensitive per item, sensitive to total.</dd>
+            <dt>Pain point</dt><dd>Remembering everyone's individual preferences under one cart; splitting cost later is awkward.</dd>
+            <dt>Motivation</dt><dd>Movie night / weekend hangout ritual, not hunger.</dd>
+            <dt>Pattern</dt><dd>Weekend evenings, large multi-category baskets, planned rather than impulsive.</dd>
+            <dt>Most ordered</dt><dd>Chips variety packs, soft drinks, chocolates, instant snacks in bulk.</dd>
+            <dt>UX expectation</dt><dd>Fast quantity adjustment, a visible running total, "add for the group" bundles.</dd>
+          </dl>
+        </div>
+        <div class="persona">
+          <div class="persona-head"><span class="persona-name">Rehan, Impulse Buyer</span><span class="persona-age">18–22</span></div>
+          <dl>
+            <dt>Behaviour</dt><dd>Opens the app bored, not hungry; the browsing itself is the trigger.</dd>
+            <dt>Spending</dt><dd>Small, frequent, unplanned purchases — the highest-margin segment per rupee of attention.</dd>
+            <dt>Pain point</dt><dd>Nothing to prompt the "oh, I want that" moment — a plain list doesn't trigger him.</dd>
+            <dt>Motivation</dt><dd>Novelty, a new flavour, "trending in your hostel" social proof.</dd>
+            <dt>Pattern</dt><dd>Frequent short sessions, adds one item, checks out immediately.</dd>
+            <dt>Most ordered</dt><dd>New/limited-edition snacks, ice cream, flavoured drinks.</dd>
+            <dt>UX expectation</dt><dd>A discovery surface (new-in, trending) on the home screen, not just search.</dd>
+          </dl>
+        </div>
+        <div class="persona">
+          <div class="persona-head"><span class="persona-name">Kavya, Daily Regular</span><span class="persona-age">19–24</span></div>
+          <dl>
+            <dt>Behaviour</dt><dd>Orders the same breakfast/evening staple almost every day; treats NightCravings like a subscription without the label.</dd>
+            <dt>Spending</dt><dd>Small per order, highest lifetime value through sheer frequency.</dd>
+            <dt>Pain point</dt><dd>Re-browsing the same three items daily feels like wasted effort.</dd>
+            <dt>Motivation</dt><dd>Routine, reliability, not wanting to think about it.</dd>
+            <dt>Pattern</dt><dd>Same time window daily, near-identical basket, extremely reorder-driven.</dd>
+            <dt>Most ordered</dt><dd>Milk/curd, bread, eggs, a fixed evening snack.</dd>
+            <dt>UX expectation</dt><dd>A "your usual" shortcut on the home screen; order history that's actually reorderable.</dd>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <section class="doc" id="uxstrategy">
+      <div class="sec-head"><span class="sec-num">05</span><h2>UX Strategy &amp; the Complete Journey</h2></div>
+      <p class="lede">The problem the journey has to solve: canteens close by 9–10pm, Swiggy/Zomato charge urban-delivery economics for a 40-meter trip and take 30–45 minutes to do it, and there is currently no version of "the hostel shop" that a fresher can find without asking around. Every stage below is designed against that specific gap.</p>
+      <ol class="journey">
+        <li>
+          <div class="j-stage">Opening the site</div>
+          <div class="j-row">
+            <div><span class="j-label">Emotion</span><span class="j-val">Neutral-to-skeptical — "is this actually stocked / actually open right now?"</span></div>
+            <div><span class="j-label">Outcome</span><span class="j-val">Open/closed state and delivery estimate visible before any scrolling.</span></div>
+          </div>
+        </li>
+        <li>
+          <div class="j-stage">Landing</div>
+          <div class="j-row">
+            <div><span class="j-label">Friction risk</span><span class="j-val">Marketing copy where a product grid should be.</span></div>
+            <div><span class="j-label">Fix</span><span class="j-val">Home <em>is</em> the shelf — categories and "your usual" above the fold, zero hero banner.</span></div>
+          </div>
+        </li>
+        <li>
+          <div class="j-stage">Browsing</div>
+          <div class="j-row">
+            <div><span class="j-label">Emotion</span><span class="j-val">Low-effort scanning, often one-handed while lying down.</span></div>
+            <div><span class="j-label">Outcome</span><span class="j-val">Thumb-reachable grid, sticky category rail, no accidental navigation.</span></div>
+          </div>
+        </li>
+        <li>
+          <div class="j-stage">Searching</div>
+          <div class="j-row">
+            <div><span class="j-label">Friction risk</span><span class="j-val">Zero-result dead ends ("Maggi" vs "Instant Noodles").</span></div>
+            <div><span class="j-label">Fix</span><span class="j-val">Synonym-aware search; a miss always falls back to the closest category, never a blank page.</span></div>
+          </div>
+        </li>
+        <li>
+          <div class="j-stage">Product discovery</div>
+          <div class="j-row">
+            <div><span class="j-label">Outcome</span><span class="j-val">Cross-sell is contextual ("goes with Maggi": egg, cheese) — never generic "you may also like."</span></div>
+          </div>
+        </li>
+        <li>
+          <div class="j-stage">Product detail</div>
+          <div class="j-row">
+            <div><span class="j-label">Emotion</span><span class="j-val">Should barely register as a "page" — a sheet, not a navigation.</span></div>
+            <div><span class="j-label">Outcome</span><span class="j-val">Add-to-cart reachable without opening detail at all, for repeat items.</span></div>
+          </div>
+        </li>
+        <li>
+          <div class="j-stage">Cart</div>
+          <div class="j-row">
+            <div><span class="j-label">Friction risk</span><span class="j-val">Surprise costs at the end (a known killer of trust in this exact category).</span></div>
+            <div><span class="j-label">Fix</span><span class="j-val">Final total shown from the first item added, not revealed at checkout.</span></div>
+          </div>
+        </li>
+        <li>
+          <div class="j-stage">Checkout</div>
+          <div class="j-row">
+            <div><span class="j-label">Outcome</span><span class="j-val">Room number is the only address field that exists — no street, city, pincode theatre.</span></div>
+          </div>
+        </li>
+        <li>
+          <div class="j-stage">Payment</div>
+          <div class="j-row">
+            <div><span class="j-label">Emotion</span><span class="j-val">Momentary doubt — "did that actually go through."</span></div>
+            <div><span class="j-label">Fix</span><span class="j-val">UPI-first, single tap, and a state that never leaves the user unsure for more than a second.</span></div>
+          </div>
+        </li>
+        <li>
+          <div class="j-stage">Verification</div>
+          <div class="j-row">
+            <div><span class="j-label">Outcome</span><span class="j-val">Silent — phone number already known from first order, no re-typing OTPs on repeat visits.</span></div>
+          </div>
+        </li>
+        <li>
+          <div class="j-stage">Order confirmed</div>
+          <div class="j-row">
+            <div><span class="j-label">Emotion</span><span class="j-val">Relief — this is the moment trust is either earned or lost.</span></div>
+            <div><span class="j-label">Outcome</span><span class="j-val">Immediate confirmation with a real ETA, not a spinner.</span></div>
+          </div>
+        </li>
+        <li>
+          <div class="j-stage">Delivery</div>
+          <div class="j-row">
+            <div><span class="j-label">Friction risk</span><span class="j-val">Silence during the wait breeds anxiety even at 8 minutes.</span></div>
+            <div><span class="j-label">Fix</span><span class="j-val">A visible status (packed → on the way → at your door) — no GPS map theatre for a 40m walk, just honest steps.</span></div>
+          </div>
+        </li>
+        <li>
+          <div class="j-stage">Delivered</div>
+          <div class="j-row">
+            <div><span class="j-label">Outcome</span><span class="j-val">One-tap confirmation the resident received it; this closes the loop the owner needs operationally.</span></div>
+          </div>
+        </li>
+        <li>
+          <div class="j-stage">Order history → repeat purchase</div>
+          <div class="j-row">
+            <div><span class="j-label">Outcome</span><span class="j-val">Every past order becomes a one-tap "order again" — this is the single highest-leverage screen for repeat rate.</span></div>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="doc" id="ia">
+      <div class="sec-head"><span class="sec-num">06</span><h2>Information Architecture</h2></div>
+      <p>Flat by design — a hostel's catalogue is a few hundred SKUs, not tens of thousands. Depth is the enemy of a 30-second order.</p>
+      <pre>Home
+├── Status bar          (open/closed · ETA · hostel block selector)
+├── Your Usual          (reorder shortcut, personalized, top of scroll)
+├── Categories           (Snacks · Beverages · Instant Food · Chocolates · Daily Essentials · Late-Night)
+│   └── Category → Product Grid → Product Sheet (in-place, not a route change)
+├── Search               (synonym-aware, always one tap away)
+├── Cart                 (persistent bottom bar once non-empty)
+│   └── Checkout → Payment → Confirmation
+├── Orders               (active order tracker + history, each reorderable)
+└── Account              (room/hostel, saved payment, support)</pre>
+      <p>Two structural decisions worth stating explicitly: <strong>no multi-level category trees</strong> (one tap from home to product, always), and <strong>the cart is a persistent surface</strong>, not a page you navigate away to and lose your place in.</p>
+    </section>
+
+    <section class="doc" id="language">
+      <div class="sec-head"><span class="sec-num">07</span><h2>Design Language</h2></div>
+      <p class="lede">The reference points named in the brief translate into concrete rules, not vibes:</p>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Reference</th><th>What we take from it</th></tr></thead>
+        <tbody>
+          <tr><td>Apple</td><td>Restraint — one accent color used deliberately, generous negative space, nothing decorative.</td></tr>
+          <tr><td>Linear</td><td>Density done well — compact rows, keyboard-fast interactions, no wasted vertical space on desktop.</td></tr>
+          <tr><td>Blinkit / Zepto</td><td>The grid-of-products-first home screen, ETA as a first-class UI element, thumb-first mobile layout.</td></tr>
+          <tr><td>Stripe</td><td>Numeric honesty — prices, totals and timers rendered in tabular figures, aligned, never jumping.</td></tr>
+          <tr><td>Notion</td><td>One consistent component language reused everywhere, so nothing has to be re-learned per screen.</td></tr>
+        </tbody>
+      </table></div>
+      <p><strong>Explicitly avoided:</strong> gradient hero banners, heavy drop-shadow cards, generic Material ripple, Bootstrap-blue defaults, admin-template dashboards for the owner console. The brand should never look like a weekend hackathon project selling snacks — nor like a VC-funded app performing seriousness it hasn't earned. The tone is closer to <em>a well-run neighbourhood store that happens to have a beautiful sign.</em></p>
+    </section>
+
+    <section class="doc" id="system">
+      <div class="sec-head"><span class="sec-num">08</span><h2>Design System — Components</h2></div>
+      <p>One shared component language across the resident-facing app and the owner's operations console — same tokens, same primitives, different density.</p>
+      <details>
+        <summary>Foundational primitives</summary>
+        <div class="inner">
+          <div class="chipset">
+            <span class="chip">Button — primary/secondary/ghost/danger</span>
+            <span class="chip">Input — text/number/OTP</span>
+            <span class="chip">Select / Dropdown</span>
+            <span class="chip">Checkbox</span>
+            <span class="chip">Radio group</span>
+            <span class="chip">Switch</span>
+            <span class="chip">Badge</span>
+            <span class="chip">Chip / Tag</span>
+            <span class="chip">Avatar</span>
+            <span class="chip">Tabs</span>
+            <span class="chip">Accordion</span>
+            <span class="chip">Breadcrumb</span>
+            <span class="chip">Pagination</span>
+          </div>
+        </div>
+      </details>
+      <details>
+        <summary>Surfaces &amp; overlays</summary>
+        <div class="inner">
+          <div class="chipset">
+            <span class="chip">Product card</span>
+            <span class="chip">Category tile</span>
+            <span class="chip">Bottom sheet (product detail, cart summary)</span>
+            <span class="chip">Dialog (confirmations only)</span>
+            <span class="chip">Toast (order state changes)</span>
+            <span class="chip">Skeleton loader</span>
+            <span class="chip">Empty state</span>
+            <span class="chip">Table (owner console: inventory, orders)</span>
+          </div>
+        </div>
+      </details>
+      <details>
+        <summary>Navigation</summary>
+        <div class="inner">
+          <div class="chipset">
+            <span class="chip">Top status bar</span>
+            <span class="chip">Sticky category rail</span>
+            <span class="chip">Persistent cart bar</span>
+            <span class="chip">Search bar (expandable)</span>
+            <span class="chip">Sidebar (owner console, desktop only)</span>
+            <span class="chip">Carousel (New In / Trending — used sparingly)</span>
+          </div>
+        </div>
+      </details>
+      <p>Every primitive is built once in the shared UI layer and themed via tokens — no component is ever re-implemented per feature.</p>
+    </section>
+
+    <section class="doc" id="color">
+      <div class="sec-head"><span class="sec-num">09</span><h2>Color System</h2></div>
+      <p class="lede">The palette reads as a warm, tungsten-lit shop counter in light mode, and the same shop after midnight in dark mode — not an inverted copy of itself. Amber (turmeric, spice, the physical goods) is the action color; indigo (the actual hour most orders happen) is reserved for order-status and time-sensitive UI, so the two accents never compete for the same job.</p>
+      <div class="swatch-row">
+        <div class="swatch"><div class="swatch-fill" style="background:#FBF7F0;border-bottom:1px solid #DCD1BE"></div><div class="swatch-info"><b>Paper</b>#FBF7F0</div></div>
+        <div class="swatch"><div class="swatch-fill" style="background:#F3ECE0"></div><div class="swatch-info"><b>Surface</b>#F3ECE0</div></div>
+        <div class="swatch"><div class="swatch-fill" style="background:#211C16"></div><div class="swatch-info"><b>Ink</b>#211C16</div></div>
+        <div class="swatch"><div class="swatch-fill" style="background:#B4520A"></div><div class="swatch-info"><b>Accent (amber)</b>#B4520A</div></div>
+        <div class="swatch"><div class="swatch-fill" style="background:#2E2A6E"></div><div class="swatch-info"><b>Night (status)</b>#2E2A6E</div></div>
+        <div class="swatch"><div class="swatch-fill" style="background:#276A45"></div><div class="swatch-info"><b>Success</b>#276A45</div></div>
+        <div class="swatch"><div class="swatch-fill" style="background:#966400"></div><div class="swatch-info"><b>Warning</b>#966400</div></div>
+        <div class="swatch"><div class="swatch-fill" style="background:#A32626"></div><div class="swatch-info"><b>Danger</b>#A32626</div></div>
+      </div>
+      <p>Dark mode is not a filter over these values — <code>ink</code> becomes a warm off-white (#EEE7DA, never pure white), <code>paper</code> becomes a near-black with a brown cast (#171310, never pure black), and the amber accent is boosted in luminance (#E08A3E) so it stays legible without turning neon. Toggle the artifact's theme switch to see both.</p>
+      <p>Semantic colors (success/warning/danger) are fixed roles, independent of the two brand accents — an order-status pill is never rendered in raw amber or indigo.</p>
+    </section>
+
+    <section class="doc" id="type">
+      <div class="sec-head"><span class="sec-num">10</span><h2>Typography</h2></div>
+      <p>A serif display face (Charter/Georgia stack) gives the brand a note of an established shop's signage rather than a startup's dashboard; a neutral system-sans carries all functional UI text so nothing competes with product names and prices; tabular figures render every price, ETA and quantity so numbers never visually jitter as they update.</p>
+      <div style="margin:14px 0 22px;">
+        <div class="type-row"><span class="type-label">Display / 44</span><span class="type-sample" style="font-size:1.9rem;font-weight:600;">NightCravings</span></div>
+        <div class="type-row"><span class="type-label">Heading / 28</span><span class="type-sample" style="font-size:1.5rem;font-weight:600;">Instant Noodles</span></div>
+        <div class="type-row"><span class="type-label">Subheading / 20</span><span class="type-sample" style="font-size:1.15rem;font-weight:600;">Snacks &amp; Chips</span></div>
+        <div class="type-row"><span class="type-label">Body / 16</span><span class="type-sample" style="font-family:var(--font-body);font-size:1rem;">Delivered to your room in under 10 minutes.</span></div>
+        <div class="type-row"><span class="type-label">Caption / 13</span><span class="type-sample" style="font-family:var(--font-body);font-size:.8rem;color:var(--ink-soft);">In stock · Block C</span></div>
+        <div class="type-row"><span class="type-label">Numeric / 18</span><span class="type-sample" style="font-family:var(--font-mono);font-size:1.05rem;font-variant-numeric:tabular-nums;">₹149.00</span></div>
+      </div>
+      <p>Scale ratio ~1.25 across five steps; line-height 1.1 for display/heading, 1.6 for body; letter-spacing +0.06em on all uppercase labels to compensate for the reduced x-height at that size.</p>
+    </section>
+
+    <section class="doc" id="responsive">
+      <div class="sec-head"><span class="sec-num">11</span><h2>Responsive Strategy</h2></div>
+      <p>Mobile is the primary — arguably the only truly load-bearing — surface; over 90% of hostel ordering happens on a phone, one-handed, often in bed. Desktop exists mainly for the owner's operations console.</p>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Breakpoint</th><th>Range</th><th>Layout behaviour</th></tr></thead>
+        <tbody>
+          <tr><td>Compact</td><td class="num">&lt; 400px</td><td>2-column product grid, single-hand thumb zone prioritized, cart bar full width.</td></tr>
+          <tr><td>Standard mobile</td><td class="num">400–767px</td><td>Default target; 2–3 column grid, sticky category rail.</td></tr>
+          <tr><td>Tablet</td><td class="num">768–1023px</td><td>3–4 column grid, category rail becomes a left column.</td></tr>
+          <tr><td>Desktop</td><td class="num">1024–1439px</td><td>Persistent sidebar categories + 4-column grid + cart as a side panel, not a bottom bar.</td></tr>
+          <tr><td>Wide / owner console</td><td class="num">1440px+</td><td>Data-dense tables, multi-pane inventory + live order queue.</td></tr>
+        </tbody>
+      </table></div>
+      <p>Foldables and landscape are treated as "just another viewport" rather than special-cased — the grid is fluid (CSS grid + <code>minmax()</code>), never a fixed set of device breakpoints with gaps between them.</p>
+    </section>
+
+    <section class="doc" id="motion">
+      <div class="sec-head"><span class="sec-num">12</span><h2>Motion Guidelines</h2></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Moment</th><th>Motion</th><th>Duration</th></tr></thead>
+        <tbody>
+          <tr><td>Add to cart</td><td>Item icon arcs into the cart bar; cart badge count increments with a single scale-pulse.</td><td class="num">180ms</td></tr>
+          <tr><td>Product sheet open</td><td>Slide up from bottom, background dims — never a full route transition.</td><td class="num">220ms</td></tr>
+          <tr><td>Button press</td><td>2% scale-down on press, released on lift — the only "ripple" equivalent we use.</td><td class="num">80ms</td></tr>
+          <tr><td>Order status change</td><td>Status pill cross-fades to the new state; toast slides in from top.</td><td class="num">200ms</td></tr>
+          <tr><td>Skeleton → content</td><td>Cross-fade only, no shimmer sweep — shimmer reads as "slow," a plain fade reads as "arrived."</td><td class="num">150ms</td></tr>
+          <tr><td>Page/route change</td><td>None — sub-navigation happens in-place (sheets, tabs) specifically to avoid full transitions.</td><td class="num">—</td></tr>
+          <tr><td>Error state</td><td>Single horizontal shake (2px) on the offending field, plus inline message. Never a modal for a form error.</td><td class="num">120ms</td></tr>
+        </tbody>
+      </table></div>
+      <p>All motion respects <code>prefers-reduced-motion</code> by collapsing to opacity-only transitions. No animation in this system exceeds 250ms — anything longer reads as latency, not delight.</p>
+    </section>
+
+    <section class="doc" id="a11y">
+      <div class="sec-head"><span class="sec-num">13</span><h2>Accessibility Standards</h2></div>
+      <ul>
+        <li><strong>WCAG 2.1 AA</strong> minimum contrast on all text/UI, verified against both themes independently — dark mode is not assumed to inherit light mode's ratios.</li>
+        <li><strong>Keyboard:</strong> full order flow (browse → cart → checkout) completable without a pointer, for the owner console in particular.</li>
+        <li><strong>Focus states:</strong> visible 2px outline on every interactive element, never suppressed for aesthetics.</li>
+        <li><strong>Screen readers:</strong> product cards expose name, price, and stock state as one announced unit; cart updates are polite live-region announcements, not silent.</li>
+        <li><strong>Touch targets:</strong> minimum 44×44px, following directly from the "thumb, one-handed, sometimes lying down" usage model.</li>
+        <li><strong>Semantic HTML</strong> first — ARIA only fills genuine gaps (e.g. custom quantity steppers), never a substitute for correct elements.</li>
+        <li><strong>Reduced motion</strong> and <strong>reduced data</strong> preferences both respected — the latter disables non-essential product imagery preloading.</li>
+      </ul>
+    </section>
+
+    <section class="doc" id="perf">
+      <div class="sec-head"><span class="sec-num">14</span><h2>Performance Standards</h2></div>
+      <p>Performance is treated as a feature of the "10-minute delivery" promise, not a separate engineering concern — a 3-second product page directly taxes the number on the homepage.</p>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Target</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td>Lighthouse Performance / A11y / SEO / Best Practices</td><td class="num">100 / 100 / 100 / 100</td></tr>
+          <tr><td>LCP</td><td class="num">&lt; 1.8s</td></tr>
+          <tr><td>INP</td><td class="num">&lt; 150ms</td></tr>
+          <tr><td>CLS</td><td class="num">&lt; 0.05</td></tr>
+        </tbody>
+      </table></div>
+      <p>Delivered through: image optimization + lazy loading below the fold, route-level code splitting, prefetching the product-sheet bundle on card hover/focus, aggressive caching of the largely-static catalogue, skeleton states for anything over 150ms, and a PWA shell with offline browsing of the last-seen catalogue (checkout itself requires connectivity, by necessity).</p>
+    </section>
+
+    <section class="doc" id="stack">
+      <div class="sec-head"><span class="sec-num">15</span><h2>Technology Decisions</h2></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Layer</th><th>Choice</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>Framework</td><td>Next.js (App Router)</td><td>Server components keep the catalogue fast on cheap hostel wifi; file-system routing matches our deliberately flat IA.</td></tr>
+          <tr><td>Language</td><td>TypeScript</td><td>Order/payment logic is exactly where a silent <code>undefined</code> becomes a real refund conversation with a real student.</td></tr>
+          <tr><td>Styling</td><td>Tailwind CSS</td><td>Token-driven utility classes keep the design system enforceable in code, not just in Figma.</td></tr>
+          <tr><td>Components</td><td>shadcn/ui</td><td>Unstyled, accessible primitives we own outright — no fighting an opinionated component library's visual defaults.</td></tr>
+          <tr><td>Motion</td><td>Framer Motion</td><td>Declarative, interruptible transitions for the sheet/toast/cart-pulse moments defined above.</td></tr>
+          <tr><td>Backend / DB</td><td>Supabase</td><td>Postgres + realtime out of the box — order status needs to push to the resident live, not poll.</td></tr>
+          <tr><td>Client state</td><td>Zustand</td><td>Cart state is small, local, and frequent — no need for the ceremony of a heavier store.</td></tr>
+          <tr><td>Server state</td><td>TanStack Query</td><td>Catalogue and order data are server-owned; cache invalidation on order-status change is exactly its job.</td></tr>
+          <tr><td>Forms</td><td>React Hook Form + Zod</td><td>Checkout is the one place a bad input directly costs money — schema validation shared between client and server.</td></tr>
+          <tr><td>Icons</td><td>Lucide</td><td>Single consistent stroke width across the entire icon set — no mixed styles.</td></tr>
+          <tr><td>Hosting</td><td>Vercel</td><td>Edge caching for the catalogue, instant preview deploys per hostel-specific configuration change.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="doc" id="arch">
+      <div class="sec-head"><span class="sec-num">16</span><h2>Project Architecture</h2></div>
+      <p>Structured around one hard constraint: a single hostel today must not be hard-coded anywhere it will need to become "one of many hostels" tomorrow. Every feature folder is scoped by <code>hostelId</code> from day one, even while only one exists.</p>
+      <pre>src/
+├── app/                     # Next.js App Router
+│   ├── (storefront)/
+│   │   ├── page.tsx         # Home — categories + Your Usual
+│   │   ├── search/
+│   │   ├── cart/
+│   │   └── checkout/
+│   ├── (account)/
+│   │   ├── orders/
+│   │   └── profile/
+│   └── (owner-console)/     # Separate density, same design tokens
+│       ├── inventory/
+│       └── order-queue/
+├── features/
+│   ├── catalogue/           # product/category domain logic + UI
+│   ├── cart/
+│   ├── checkout/
+│   ├── orders/
+│   └── delivery-status/
+├── components/ui/           # shared primitives (button, sheet, toast…)
+├── design-tokens/           # color, type, spacing — single source of truth
+├── hooks/
+├── services/                # Supabase client, payment gateway adapter
+├── stores/                  # Zustand slices (cart, ui)
+├── types/
+├── lib/                     # zod schemas, formatters, constants
+└── config/                  # per-hostel config (hours, delivery radius, fees)</pre>
+      <p>The <code>(owner-console)</code> route group deliberately shares <code>components/ui</code> and <code>design-tokens</code> with the storefront rather than forking its own styles — one design system, two densities.</p>
+    </section>
+
+    <section class="doc" id="eng">
+      <div class="sec-head"><span class="sec-num">17</span><h2>Engineering Standards</h2></div>
+      <ul>
+        <li>Every component is typed, accessible by default, and documented with a one-line comment only where behaviour isn't obvious from its name.</li>
+        <li>No magic numbers — spacing, radii, durations and colors are always tokens, never inline literals.</li>
+        <li>No component exceeds ~150 lines before being decomposed; a product card that also contains checkout logic is a smell, not a shortcut.</li>
+        <li>Cart and checkout logic is pure and unit-tested independently of any UI — the one part of the app where a bug is a financial dispute, not a visual glitch.</li>
+        <li>Shared logic is extracted the second it's used twice, not before — no speculative abstractions for a hypothetical third hostel that doesn't exist yet.</li>
+      </ul>
+    </section>
+
+    <section class="doc" id="risks">
+      <div class="sec-head"><span class="sec-num">18</span><h2>Risks</h2></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Risk</th><th>Impact</th><th>Mitigation</th></tr></thead>
+        <tbody>
+          <tr><td>Manual delivery doesn't scale past ~1 owner</td><td>Order volume outpaces one person's physical capacity to deliver.</td><td>Owner console surfaces order queue + prep time explicitly, so hiring a second runner is an operational decision made with real data, not guesswork.</td></tr>
+          <tr><td>Stock/inventory drift (site says in-stock, room is out)</td><td>Direct trust damage — the single hardest thing to earn back in this category.</td><td>Lightweight owner-side stock toggle designed to be updatable in under 5 seconds between deliveries.</td></tr>
+          <tr><td>Payment failure with no clear resolution path</td><td>Money debited, order unclear — the worst possible moment for ambiguity.</td><td>Every payment state has an explicit, visible resolution path (retry, refund status, or contact) — never a silent spinner.</td></tr>
+          <tr><td>Single point of failure (one owner, one phone)</td><td>Any outage stops 100% of orders for the hostel.</td><td>Explicit "temporarily closed" state that's one tap for the owner to set, shown clearly rather than orders silently failing.</td></tr>
+          <tr><td>Trust bootstrapping with a new/unknown brand</td><td>Freshers in particular have no reason yet to trust an unfamiliar checkout.</td><td>Real product photography, transparent pricing, and a visible real person/room behind the service — never faceless.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="doc" id="scale">
+      <div class="sec-head"><span class="sec-num">19</span><h2>Future Scalability</h2></div>
+      <p>Every decision above already assumes the four-stage expansion path, so none of them need to be revisited when it happens — only configured.</p>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Stage</th><th>What changes</th><th>What doesn't</th></tr></thead>
+        <tbody>
+          <tr><td>Single hostel</td><td>One <code>hostelId</code>, one owner console, one delivery radius.</td><td>Full design system, IA, and checkout flow already final.</td></tr>
+          <tr><td>Entire campus</td><td>Hostel-block selector on home; catalogue and pricing configurable per block.</td><td>Same storefront codebase — config-driven, not forked.</td></tr>
+          <tr><td>Multiple colleges</td><td>Multi-tenant owner accounts; per-college branding tokens (logo, accent) layered over the base system.</td><td>Component library and token architecture — theming was designed in from Section 9 onward.</td></tr>
+          <tr><td>Nationwide</td><td>Owner onboarding self-serve; catalogue templates for common product sets; regional payment rails.</td><td>Core proximity-commerce model: one node, one small radius, one fast promise.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="doc" id="principles">
+      <div class="sec-head"><span class="sec-num">20</span><h2>Product Principles — Distilled</h2></div>
+      <div class="callout">
+        <p style="margin-bottom:8px"><b>If a proposed feature can't answer "does this get someone from craving to confirmed order faster, or does it deepen trust in a 10-minute promise," it doesn't belong in v1.</b></p>
+        <p style="margin-bottom:0">Everything in this document — the flat IA, the amber-and-indigo palette, the sub-250ms motion ceiling, the config-driven architecture — exists in service of one sentence: a student should be able to think of something they want, and be holding it before the thought gets old.</p>
+      </div>
+    </section>
+
+    <footer>NightCravings — Product Foundation Document · v1.0 · Prepared 11 Jul 2026</footer>
+  </main>
+</div>

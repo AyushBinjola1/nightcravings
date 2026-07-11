@@ -1,0 +1,632 @@
+<title>NightCravings — Owner Console Specification</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{
+    --ink:#211C16; --ink-soft:#4A423A; --paper:#FBF7F0; --surface:#F3ECE0;
+    --surface2:#EDE4D3; --border:#DCD1BE; --accent:#B4520A; --accent-soft:#E8DCC8;
+    --night:#2E2A6E; --night-soft:#DEDBF2; --success:#276A45; --success-soft:#E1EEE4;
+    --warning:#966400; --warning-soft:#F3E7CE; --danger:#A32626; --danger-soft:#F5E1DF;
+    --font-display: Charter, 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    --font-mono: ui-monospace, 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+    --radius: 4px;
+    /* chart tokens — validated separately from brand UI tokens, see dataviz notes in §7 */
+    --chart-1:#2a78d6; --chart-2:#1baf7a; --chart-3:#eda100; --chart-4:#008300;
+    --chart-5:#4a3aa7; --chart-6:#e34948; --chart-7:#e87ba4; --chart-8:#eb6834;
+    --chart-good:#0ca30c; --chart-warn:#fab219; --chart-serious:#ec835a; --chart-crit:#d03b3b;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --ink:#EEE7DA; --ink-soft:#B7AC9B; --paper:#171310; --surface:#221D18;
+      --surface2:#2A231C; --border:#3A322A; --accent:#E08A3E; --accent-soft:#3A2A18;
+      --night:#9C97E8; --night-soft:#26244A; --success:#5FAE7F; --success-soft:#1E2E22;
+      --warning:#D9A441; --warning-soft:#332711; --danger:#E07575; --danger-soft:#3A2020;
+      --chart-1:#3987e5; --chart-2:#199e70; --chart-3:#c98500; --chart-4:#008300;
+      --chart-5:#9085e9; --chart-6:#e66767; --chart-7:#d55181; --chart-8:#d95926;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ink:#EEE7DA; --ink-soft:#B7AC9B; --paper:#171310; --surface:#221D18;
+    --surface2:#2A231C; --border:#3A322A; --accent:#E08A3E; --accent-soft:#3A2A18;
+    --night:#9C97E8; --night-soft:#26244A; --success:#5FAE7F; --success-soft:#1E2E22;
+    --warning:#D9A441; --warning-soft:#332711; --danger:#E07575; --danger-soft:#3A2020;
+  }
+  :root[data-theme="light"]{
+    --ink:#211C16; --ink-soft:#4A423A; --paper:#FBF7F0; --surface:#F3ECE0;
+    --surface2:#EDE4D3; --border:#DCD1BE; --accent:#B4520A; --accent-soft:#E8DCC8;
+    --night:#2E2A6E; --night-soft:#DEDBF2; --success:#276A45; --success-soft:#E1EEE4;
+    --warning:#966400; --warning-soft:#F3E7CE; --danger:#A32626; --danger-soft:#F5E1DF;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{ background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased; }
+  ::selection{ background:var(--night-soft); color:var(--ink); }
+  a{ color:var(--accent); }
+  a:focus-visible, button:focus-visible, summary:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  code{ font-family:var(--font-mono); font-size:.9em; background:var(--surface2); padding:1px 5px; border-radius:3px; }
+  kbd{ font-family:var(--font-mono); font-size:.78rem; background:var(--surface2); border:1px solid var(--border); border-bottom-width:2px; padding:2px 6px; border-radius:4px; color:var(--ink); }
+
+  .shell{ display:grid; grid-template-columns:260px minmax(0,840px); gap:64px; max-width:1240px; margin:0 auto; padding:56px 24px 140px; justify-content:center; }
+  @media (max-width:980px){ .shell{ grid-template-columns:1fr; } .toc{ display:none; } }
+
+  .toc{ position:sticky; top:32px; align-self:start; font-size:13px; max-height:calc(100vh - 64px); overflow-y:auto; }
+  .toc-title{ font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); font-size:11px; margin-bottom:14px; }
+  .toc ol{ list-style:none; margin:0 0 20px; padding:0; counter-reset:toc; }
+  .toc li{ counter-increment:toc; margin-bottom:1px; }
+  .toc a{ display:flex; gap:8px; text-decoration:none; color:var(--ink-soft); padding:4px 8px; border-radius:var(--radius); }
+  .toc a::before{ content:counter(toc,decimal-leading-zero); font-family:var(--font-mono); font-size:11px; color:var(--border); flex:none; padding-top:1px; }
+  .toc a:hover{ background:var(--surface); color:var(--ink); }
+
+  .cover{ margin-bottom:56px; padding-bottom:36px; border-bottom:1px solid var(--border); }
+  .kicker{ font-family:var(--font-mono); font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); margin:0 0 18px; }
+  h1.title{ font-family:var(--font-display); font-size:clamp(2rem,4.2vw,2.8rem); line-height:1.08; letter-spacing:-.01em; margin:0 0 14px; text-wrap:balance; font-weight:600; }
+  .subtitle{ font-size:1.05rem; color:var(--ink-soft); max-width:62ch; margin:0 0 22px; }
+  .meta{ display:flex; flex-wrap:wrap; gap:20px; font-family:var(--font-mono); font-size:12px; color:var(--ink-soft); }
+  .meta b{ color:var(--ink); font-weight:600; }
+
+  section.doc{ margin-bottom:60px; scroll-margin-top:32px; }
+  .sec-head{ display:flex; align-items:baseline; gap:14px; margin-bottom:8px; }
+  .sec-num{ font-family:var(--font-mono); font-size:13px; color:var(--accent); }
+  h2{ font-family:var(--font-display); font-weight:600; font-size:1.55rem; margin:0; letter-spacing:-.005em; text-wrap:balance; }
+  h3{ font-family:var(--font-display); font-weight:600; font-size:1.1rem; margin:26px 0 10px; }
+  p{ margin:0 0 14px; max-width:70ch; }
+  ul{ margin:0 0 14px; padding-left:20px; }
+  li{ margin-bottom:5px; }
+  strong{ color:var(--ink); }
+  .lede{ font-size:1rem; color:var(--ink-soft); max-width:68ch; margin-bottom:22px; }
+
+  .callout{ border-left:2px solid var(--accent); background:var(--accent-soft); padding:14px 18px; border-radius:0 var(--radius) var(--radius) 0; margin:14px 0 22px; font-size:.93rem; }
+  .callout b{ color:var(--accent); }
+  .callout.night{ border-left-color:var(--night); background:var(--night-soft); }
+  .callout.night b{ color:var(--night); }
+
+  .review{ border:1px solid var(--border); border-radius:8px; background:var(--surface); padding:22px 24px; margin-bottom:60px; }
+  .review h2{ margin-bottom:6px; }
+  .review-item{ display:grid; grid-template-columns:110px 1fr; gap:14px; padding:12px 0; border-top:1px solid var(--border); font-size:.92rem; }
+  .review-item:first-of-type{ border-top:none; }
+  .review-tag{ font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:.04em; padding:3px 8px; border-radius:12px; height:fit-content; text-align:center; }
+  .review-tag.risk{ background:var(--danger-soft); color:var(--danger); }
+  .review-tag.redesign{ background:var(--night-soft); color:var(--night); }
+
+  .spec{ border:1px solid var(--border); border-radius:8px; margin-bottom:22px; overflow:hidden; background:var(--paper); }
+  .spec-head{ padding:16px 20px; background:var(--surface); border-bottom:1px solid var(--border); }
+  .spec-name{ font-family:var(--font-display); font-weight:600; font-size:1.2rem; margin:0 0 4px; }
+  .spec-purpose{ font-size:.9rem; color:var(--ink-soft); margin:0; }
+  .field-grid{ display:grid; grid-template-columns:1fr 1fr; gap:0; }
+  @media (max-width:640px){ .field-grid{ grid-template-columns:1fr; } }
+  .field{ padding:13px 20px; border-top:1px solid var(--border); }
+  .field:nth-child(odd){ border-right:1px solid var(--border); }
+  @media (max-width:640px){ .field:nth-child(odd){ border-right:none; } }
+  .field-label{ font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--accent); margin-bottom:4px; display:block; }
+  .field-val{ font-size:.89rem; color:var(--ink-soft); margin:0; }
+  .field-val strong{ color:var(--ink); }
+
+  .tbl-wrap{ overflow-x:auto; margin:8px 0 20px; border:1px solid var(--border); border-radius:6px; }
+  table{ border-collapse:collapse; width:100%; font-size:.88rem; min-width:520px; }
+  th,td{ text-align:left; padding:9px 13px; border-bottom:1px solid var(--border); vertical-align:top; }
+  th{ font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); background:var(--surface); }
+  tr:last-child td{ border-bottom:none; }
+  td.num{ font-variant-numeric:tabular-nums; }
+
+  .chipset{ display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 22px; }
+  .chip{ font-family:var(--font-mono); font-size:11.5px; border:1px solid var(--border); padding:5px 11px; border-radius:20px; color:var(--ink-soft); background:var(--surface); }
+
+  /* mock order card */
+  .ordercard{ border:1px solid var(--border); border-radius:8px; background:var(--surface); padding:16px 18px; margin:16px 0 24px; }
+  .oc-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:10px; }
+  .oc-id{ font-family:var(--font-mono); font-size:11.5px; color:var(--ink-soft); }
+  .oc-name{ font-family:var(--font-display); font-weight:600; font-size:1.05rem; }
+  .oc-room{ font-family:var(--font-mono); font-size:11.5px; color:var(--ink-soft); }
+  .oc-value{ font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-weight:600; text-align:right; }
+  .oc-items{ font-size:.86rem; color:var(--ink-soft); margin-bottom:12px; }
+  .oc-actions{ display:flex; flex-wrap:wrap; gap:8px; }
+  .oc-btn{ font-family:var(--font-body); font-size:.82rem; padding:7px 13px; border-radius:6px; border:1px solid var(--border); background:var(--paper); color:var(--ink); }
+  .oc-btn.primary{ background:var(--accent); color:#fff; border-color:var(--accent); }
+  .oc-btn.night{ background:var(--night); color:#fff; border-color:var(--night); }
+  .oc-btn.ghost{ background:transparent; }
+
+  .pill{ display:inline-block; font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:.04em; padding:3px 9px; border-radius:12px; }
+  .pill.success{ background:var(--success-soft); color:var(--success); }
+  .pill.warning{ background:var(--warning-soft); color:var(--warning); }
+  .pill.danger{ background:var(--danger-soft); color:var(--danger); }
+  .pill.night{ background:var(--night-soft); color:var(--night); }
+
+  /* command palette mock */
+  .cmdk{ border:1px solid var(--border); border-radius:10px; background:var(--surface); max-width:480px; margin:16px 0 24px; overflow:hidden; }
+  .cmdk-input{ padding:14px 16px; font-family:var(--font-mono); font-size:.9rem; color:var(--ink-soft); border-bottom:1px solid var(--border); }
+  .cmdk-row{ display:flex; justify-content:space-between; padding:10px 16px; font-size:.86rem; border-bottom:1px solid var(--border); }
+  .cmdk-row:last-child{ border-bottom:none; }
+  .cmdk-row kbd{ font-size:.72rem; }
+
+  /* stat tiles */
+  .tiles{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; margin:14px 0 24px; }
+  .tile{ border:1px solid var(--border); border-radius:8px; padding:14px 16px; background:var(--surface); }
+  .tile-label{ font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); margin-bottom:6px; }
+  .tile-value{ font-family:var(--font-display); font-size:1.5rem; font-weight:600; font-variant-numeric:tabular-nums; }
+  .tile-sub{ font-size:.78rem; color:var(--ink-soft); margin-top:4px; }
+
+  details{ border:1px solid var(--border); border-radius:6px; margin-bottom:12px; background:var(--surface); }
+  summary{ cursor:pointer; padding:13px 16px; font-family:var(--font-display); font-weight:600; font-size:.98rem; list-style:none; display:flex; justify-content:space-between; align-items:center; }
+  summary::-webkit-details-marker{ display:none; }
+  summary::after{ content:'+'; font-family:var(--font-mono); color:var(--accent); font-size:16px; }
+  details[open] summary::after{ content:'–'; }
+  details .inner{ padding:0 18px 16px; }
+  details .inner p:last-child{ margin-bottom:0; }
+
+  .flow{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:16px 0 26px; font-family:var(--font-mono); font-size:12px; }
+  .flow span.step{ background:var(--surface); border:1px solid var(--border); padding:6px 12px; border-radius:20px; }
+  .flow span.arrow{ color:var(--border); }
+
+  footer{ max-width:66ch; padding-top:28px; border-top:1px solid var(--border); font-size:.85rem; color:var(--ink-soft); font-family:var(--font-mono); }
+</style>
+
+<div class="shell">
+  <nav class="toc">
+    <div class="toc-title">Contents</div>
+    <ol>
+      <li><a href="#review">Self-Review</a></li>
+      <li><a href="#s1">Dashboard</a></li>
+      <li><a href="#s2">Live Order Queue</a></li>
+      <li><a href="#s3">Payment Verification</a></li>
+      <li><a href="#s4">Inventory</a></li>
+      <li><a href="#s5">Product Management</a></li>
+      <li><a href="#s6">Customers</a></li>
+      <li><a href="#s7">Analytics</a></li>
+      <li><a href="#s8">Store Settings</a></li>
+      <li><a href="#s9">Categories</a></li>
+      <li><a href="#s10">Reports</a></li>
+      <li><a href="#s11">Notifications</a></li>
+      <li><a href="#s12">Role Management</a></li>
+      <li><a href="#s13">Mobile Owner UX</a></li>
+      <li><a href="#s14">Keyboard Shortcuts</a></li>
+      <li><a href="#s15">Workflows</a></li>
+      <li><a href="#s16">Edge Cases</a></li>
+      <li><a href="#s17">Accessibility</a></li>
+      <li><a href="#s18">Performance</a></li>
+      <li><a href="#s19">Acceptance Criteria</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <div class="cover">
+      <p class="kicker">Owner Console Specification — Phase 3 · v1.0</p>
+      <h1 class="title">The operating system NightCravings runs on, every night.</h1>
+      <p class="subtitle">Builds on Foundation Doc v1.0 and Customer Experience Spec v1.0. Where the customer app optimizes for a 30-second order, this console optimizes for the owner's side of that same ten minutes — verifying, packing, and dispatching without ever putting the phone down mid-task.</p>
+      <div class="meta">
+        <span><b>Depends on</b> Phase 1 + Phase 2</span>
+        <span><b>Status</b> Draft for build</span>
+        <span><b>Date</b> 11 Jul 2026</span>
+      </div>
+    </div>
+
+    <section class="review" id="review">
+      <h2>Self-Review — bottlenecks found, workflows redesigned</h2>
+      <p class="lede" style="margin-top:10px">The brief's own structure (separate Order Queue and Payment Verification sections; a sortable inventory table; role management as an afterthought) was tested against real hostel-shop operating conditions before writing the spec below. Five decisions changed as a result.</p>
+      <div class="review-item"><span class="review-tag risk">Risk</span><div><strong>A separate Payment Verification screen creates a context switch the owner can't afford mid-rush.</strong> If verifying payment means leaving the order queue, every verification costs an extra navigation during the exact window (8–15 orders stacked at 11pm) when speed matters most.</div></div>
+      <div class="review-item"><span class="review-tag redesign">Redesign</span><div>Payment verification is now <strong>inline on every order card</strong> in the Queue (§2) — screenshot, amount, and one-tap Approve/Reject live where the order already is. §3 becomes an aggregate <strong>Payment Triage</strong> view used only to clear a backlog in bulk, not the primary verification path.</div></div>
+      <div class="review-item"><span class="review-tag risk">Risk</span><div><strong>A flat, sortable order table (as literally requested) optimizes for browsing, not triage.</strong> The owner never needs to sort orders — they need to know, at a glance, which single order has been waiting longest.</div></div>
+      <div class="review-item"><span class="review-tag redesign">Redesign</span><div>The queue is a <strong>three-lane stack</strong> (Awaiting Verification → Preparing → Out for Delivery), each lane auto-sorted oldest-first, with the single oldest card visually weighted heavier. No manual sort control exists because there's nothing correct to sort by except wait time, which is already the default.</div></div>
+      <div class="review-item"><span class="review-tag risk">Risk</span><div><strong>Payment fraud surface:</strong> nothing in the brief's requested fields stops a customer from re-submitting the same screenshot for a second order, or two customers from coincidentally uploading visually similar UPI app screenshots.</div></div>
+      <div class="review-item"><span class="review-tag redesign">Redesign</span><div>Added <strong>automatic duplicate-screenshot detection</strong> (perceptual hash against the last 14 days of approved screenshots) — a visual "⚠ matches a screenshot already used for order #—" warning surfaces on the card before the owner taps Approve, turning a hard-to-catch fraud vector into a one-glance check.</div></div>
+      <div class="review-item"><span class="review-tag risk">Risk</span><div><strong>Single point of failure:</strong> the entire operation lives on one owner's one device. A dropped phone, dead battery, or a night the owner is genuinely asleep stops 100% of order fulfillment with no fallback.</div></div>
+      <div class="review-item"><span class="review-tag redesign">Redesign</span><div>Console ships as an installable PWA on <strong>any number of simultaneous devices</strong> with realtime sync (§18) — a friend, roommate, or the future first hire (§12, Delivery Partner role) can pick up a second phone and start clearing the queue with zero handoff ceremony, because there's no "who's logged in as admin" bottleneck, only role-scoped permissions.</div></div>
+      <div class="review-item"><span class="review-tag risk">Risk</span><div><strong>Low-stock alerts based on a fixed threshold</strong> (e.g. "alert at 5 units") are wrong for two SKUs selling at very different velocities — 5 units of a slow mover is fine for a week; 5 units of the best-selling energy drink at 11pm might not survive the next hour.</div></div>
+      <div class="review-item"><span class="review-tag redesign">Redesign</span><div>Low stock (§4) is computed from a <strong>velocity model</strong> — units remaining ÷ recent hourly sell-through rate — surfaced as "≈40 min of stock left at tonight's pace," not a static count. This is the single highest-leverage change in this document for the "reduce inventory mistakes" goal in the brief.</div></div>
+    </section>
+
+    <div class="callout night" style="margin-bottom:56px;">
+      <b>Console shell —</b> a command-palette-first layout, not a sidebar-of-forty-links. <kbd>⌘K</kbd> opens search-everything from any screen; the persistent left rail carries only the six screens used every single night.
+      <div class="flow" style="margin:14px 0 0;">
+        <span class="step">Dashboard</span><span class="arrow">→</span><span class="step">Order Queue</span><span class="arrow">→</span><span class="step">Inventory</span><span class="arrow">→</span><span class="step">Customers</span><span class="arrow">→</span><span class="step">Analytics</span><span class="arrow">→</span><span class="step">Settings</span>
+      </div>
+    </div>
+
+    <!-- 1 DASHBOARD -->
+    <section class="doc" id="s1">
+      <div class="sec-head"><span class="sec-num">01</span><h2>Owner Dashboard</h2></div>
+      <p class="lede">The dashboard's only job is to answer, in the first two seconds of opening the console: is anything on fire right now, and how's tonight going. It is not a reporting surface — that's §7 Analytics. Every widget here is either actionable-now or a single trust-building glance.</p>
+      <div class="tiles">
+        <div class="tile"><div class="tile-label">Today's Sales</div><div class="tile-value">₹4,280</div><div class="tile-sub">↑ 12% vs. same night last week</div></div>
+        <div class="tile"><div class="tile-label">Today's Orders</div><div class="tile-value">38</div></div>
+        <div class="tile"><div class="tile-label">Pending</div><div class="tile-value" style="color:var(--warning)">5</div><div class="tile-sub">tap to jump to queue</div></div>
+        <div class="tile"><div class="tile-label">Avg Order Value</div><div class="tile-value">₹126</div></div>
+        <div class="tile"><div class="tile-label">Avg Delivery Time</div><div class="tile-value">8.4 min</div></div>
+        <div class="tile"><div class="tile-label">Today's Profit</div><div class="tile-value">₹1,640</div></div>
+      </div>
+      <div class="spec">
+        <div class="spec-head"><p class="spec-name">Dashboard</p><p class="spec-purpose">A two-second answer to "is anything on fire," not a reporting surface.</p></div>
+        <div class="field-grid">
+          <div class="field"><span class="field-label">Business reasoning</span><p class="field-val">Every widget maps to one of the brief's eight goals; a widget that's purely informational without an action (e.g. a static "total customers" counter) was cut in favor of ones with a next step attached.</p></div>
+          <div class="field"><span class="field-label">Widget: Pending Orders</span><p class="field-val">Rendered in warning color specifically because it's the one tile that should visually nag — tapping it jumps straight into the Order Queue, oldest-first.</p></div>
+          <div class="field"><span class="field-label">Widget: Low Stock Items</span><p class="field-val">A compact list (not a tile) of the 3–5 nearest-to-empty SKUs by the velocity model from §4, each with a one-tap "Mark restocked" action right there — no need to leave the dashboard for a quick top-up entry.</p></div>
+          <div class="field"><span class="field-label">Widget: Store Status</span><p class="field-val">A single large toggle at the very top — Open/Closed — because this is the one control the owner reaches for constantly (stepping out, running low on an item, closing early). Everything else on the dashboard is secondary to this.</p></div>
+          <div class="field"><span class="field-label">Widget: Revenue Graph</span><p class="field-val">A 24-hour sparkline, not a full chart — shows tonight's shape (the two nightly peaks) at a glance; tapping it opens the full Analytics view (§7) for anyone who wants to go deeper.</p></div>
+          <div class="field"><span class="field-label">Widget: Top Selling Products (today)</span><p class="field-val">A ranked mini-list of 5, existing purely to inform tomorrow's restock conversation with the supplier — not a chart, just names and counts.</p></div>
+          <div class="field"><span class="field-label">Widget: Quick Actions</span><p class="field-val">Three buttons only — Add Product, Mark Closed, Message Support — the three actions an owner reaches for outside the normal order flow.</p></div>
+          <div class="field"><span class="field-label">Widget: Recent Activity</span><p class="field-val">A compact timeline (last 10 events: orders, verifications, stock edits) — mainly a "what just happened while I was packing" recovery tool, not a permanent audit log (that's §12).</p></div>
+          <div class="field"><span class="field-label">Layout</span><p class="field-val">Store Status full-width at top; stat tiles in a responsive grid below; Low Stock and Recent Activity as two side-by-side lists on desktop, stacked on mobile.</p></div>
+          <div class="field"><span class="field-label">Loading</span><p class="field-val">Tiles skeleton at their exact final size; Store Status renders instantly from cached state, then confirms via realtime subscription.</p></div>
+          <div class="field"><span class="field-label">Empty state</span><p class="field-val">Day-one dashboard with zero orders shows tiles at "—" rather than "0," with a single prompt: "Share your NightCravings link with the hostel WhatsApp group."</p></div>
+          <div class="field"><span class="field-label">Performance</span><p class="field-val">All tiles are realtime-subscribed (Supabase channel), not polled — a new order updates the Pending tile within a second, without a refresh.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 ORDER QUEUE -->
+    <section class="doc" id="s2">
+      <div class="sec-head"><span class="sec-num">02</span><h2>Live Order Queue — the most important screen</h2></div>
+      <p class="lede">Three lanes, not a table: <strong>Awaiting Verification</strong>, <strong>Preparing</strong>, <strong>Out for Delivery</strong>. Each card carries everything needed to act without opening anything else. On mobile the three lanes become three swipeable tabs with live counts; on desktop they sit side by side, Linear-board style.</p>
+
+      <div class="ordercard">
+        <div class="oc-top">
+          <div><div class="oc-name">Priya S.</div><div class="oc-room">Room C-214 · Block C · <span class="oc-id">#NC-1842</span></div></div>
+          <div class="oc-value">₹149<div class="pill night" style="margin-top:4px">Room Delivery</div></div>
+        </div>
+        <div class="oc-items">2× Maggi 2-Min Noodles · 1× Sting Energy · <em>Note: "no extra water pls"</em></div>
+        <div class="oc-items" style="margin-bottom:14px"><span class="pill warning">Awaiting Verification</span> &nbsp; Ordered 3 min ago · Screenshot attached · UTR 442190xxxx</div>
+        <div class="oc-actions">
+          <button class="oc-btn primary">Approve Payment</button>
+          <button class="oc-btn">Reject</button>
+          <button class="oc-btn ghost">View Screenshot</button>
+          <button class="oc-btn ghost">Call</button>
+          <button class="oc-btn ghost">WhatsApp</button>
+        </div>
+      </div>
+
+      <div class="spec">
+        <div class="spec-head"><p class="spec-name">Order Card</p><p class="spec-purpose">Everything needed to move an order forward, with zero secondary navigation.</p></div>
+        <div class="field-grid">
+          <div class="field"><span class="field-label">Fields shown</span><p class="field-val">Order ID, customer name, room + block, order time (relative, "3 min ago"), value, items with quantity, notes, delivery method, payment status, transaction ID, ETA — all on one card, no expand needed for the common case.</p></div>
+          <div class="field"><span class="field-label">Progressive disclosure</span><p class="field-val">Payment screenshot, phone number, and full order history for this customer sit one tap behind "View Screenshot" / the customer name — kept off the default card face so the lane doesn't turn into a wall of images.</p></div>
+          <div class="field"><span class="field-label">Actions — Awaiting Verification lane</span><p class="field-val">Approve Payment, Reject, View Screenshot, Call, WhatsApp — Approve is the sole primary (filled) button; every other action is secondary.</p></div>
+          <div class="field"><span class="field-label">Actions — Preparing lane</span><p class="field-val">Mark Delivery Coming (primary), Reject/Cancel, Call, WhatsApp — no "Verify Payment" clutter since that's already resolved by this lane.</p></div>
+          <div class="field"><span class="field-label">Actions — Out for Delivery lane</span><p class="field-val">Mark Delivered (primary, large) — a single dominant action, since this is the card the owner taps while physically walking, often one-handed.</p></div>
+          <div class="field"><span class="field-label">Interactions</span><p class="field-val">Swipe-right on any card advances it to the next lane (mirrors the primary button, for one-handed use while carrying a packed bag); swipe-left opens a quick "flag issue" sheet (out of stock / customer unreachable).</p></div>
+          <div class="field"><span class="field-label">Animations</span><p class="field-val">A card moving lanes slides and settles into its new lane's sort position (oldest-first) over 200ms; the moment Approve is tapped, the payment pill cross-fades from amber to green instantly (optimistic), before server confirmation returns.</p></div>
+          <div class="field"><span class="field-label">Loading / optimism</span><p class="field-val">Every stage-change button applies its effect to the UI immediately (optimistic update) and reconciles silently in the background; a failed sync rolls the card back with a toast — the owner is never staring at a spinner mid-rush.</p></div>
+          <div class="field"><span class="field-label">Sort</span><p class="field-val">Fixed oldest-first within each lane — no manual sort control exists, because "longest-waiting" is the only ordering that's ever correct here.</p></div>
+          <div class="field"><span class="field-label">Urgency weighting</span><p class="field-val">A card waiting past 2× the store's average stage time gets a thin red left-edge — not a badge to read, a peripheral-vision signal while scanning the lane.</p></div>
+          <div class="field"><span class="field-label">Empty state</span><p class="field-val">A lane with zero cards shows a quiet single line ("All caught up") rather than an empty box — reads as a status, not a broken screen.</p></div>
+          <div class="field"><span class="field-label">Error states</span><p class="field-val">A stage-change that fails to sync shows an inline "Couldn't update — retrying" on the card itself, with automatic retry, rather than a modal interrupting the whole queue.</p></div>
+          <div class="field"><span class="field-label">Responsive</span><p class="field-val">Mobile: one lane visible at a time behind swipeable tabs with live lane counts in the tab label. Desktop: all three lanes visible side-by-side, keyboard-navigable.</p></div>
+          <div class="field"><span class="field-label">Accessibility</span><p class="field-val">Each lane is a labeled region; cards are keyboard-focusable with the primary action bound to <kbd>Enter</kbd>, and lane-count changes announced via a polite live region.</p></div>
+          <div class="field"><span class="field-label">Performance</span><p class="field-val">Realtime-subscribed; new orders animate into Awaiting Verification without a page refresh, ever.</p></div>
+          <div class="field"><span class="field-label">Future scalability</span><p class="field-val">Multi-hostel adds a lane-level hostel filter chip, not a new screen; a Delivery Partner role (§12) sees only the Out for Delivery lane.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 PAYMENT VERIFICATION -->
+    <section class="doc" id="s3">
+      <div class="sec-head"><span class="sec-num">03</span><h2>Payment Verification</h2></div>
+      <p class="lede">Per the redesign above, verification itself lives on the order card (§2). This screen is the <strong>triage view</strong> for two situations the inline flow doesn't cover: clearing a backlog after being away from the phone, and investigating a specific disputed or flagged payment in detail.</p>
+      <div class="spec">
+        <div class="spec-head"><p class="spec-name">Payment Triage</p><p class="spec-purpose">Clear a backlog fast, and investigate any flagged payment with full detail.</p></div>
+        <div class="field-grid">
+          <div class="field"><span class="field-label">Payment queue</span><p class="field-val">Same cards as the Awaiting Verification lane, but here shown as a dense list (screenshot thumbnail, amount, name, room) for rapid scanning when there are 10+ backed up.</p></div>
+          <div class="field"><span class="field-label">Screenshot viewer</span><p class="field-val">Full-screen zoomable image with the claimed amount and UTR overlaid as a fixed header, so the owner never has to hold two numbers in their head while comparing.</p></div>
+          <div class="field"><span class="field-label">Duplicate detection</span><p class="field-val">Perceptual-hash match against the last 14 days of approved screenshots; a match surfaces a red banner — "Matches a screenshot approved for order #NC-1799" — directly on the card, before Approve is even reachable.</p></div>
+          <div class="field"><span class="field-label">Wrong amount</span><p class="field-val">If the entered order total and a manually-read screenshot amount don't match, a "Partial / Mismatched Payment" action opens a resolution sheet: request a top-up, refund the difference, or approve with a logged override reason.</p></div>
+          <div class="field"><span class="field-label">Fraud prevention</span><p class="field-val">Beyond duplicate-hash detection: a running per-phone-number flag count is visible on the customer's mini-profile (see §6) — three or more rejected/mismatched payments surfaces a quiet "review before approving" note, never an automatic ban.</p></div>
+          <div class="field"><span class="field-label">Verification history</span><p class="field-val">Every approve/reject is timestamped with the owner's action and (if applicable) override reason — the audit trail this section exists to produce.</p></div>
+          <div class="field"><span class="field-label">Approve / Reject</span><p class="field-val">Both are single-tap from the triage list; Reject requires selecting a reason (wrong amount / duplicate / unreadable / other) from a short list — never a free-text requirement that slows down a rush.</p></div>
+          <div class="field"><span class="field-label">Audit trail</span><p class="field-val">Exportable (CSV, §10) — every payment decision ever made, attributable to a specific owner/staff account once Role Management (§12) is live.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 INVENTORY -->
+    <section class="doc" id="s4">
+      <div class="sec-head"><span class="sec-num">04</span><h2>Inventory</h2></div>
+      <p class="lede">Modeled on Shopify's inventory table because that density and inline-edit speed is genuinely the right tool here — but restock, the single most common action, gets its own dedicated one-tap gesture instead of living inside a full edit form.</p>
+      <div class="spec">
+        <div class="spec-head"><p class="spec-name">Inventory Table</p><p class="spec-purpose">See true stock health at a glance; fix the common cases in one tap.</p></div>
+        <div class="field-grid">
+          <div class="field"><span class="field-label">Columns</span><p class="field-val">Image, name, category, price, cost price, profit (computed, not entered), stock, status pill, supplier, expiry (if applicable).</p></div>
+          <div class="field"><span class="field-label">Low stock model</span><p class="field-val">Not a fixed threshold — "≈40 min of stock left at tonight's pace," computed from recent hourly sell-through; the status pill reads <em>Low</em> only when that projected runway drops under a configurable window (default 2 hours).</p></div>
+          <div class="field"><span class="field-label">Quick restock</span><p class="field-val">A stepper (− / qty / +) inline on the row, plus a "+10 / +24 / +48" quick-add chip set matching common case-pack sizes — restocking after a supplier drop-off is a 2-second action, never a full edit form.</p></div>
+          <div class="field"><span class="field-label">Inline edit</span><p class="field-val">Price and stock are directly editable in the cell (click, type, blur-to-save); every other field opens the full Product panel (§5).</p></div>
+          <div class="field"><span class="field-label">Search / filter / sort</span><p class="field-val">Search-as-you-type across name and category; filter chips for Low Stock / Out of Stock / Category; sort by any column header, defaulting to "stock runway ascending" so the most urgent restock is always row one.</p></div>
+          <div class="field"><span class="field-label">Bulk actions</span><p class="field-val">Multi-select via checkbox → bulk category change, bulk hide, bulk price adjustment (± amount or %) — for the seasonal "everything +₹2" adjustment.</p></div>
+          <div class="field"><span class="field-label">Stock history / logs</span><p class="field-val">Every stock change (sale, restock, manual correction) timestamped per product — the ground truth for "why does the count not match what's on the shelf."</p></div>
+          <div class="field"><span class="field-label">Image upload</span><p class="field-val">Drag-drop or camera capture directly from the row's expand — real photography is a brand requirement (Phase 2 §4), so this is a first-class, fast action, not buried in a settings tab.</p></div>
+          <div class="field"><span class="field-label">Virtualized rendering</span><p class="field-val">Table virtualizes rows beyond ~50 items — stays instant even as the catalogue grows toward multi-hostel scale.</p></div>
+          <div class="field"><span class="field-label">Empty state</span><p class="field-val">Zero products (day one): a single "Add your first product" call to action replaces the table, not an empty grid with headers and nothing under them.</p></div>
+          <div class="field"><span class="field-label">Future scalability</span><p class="field-val">A hostel/location column appears automatically the moment a second hostel exists — schema already scoped by <code>hostelId</code> from the Foundation Doc's architecture, no migration required.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 PRODUCT MANAGEMENT -->
+    <section class="doc" id="s5">
+      <div class="sec-head"><span class="sec-num">05</span><h2>Product Management</h2></div>
+      <p class="lede">Add/Edit never leaves the Inventory table's context — it opens as a slide-over panel over the table (Shopify/Linear convention), so the owner's filtered view and scroll position are exactly as they left them on close.</p>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Action</th><th>Behaviour</th></tr></thead>
+        <tbody>
+          <tr><td>Add Product</td><td>Slide-over with Name, Category, Price, Cost Price, Image, Description as the only required fields — everything else (nutrition, tags, synonyms) sits under a collapsed "More details" to keep the fast path fast.</td></tr>
+          <tr><td>Edit Product</td><td>Same panel, pre-filled; autosave on blur per field rather than a single "Save" gate at the bottom, so a half-finished edit is never lost.</td></tr>
+          <tr><td>Duplicate Product</td><td>One action from the row menu — clones every field except name (suffixed " copy") and stock (reset to 0) — the fast path for near-identical variants (flavours, pack sizes).</td></tr>
+          <tr><td>Hide Product</td><td>A toggle, not a delete — hidden products stay in Inventory and Analytics history but disappear from the customer catalogue instantly (realtime).</td></tr>
+          <tr><td>Delete Product</td><td>Reserved for genuine mistakes (wrong entry); requires typing the product name to confirm, and is blocked outright if the product has order history — history is preserved by hiding, never destroyed.</td></tr>
+          <tr><td>Schedule Product</td><td>An optional "Available from / until" pair of times — for a genuinely time-boxed item (e.g. a breakfast-only combo) — becomes visible/orderable automatically at that window, no manual toggle needed at 7am.</td></tr>
+          <tr><td>Search keywords / synonyms</td><td>A tag-input field feeding directly into the Phase 2 §2 search synonym map — this is the one place the owner directly improves customer-facing search quality.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 6 CUSTOMERS -->
+    <section class="doc" id="s6">
+      <div class="sec-head"><span class="sec-num">06</span><h2>Customers</h2></div>
+      <p class="lede">Not a CRM in the enterprise sense — a lightweight profile that answers "who is this person, and have I seen a problem with them before" in one glance, since the owner personally knows most of these residents.</p>
+      <div class="spec">
+        <div class="spec-head"><p class="spec-name">Customer Profile</p><p class="spec-purpose">One glance at relationship and reliability, before answering a call.</p></div>
+        <div class="field-grid">
+          <div class="field"><span class="field-label">Header</span><p class="field-val">Name, phone (tap-to-call), room/hostel, a small reliability note if a payment-flag count exists (§3) — surfaced quietly, not as a scarlet badge.</p></div>
+          <div class="field"><span class="field-label">Stats</span><p class="field-val">Total orders, total spend, average order value, favourite products (top 3 by frequency) — all computed, none manually entered.</p></div>
+          <div class="field"><span class="field-label">Order timeline</span><p class="field-val">Every past order as a compact reverse-chronological list, each expandable to the full order card from §2's history.</p></div>
+          <div class="field"><span class="field-label">Support history</span><p class="field-val">Any WhatsApp/call notes the owner has logged against this customer — freeform, optional, exists mainly for handoff once a second staff member is helping (§12).</p></div>
+          <div class="field"><span class="field-label">Search / sort</span><p class="field-val">Search by name, phone, or room; sort by total spend or most recent order — the two views an owner actually needs ("who are my best customers" and "who ordered recently").</p></div>
+          <div class="field"><span class="field-label">Future: segmentation</span><p class="field-val">Reserved list view for cohorts (e.g. "ordered 3+ times but not in 14 days" — a lapsing-customer segment) once order volume justifies proactive outreach; not built until that volume exists.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 ANALYTICS -->
+    <section class="doc" id="s7">
+      <div class="sec-head"><span class="sec-num">07</span><h2>Analytics</h2></div>
+      <p class="lede">Charts here use a validated, CVD-safe chart palette kept deliberately separate from the brand's amber/indigo UI tokens (mixing brand hues into a categorical chart palette fails contrast and color-blind-safety checks) — brand color stays in the chrome, chart color stays in the chart tokens defined above.</p>
+      <div class="spec">
+        <div class="spec-head"><p class="spec-name">Analytics</p><p class="spec-purpose">Turn nightly operations into decisions about stocking, pricing, and timing.</p></div>
+        <div class="field-grid">
+          <div class="field"><span class="field-label">Revenue / Orders / Profit</span><p class="field-val">A single line chart per metric with a comparison toggle (this week vs. last week) — one axis, one hue (<code>--chart-1</code>), never a dual-axis overlay of two different-scale metrics.</p></div>
+          <div class="field"><span class="field-label">Peak hours heatmap</span><p class="field-val">Hour-of-day × day-of-week grid, sequential single-hue ramp (light→dark blue) — reveals the two nightly humps (post-dinner, post-midnight) that directly inform staffing a second device.</p></div>
+          <div class="field"><span class="field-label">Top / worst products</span><p class="field-val">Two ranked bar lists side by side, sharing one categorical palette in fixed slot order — worst-sellers view exists specifically to inform what to drop from the catalogue, not just what to promote.</p></div>
+          <div class="field"><span class="field-label">Margins &amp; most profitable category</span><p class="field-val">A composition view (stacked bar by category, 2px gaps between segments) showing revenue vs. margin contribution — surfaces when a popular product is actually low-margin.</p></div>
+          <div class="field"><span class="field-label">Repeat customers / retention</span><p class="field-val">A simple cohort-style retention curve — % of customers still ordering at week 2, 4, 8 — the single number that answers "is this a real business or a novelty."</p></div>
+          <div class="field"><span class="field-label">Avg delivery / verification time</span><p class="field-val">Two sparklines with a plain-language trend line ("verification time down 40s this week") — direct feedback on whether the owner's own operational speed is improving.</p></div>
+          <div class="field"><span class="field-label">Insights strip</span><p class="field-val">2–3 auto-generated, plainly-worded observations above the charts ("Thursdays are your slowest night" / "Sting Energy sells out by 1am twice a week") — insight-first, chart-second, since the owner shouldn't have to derive the finding themselves.</p></div>
+          <div class="field"><span class="field-label">Accessibility</span><p class="field-val">Every chart ships a table-view toggle; legends are always present for 2+ series; status/trend colors (good/warn) always pair with an icon and label, never color alone.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 STORE SETTINGS -->
+    <section class="doc" id="s8">
+      <div class="sec-head"><span class="sec-num">08</span><h2>Store Settings</h2></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Setting</th><th>Why it's here, not elsewhere</th></tr></thead>
+        <tbody>
+          <tr><td>Store name, logo, theme</td><td>Brand identity — becomes per-hostel in multi-location mode without a schema change.</td></tr>
+          <tr><td>Opening / closing time</td><td>Drives the Store Closed experience (Phase 2 §11) and the Dashboard countdown automatically — set once, reflected everywhere.</td></tr>
+          <tr><td>Pickup room</td><td>Shown to customers who choose Pickup at checkout (Phase 2 §7) — a single field, not a full address form.</td></tr>
+          <tr><td>Delivery charge / free-delivery threshold</td><td>The two numbers that drive Phase 2's Cart progress bar — changing either here updates the customer app instantly via the same config object.</td></tr>
+          <tr><td>Preparation time</td><td>Feeds the "ready to eat in X min" line on the Product Sheet (Phase 2 §5) per category.</td></tr>
+          <tr><td>UPI QR / ID / number</td><td>The literal payment identity customers pay to (Phase 2 §8) — changing this is rare and irreversible-feeling enough to warrant a confirmation step.</td></tr>
+          <tr><td>Support number</td><td>Surfaces on every customer-facing Support/FAQ touchpoint.</td></tr>
+          <tr><td>Notifications</td><td>Per-channel toggles (push, WhatsApp) for which owner events (§11) actually interrupt the owner vs. stay silent in the dashboard.</td></tr>
+          <tr><td>Maintenance mode</td><td>A harder "closed" than the daily open/close toggle — for a real outage (e.g. no stock at all), disables ordering with an explicit customer-facing message rather than the ambiguous default closed state.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 9 CATEGORY MANAGEMENT -->
+    <section class="doc" id="s9">
+      <div class="sec-head"><span class="sec-num">09</span><h2>Category Management</h2></div>
+      <div class="spec">
+        <div class="spec-head"><p class="spec-name">Categories</p><p class="spec-purpose">Keep the customer-facing shelf exactly as flat and scannable as Phase 2's IA requires.</p></div>
+        <div class="field-grid">
+          <div class="field"><span class="field-label">Create / edit / delete</span><p class="field-val">Name, icon, cover image — deleting a non-empty category prompts a required reassignment of its products, never a silent orphan.</p></div>
+          <div class="field"><span class="field-label">Reorder</span><p class="field-val">Drag-to-reorder list directly controls the order of category tiles on customer Home — what the owner sees here <em>is</em> what customers see, no separate "publish" step.</p></div>
+          <div class="field"><span class="field-label">Hide</span><p class="field-val">Same pattern as Hide Product — removed from customer view, retained in the console and in historical analytics.</p></div>
+          <div class="field"><span class="field-label">Future: nested categories</span><p class="field-val">Deliberately not built — Phase 1's IA is intentionally flat, and nesting would be solving a problem this catalogue size doesn't have. Revisit only if multi-hostel catalogues genuinely grow past a few hundred SKUs per location.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 REPORTS -->
+    <section class="doc" id="s10">
+      <div class="sec-head"><span class="sec-num">10</span><h2>Reports</h2></div>
+      <p class="lede">Reports exist for the moments Analytics' live dashboard isn't the right tool — tax season, a supplier negotiation, or handing numbers to a future business partner.</p>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Period</th><th>Contents</th><th>Export</th></tr></thead>
+        <tbody>
+          <tr><td>Daily</td><td>Revenue, orders, profit, top products — a same-day closeout summary.</td><td>PDF, print</td></tr>
+          <tr><td>Weekly / Monthly</td><td>Adds expense entries (manual, e.g. restock cost) and margin trend.</td><td>PDF, CSV</td></tr>
+          <tr><td>Quarterly / Yearly</td><td>Full P&amp;L-style rollup — the version an owner would show a bank or investor.</td><td>PDF, CSV</td></tr>
+        </tbody>
+      </table></div>
+      <p>Every export uses the same underlying query as the live Analytics charts — there is exactly one source of truth for these numbers, never a separately-computed "reporting" pipeline that can drift from what the dashboard shows.</p>
+    </section>
+
+    <!-- 11 NOTIFICATIONS -->
+    <section class="doc" id="s11">
+      <div class="sec-head"><span class="sec-num">11</span><h2>Notifications (Owner-side)</h2></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Event</th><th>Urgency</th><th>Channel</th></tr></thead>
+        <tbody>
+          <tr><td>New Order</td><td>High</td><td>Push + audible chime — the one notification that must never be missed.</td></tr>
+          <tr><td>Payment Received (auto-matched)</td><td>Medium</td><td>Push, silent badge increment on the Queue tab.</td></tr>
+          <tr><td>Payment Pending &gt; estimate window</td><td>Medium</td><td>Push — mirrors the customer-side Verification Heartbeat escalation from Phase 2 §8, closing the loop on both sides.</td></tr>
+          <tr><td>Low Stock (velocity-based)</td><td>Medium</td><td>In-app dashboard badge; push only if runway drops under 30 minutes.</td></tr>
+          <tr><td>Store auto-closed (past hours)</td><td>Low</td><td>In-app only — confirms an expected, scheduled event, doesn't need to interrupt.</td></tr>
+          <tr><td>Failed screenshot upload (customer-side)</td><td>Low</td><td>In-app note on the affected order card — informational, not urgent.</td></tr>
+          <tr><td>Customer message</td><td>High</td><td>Push — treated with the same urgency as a new order, since an unanswered message is a trust cost.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 12 ROLE MANAGEMENT -->
+    <section class="doc" id="s12">
+      <div class="sec-head"><span class="sec-num">12</span><h2>Role Management (Future)</h2></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Role</th><th>Scope</th></tr></thead>
+        <tbody>
+          <tr><td>Owner</td><td>Full access — settings, financials, all screens.</td></tr>
+          <tr><td>Manager</td><td>Everything except Store Settings' payment identity (UPI details) and financial exports — day-to-day operation without irreversible-feeling changes.</td></tr>
+          <tr><td>Delivery Partner</td><td>Sees only the Out for Delivery lane of the Queue and Mark Delivered — nothing else, so deputizing help for a busy night carries zero data-exposure risk.</td></tr>
+          <tr><td>Inventory Manager</td><td>Full Inventory + Product Management, read-only elsewhere — for a supplier-facing hire managing restock independently.</td></tr>
+        </tbody>
+      </table></div>
+      <p>Every action across every screen already writes to the audit log referenced in §3 and §10 — Role Management's actual engineering cost when it ships is scoping existing permission checks, not retrofitting logging after the fact.</p>
+    </section>
+
+    <!-- 13 MOBILE OWNER UX -->
+    <section class="doc" id="s13">
+      <div class="sec-head"><span class="sec-num">13</span><h2>Mobile Owner Experience</h2></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Surface</th><th>Design</th></tr></thead>
+        <tbody>
+          <tr><td>Phone</td><td>Primary surface at 11pm — one queue lane at a time, swipe actions, camera opens directly from the screenshot-view/product-image flows, large 48px+ touch targets since hands are often full.</td></tr>
+          <tr><td>Tablet</td><td>Two lanes visible side by side; used mainly for the calmer daytime restock/inventory work.</td></tr>
+          <tr><td>Desktop</td><td>Full three-lane board, command palette (§14), and the only surface where the dense Inventory table and full Analytics are the primary view.</td></tr>
+          <tr><td>Quick actions</td><td>A persistent floating action button (mobile) for Add Product and Mark Store Closed — the two actions needed outside the queue flow, reachable from anywhere.</td></tr>
+          <tr><td>Camera upload</td><td>Product photography and dispute evidence both use the native camera directly, never a "choose file" dialog first.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 14 KEYBOARD SHORTCUTS -->
+    <section class="doc" id="s14">
+      <div class="sec-head"><span class="sec-num">14</span><h2>Keyboard Shortcuts</h2></div>
+      <p class="lede">Desktop-only; the command palette is the primary discovery mechanism, so no shortcut here needs to be memorized to be useful.</p>
+      <div class="cmdk">
+        <div class="cmdk-input">Search orders, products, customers…</div>
+        <div class="cmdk-row"><span>Go to Order Queue</span><kbd>G</kbd>&nbsp;<kbd>O</kbd></div>
+        <div class="cmdk-row"><span>Go to Inventory</span><kbd>G</kbd>&nbsp;<kbd>I</kbd></div>
+        <div class="cmdk-row"><span>Add Product</span><kbd>N</kbd></div>
+        <div class="cmdk-row"><span>Add Category</span><kbd>⇧</kbd>&nbsp;<kbd>N</kbd></div>
+        <div class="cmdk-row"><span>Verify next pending payment</span><kbd>V</kbd></div>
+        <div class="cmdk-row"><span>Toggle store open/closed</span><kbd>⇧</kbd>&nbsp;<kbd>S</kbd></div>
+      </div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Shortcut</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>⌘</kbd> <kbd>K</kbd></td><td>Open command palette from anywhere</td></tr>
+          <tr><td><kbd>/</kbd></td><td>Focus search on the current screen</td></tr>
+          <tr><td><kbd>Enter</kbd></td><td>Trigger the focused card/row's primary action</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Close any open panel/sheet without saving unconfirmed changes</td></tr>
+          <tr><td><kbd>⌘</kbd> <kbd>S</kbd></td><td>Save the open product/settings panel</td></tr>
+          <tr><td><kbd>↑</kbd> <kbd>↓</kbd></td><td>Move focus between cards/rows within a lane or table</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 15 WORKFLOWS -->
+    <section class="doc" id="s15">
+      <div class="sec-head"><span class="sec-num">15</span><h2>Workflows</h2></div>
+      <p class="lede">The full state machine behind every order, with every decision point and branch made explicit.</p>
+      <details open>
+        <summary>Customer places order → Delivered (happy path)</summary>
+        <div class="inner">
+          <ol style="margin:10px 0 0; padding-left:20px;">
+            <li><strong>Order placed.</strong> Card appears in Awaiting Verification with an audible chime + push notification. Optimistically visible within &lt;1s of the customer's submit.</li>
+            <li><strong>Owner opens screenshot inline</strong> (no navigation), compares the copied amount, checks the duplicate-hash banner (absent = clean).</li>
+            <li><strong>Owner taps Approve Payment.</strong> Card's payment pill flips to green instantly (optimistic); customer's Verification Heartbeat (Phase 2 §8) resolves to Confirmed in the same moment via realtime push both ways.</li>
+            <li><strong>Card auto-moves to Preparing.</strong> Owner physically packs the order; taps Mark Delivery Coming when leaving the pantry/room.</li>
+            <li><strong>Card moves to Out for Delivery.</strong> Customer sees the corresponding stage (Phase 2 §9) with a live estimate.</li>
+            <li><strong>Owner taps Mark Delivered</strong> upon handoff. Card exits the board into Order History; customer's app shows Delivered and the order becomes reorderable.</li>
+          </ol>
+        </div>
+      </details>
+      <details>
+        <summary>Decision point: payment doesn't match</summary>
+        <div class="inner"><p>Owner taps Reject instead of Approve → required reason (wrong amount / duplicate / unreadable / other) → customer's app immediately shows the specific, blame-free explanation from Phase 2 §17, with a direct re-upload path. No order progresses past Awaiting Verification without an explicit Approve.</p></div>
+      </details>
+      <details>
+        <summary>Decision point: item turns out to be out of stock mid-preparation</summary>
+        <div class="inner"><p>Owner swipe-left → flag issue → "Item unavailable" → selects the affected line item → system auto-computes a partial refund or substitution offer, sent to the customer as a one-tap accept/decline before the order proceeds — never silently dropped from the order.</p></div>
+      </details>
+      <details>
+        <summary>Decision point: customer unreachable at delivery</summary>
+        <div class="inner"><p>After two Call attempts (logged automatically via the Call button's tap event), owner can mark "Attempted — Unreachable," which pauses the order in Out for Delivery with a visible timer rather than forcing an immediate Delivered/Cancelled decision — gives a real grace window before escalating to a refund conversation.</p></div>
+      </details>
+    </section>
+
+    <!-- 16 EDGE CASES -->
+    <section class="doc" id="s16">
+      <div class="sec-head"><span class="sec-num">16</span><h2>Edge Cases</h2></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Case</th><th>Resolution</th></tr></thead>
+        <tbody>
+          <tr><td>Customer pays wrong amount</td><td>Flagged automatically if entered total ≠ order total; Reject with "wrong amount" reason triggers the customer-side correction flow (Phase 2 §17).</td></tr>
+          <tr><td>Customer pays twice</td><td>Second screenshot's perceptual hash won't match (it's a genuinely new payment) but the order ID context makes it visible on the customer's order list; owner issues a one-tap refund from that order's card, logged in the audit trail.</td></tr>
+          <tr><td>Wrong / unreadable screenshot</td><td>Reject with "unreadable" reason; customer gets a direct re-upload prompt, order stays parked in Awaiting Verification (not cancelled) so no re-ordering is needed.</td></tr>
+          <tr><td>Product goes out of stock after order placed</td><td>See Workflow above — substitution/partial-refund offer, never a silent removal.</td></tr>
+          <tr><td>Owner rejects the whole order</td><td>Required reason, customer sees an explicit "Order Cancelled" stage with refund status (Phase 2 §9) — never a disappearance.</td></tr>
+          <tr><td>Store closes mid-queue</td><td>Existing Awaiting Verification / Preparing / Out for Delivery cards are entirely unaffected — closing only stops new orders, per Phase 2 §11's closed-but-browsable model.</td></tr>
+          <tr><td>Network failure on the owner's device</td><td>Console is a PWA with offline queue caching — actions taken offline (e.g. Mark Delivered) queue locally and sync the moment connectivity returns, never silently lost.</td></tr>
+          <tr><td>Payment verification timeout</td><td>Past the estimate window, both the owner's card and the customer's Heartbeat surface an escalation path simultaneously (§11), rather than either side silently waiting.</td></tr>
+          <tr><td>Duplicate order (same customer, same items, seconds apart — likely a double-tap)</td><td>System detects two orders from the same phone number within a 60-second window with identical contents and surfaces a merge suggestion to the owner before both are prepared separately.</td></tr>
+          <tr><td>Refund</td><td>One-tap from any order's card at any stage; requires a reason, always logged, and reflected instantly on the customer's order history as a distinct "Refunded" status.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 17 ACCESSIBILITY -->
+    <section class="doc" id="s17">
+      <div class="sec-head"><span class="sec-num">17</span><h2>Accessibility</h2></div>
+      <ul>
+        <li>WCAG 2.1 AA contrast across both themes, verified independently — status pills always pair color with an icon and text label.</li>
+        <li>Full keyboard operability across the Queue, Inventory table, and all panels — every primary action reachable without a pointer, essential for the desktop/laptop packing-adjacent workflow.</li>
+        <li>Screen-reader users get each order card announced as one coherent unit (customer, items, value, status) rather than fragmented cells.</li>
+        <li>Live regions announce lane-count and stage changes as they happen in realtime, matching the visual update.</li>
+        <li>Minimum 44×44px targets throughout, sized up further (48px+) on the mobile Queue given the one-handed, hands-full usage context.</li>
+      </ul>
+    </section>
+
+    <!-- 18 PERFORMANCE -->
+    <section class="doc" id="s18">
+      <div class="sec-head"><span class="sec-num">18</span><h2>Performance</h2></div>
+      <ul>
+        <li><strong>Realtime everywhere it matters</strong> — Order Queue, Dashboard tiles, and Notifications are Supabase-realtime subscribed; nothing operationally relevant is polled.</li>
+        <li><strong>Optimistic UI</strong> on every stage-change and payment-decision action — the interface updates instantly and reconciles in the background, with silent rollback + toast on failure.</li>
+        <li><strong>Virtualized tables</strong> for Inventory and Order History beyond ~50 rows — stays instant at multi-hostel scale.</li>
+        <li><strong>Infinite scroll</strong> on Order History and Customers, never full pagination — matches the "keep scanning, don't click Next" scanning behaviour of both screens.</li>
+        <li><strong>Lazy-loaded</strong> Analytics charts and the Reports export pipeline — neither blocks the Queue's initial paint, which is the one screen that must load first, always.</li>
+        <li><strong>Multi-device by default</strong> — no single-session lock; two devices open to the Queue simultaneously both see and can act on the same realtime state, directly addressing the single-point-of-failure risk raised in the Self-Review.</li>
+      </ul>
+    </section>
+
+    <!-- 19 ACCEPTANCE CRITERIA -->
+    <section class="doc" id="s19">
+      <div class="sec-head"><span class="sec-num">19</span><h2>Acceptance Criteria</h2></div>
+      <details>
+        <summary>Order Queue</summary>
+        <div class="inner"><ul>
+          <li>A new order appears in Awaiting Verification within 1 second of submission, with an audible + push alert.</li>
+          <li>Approve/Reject, Mark Delivery Coming, and Mark Delivered all apply optimistically and never block on network round-trip.</li>
+          <li>Cards within each lane are always sorted oldest-first with no manual override control present.</li>
+          <li>A duplicate-screenshot match is flagged before Approve is actionable.</li>
+        </ul></div>
+      </details>
+      <details>
+        <summary>Inventory</summary>
+        <div class="inner"><ul>
+          <li>Low-stock status reflects the velocity model (runway time), not a fixed unit threshold.</li>
+          <li>Restock via the inline stepper/quick-add updates stock count and status pill with zero full-page reload.</li>
+          <li>Every stock change is recorded in Stock History, attributable to sale vs. manual edit.</li>
+        </ul></div>
+      </details>
+      <details>
+        <summary>Analytics</summary>
+        <div class="inner"><ul>
+          <li>All charts use the validated chart-token palette, never brand UI hues, and pass CVD/contrast checks in both themes.</li>
+          <li>Every multi-series chart ships a table-view toggle.</li>
+          <li>No chart uses a dual y-axis; differently-scaled metrics are always separate charts or indexed to a common base.</li>
+        </ul></div>
+      </details>
+      <details>
+        <summary>Cross-cutting</summary>
+        <div class="inner"><ul>
+          <li>Every screen in this document is fully keyboard-operable and passes WCAG 2.1 AA in both themes.</li>
+          <li>Every owner action that changes money, stock, or order state is logged to the audit trail with actor, timestamp, and reason where applicable.</li>
+          <li>The console functions correctly as an installable PWA on at least two simultaneous devices with realtime-consistent state.</li>
+        </ul></div>
+      </details>
+    </section>
+
+    <footer>NightCravings — Owner Console Specification · Phase 3 · v1.0 · Prepared 11 Jul 2026 · Builds on Foundation Doc v1.0 + Customer Experience Spec v1.0</footer>
+  </main>
+</div>
