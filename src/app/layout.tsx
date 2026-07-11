@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
+import { Providers } from "@/app/providers";
+
 export const metadata: Metadata = {
   title: "NightCravings",
   description: "The premium late-night convenience store inside every hostel.",
@@ -42,7 +44,9 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
-      <body className="font-body flex min-h-full flex-col">{children}</body>
+      <body className="font-body flex min-h-full flex-col">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

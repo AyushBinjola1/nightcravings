@@ -1,9 +1,11 @@
 "use client";
 
-import { useId } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { Button } from "@/components/ui/button";
+import { Field } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import { useCustomerProfileStore } from "@/stores/customer-profile";
 import {
   customerProfileSchema,
@@ -25,10 +27,6 @@ export function CustomerProfileForm({
   const storedProfile = useCustomerProfileStore((state) => state.profile);
   const setProfile = useCustomerProfileStore((state) => state.setProfile);
 
-  const fullNameFieldId = useId();
-  const phoneFieldId = useId();
-  const roomFieldId = useId();
-
   const form = useForm<CustomerProfileInput>({
     resolver: zodResolver(customerProfileSchema),
     defaultValues: storedProfile ?? {
@@ -45,101 +43,54 @@ export function CustomerProfileForm({
 
   return (
     <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1.5">
-        <label
-          htmlFor={fullNameFieldId}
-          className="text-ink text-sm font-medium"
-        >
-          Name
-        </label>
-        <input
-          id={fullNameFieldId}
-          type="text"
-          autoComplete="name"
-          aria-invalid={Boolean(form.formState.errors.fullName)}
-          aria-describedby={
-            form.formState.errors.fullName
-              ? `${fullNameFieldId}-error`
-              : undefined
-          }
-          className="border-border bg-paper text-ink focus:border-accent rounded-md border px-3 py-2.5 outline-none"
-          {...form.register("fullName")}
-        />
-        {form.formState.errors.fullName && (
-          <p
-            id={`${fullNameFieldId}-error`}
-            role="alert"
-            className="text-danger text-sm"
-          >
-            {form.formState.errors.fullName.message}
-          </p>
-        )}
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor={phoneFieldId} className="text-ink text-sm font-medium">
-          Phone number
-        </label>
-        <div className="border-border bg-paper focus-within:border-accent flex items-center gap-2 rounded-md border">
-          <span className="text-ink-soft pl-3 font-mono text-sm">+91</span>
-          <input
-            id={phoneFieldId}
-            type="tel"
-            inputMode="numeric"
-            autoComplete="tel-national"
-            placeholder="98765 43210"
-            aria-invalid={Boolean(form.formState.errors.phone)}
-            aria-describedby={
-              form.formState.errors.phone ? `${phoneFieldId}-error` : undefined
-            }
-            className="text-ink w-full bg-transparent py-2.5 pr-3 outline-none"
-            {...form.register("phone")}
+      <Field label="Name" error={form.formState.errors.fullName?.message}>
+        {({ fieldId, describedBy }) => (
+          <Input
+            id={fieldId}
+            type="text"
+            autoComplete="name"
+            aria-invalid={Boolean(form.formState.errors.fullName)}
+            aria-describedby={describedBy}
+            {...form.register("fullName")}
           />
-        </div>
-        {form.formState.errors.phone && (
-          <p
-            id={`${phoneFieldId}-error`}
-            role="alert"
-            className="text-danger text-sm"
-          >
-            {form.formState.errors.phone.message}
-          </p>
         )}
-      </div>
+      </Field>
 
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor={roomFieldId} className="text-ink text-sm font-medium">
-          Room number
-        </label>
-        <input
-          id={roomFieldId}
-          type="text"
-          aria-invalid={Boolean(form.formState.errors.roomNumber)}
-          aria-describedby={
-            form.formState.errors.roomNumber
-              ? `${roomFieldId}-error`
-              : undefined
-          }
-          className="border-border bg-paper text-ink focus:border-accent rounded-md border px-3 py-2.5 outline-none"
-          {...form.register("roomNumber")}
-        />
-        {form.formState.errors.roomNumber && (
-          <p
-            id={`${roomFieldId}-error`}
-            role="alert"
-            className="text-danger text-sm"
-          >
-            {form.formState.errors.roomNumber.message}
-          </p>
+      <Field label="Phone number" error={form.formState.errors.phone?.message}>
+        {({ fieldId, describedBy }) => (
+          <div className="border-border bg-paper focus-within:border-accent flex items-center gap-2 rounded-md border">
+            <span className="text-ink-soft pl-3 font-mono text-sm">+91</span>
+            <input
+              id={fieldId}
+              type="tel"
+              inputMode="numeric"
+              autoComplete="tel-national"
+              placeholder="98765 43210"
+              aria-invalid={Boolean(form.formState.errors.phone)}
+              aria-describedby={describedBy}
+              className="text-ink w-full bg-transparent py-2.5 pr-3 outline-none"
+              {...form.register("phone")}
+            />
+          </div>
         )}
-      </div>
+      </Field>
 
-      <button
-        type="submit"
-        className="bg-accent text-paper rounded-md px-4 py-2.5 font-medium transition-opacity"
+      <Field
+        label="Room number"
+        error={form.formState.errors.roomNumber?.message}
       >
-        Save
-      </button>
+        {({ fieldId, describedBy }) => (
+          <Input
+            id={fieldId}
+            type="text"
+            aria-invalid={Boolean(form.formState.errors.roomNumber)}
+            aria-describedby={describedBy}
+            {...form.register("roomNumber")}
+          />
+        )}
+      </Field>
+
+      <Button type="submit">Save</Button>
     </form>
   );
 }

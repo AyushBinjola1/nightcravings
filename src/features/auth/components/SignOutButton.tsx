@@ -2,19 +2,21 @@
 
 import { useTransition } from "react";
 
+import { Button } from "@/components/ui/button";
 import { signOutStaff } from "@/server/actions/auth";
 
 export function SignOutButton() {
   const [isPending, startTransition] = useTransition();
 
   return (
-    <button
+    <Button
       type="button"
+      variant="secondary"
       disabled={isPending}
       onClick={() => startTransition(() => signOutStaff())}
-      className="border-border text-ink w-fit rounded-md border px-4 py-2.5 text-sm font-medium transition-opacity disabled:cursor-not-allowed disabled:opacity-60"
+      className="w-fit"
     >
       {isPending ? "Signing out…" : "Sign out"}
-    </button>
+    </Button>
   );
 }
