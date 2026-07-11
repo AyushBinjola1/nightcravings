@@ -10,8 +10,12 @@ architecture decisions. Read them before changing product behavior.
 **All 12 stages complete.** See the implementation order in
 [Phase 4 §24](./docs/phase-4-engineering-blueprint.html#s24).
 
-**What actually works right now**, against the real linked Supabase
-project, once the migrations below are applied:
+**All 13 migrations are applied to the live linked Supabase project** (via
+`supabase db push`, a real access token, and `supabase gen types` — see
+the note at the end of this section). `npm run dev` now shows a real,
+stocked Home page — the demo hostel and its 9 seeded products — not an
+empty state. **What actually works right now**, verified against that
+live data:
 
 - Customer: browse the catalogue (Home), open a product detail sheet, add
   to cart, checkout with no login (name/phone/room only,
@@ -36,10 +40,9 @@ route; caught and fixed while building Stage 6.
 
 ### Database
 
-A real Supabase project is connected (`.env.local`, not committed).
-`supabase/migrations/` has thirteen files, in order — apply them in the
-linked project's SQL Editor in this order (see the verification caveat
-below for why that's the fastest path):
+A real Supabase project is connected (`.env.local`, not committed) and
+**all thirteen migrations below are applied to it** — run in order via
+`supabase db push` once a personal access token was provided:
 
 1. `20260711180000_identity_and_tenancy.sql` — `hostels`, `profiles` (staff
    only), RBAC, `devices`.
@@ -87,17 +90,19 @@ below for why that's the fastest path):
     immediately rather than an empty state. Idempotent — skips itself if
     the hostel already has any category.
 
-**Verification caveat, stated plainly:** this sandbox has no Docker (so
-`supabase start` can't run a local Postgres) and only a publishable key for
-the linked project — no personal access token or DB password to run
-`supabase db push` from here. Every migration file is syntax-checked
-against Postgres's real grammar (via `libpg-query`) and staff sign-in works
-against the real project's Auth service, but **the migrations themselves
-have not been applied yet, and the full customer/owner flow above is
-therefore unverified against real data.** Fastest unblock, no extra
-credentials needed: paste the files' contents into the SQL Editor, in the
-numbered order above, then regenerate `src/types/database.ts` for real via
-`supabase gen types typescript --project-id qwziuxkcbzrygmozqrad`.
+**Verification status:** all thirteen migrations were applied for real via
+`supabase link --project-ref qwziuxkcbzrygmozqrad` + `supabase db push`
+(this sandbox still has no Docker, so `supabase start`/local dev remain
+unavailable — but a real personal access token made `--linked` operation
+possible). Confirmed directly against the live REST API afterward (the
+seeded hostel and all 9 products round-tripped correctly), and
+`src/types/database.ts` was regenerated for real via
+`supabase gen types typescript --project-id qwziuxkcbzrygmozqrad` —
+replacing the hand-authored stand-in with actual generated output, which
+typechecked clean on the first try against every query already written
+against the hand-authored version. All 18 unit tests and all 7 e2e tests
+(the latter against a real Chromium browser and a real production build)
+pass against this live data.
 
 ## Stack
 
@@ -115,9 +120,12 @@ cp .env.example .env.local   # fill in Supabase project keys — see below
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Until the migrations
-above are applied, the app runs and every screen renders its honest empty
-state ("Store not found") rather than crashing.
+Open [http://localhost:3000](http://localhost:3000) — the migrations are
+applied, so this shows the real demo hostel and its seeded catalogue, not
+an empty state. If you ever point this at a fresh, unmigrated Supabase
+project, every screen still degrades to an honest empty state ("Store not
+found") rather than crashing — that resilience is unit/e2e-tested, not
+just asserted.
 
 ### Environment variables
 
