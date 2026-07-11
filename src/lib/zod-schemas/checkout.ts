@@ -17,7 +17,13 @@ export const cartLineSchema = z.object({
 
 export const placeOrderSchema = z
   .object({
-    profile: customerProfileSchema,
+    // Overrides customerProfileSchema's own unconditional
+    // `roomNumber.min(1)` — that constraint is right for the local
+    // "save my profile" form, but here Pickup must be allowed to submit
+    // an empty room number, with the .refine() below enforcing it only
+    // for Room Delivery. Caught by a failing unit test
+    // (tests/unit/zod-schemas.test.ts) before this ever reached checkout.
+    profile: customerProfileSchema.extend({ roomNumber: z.string().trim() }),
     deliveryMethod: z.enum(["room_delivery", "pickup"]),
     notes: z.string().trim().max(280).optional(),
     items: z.array(cartLineSchema).min(1, "Your cart is empty"),

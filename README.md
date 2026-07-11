@@ -7,15 +7,9 @@ architecture decisions. Read them before changing product behavior.
 
 ## Build status
 
-**Stage 7 of 12 complete** (Project Setup, Authentication, Database,
-Design System, Shared Components, Customer Application, Owner Console).
-See the implementation order in
-[Phase 4 §24](./docs/phase-4-engineering-blueprint.html#s24) for what's
-next (Stage 8: Realtime hardening, Stage 9: Analytics, Stage 10: PWA,
-Stage 11: Testing, Stage 12: Production Hardening). Realtime itself is
-already live in Stages 6-7 (order tracking, the Order Queue) — Stage 8 is
-about extending that pattern further (Dashboard tiles, inventory), not
-introducing it for the first time.
+**Stage 11 of 12 complete** — every stage through Testing. Only Stage 12
+(Production Hardening) remains. See the implementation order in
+[Phase 4 §24](./docs/phase-4-engineering-blueprint.html#s24).
 
 **What actually works right now**, against the real linked Supabase
 project, once the migrations below are applied:
@@ -166,6 +160,16 @@ Every color, font, and radius is a CSS custom property in
 `bg-surface`, `text-ink-soft`, `border-border`, `font-display`, etc. Light
 and dark are both first-class (see Phase 1 §9); never hardcode a hex value
 or a one-off spacing number in a component.
+
+## Testing
+
+Three layers, per Phase 4 §19 — status of each stated plainly:
+
+| Layer | Tool                            | Status                                                                                                                                                                                                                                                                                                  |
+| ----- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit  | Vitest (`npm run test`)         | **18/18 passing.** Cart math, Zod schema edge cases, `ActionResult` discrimination, a `BarChart` render test. One of these (the room-number/pickup case) caught a real validation bug before it ever reached checkout — see `tests/unit/zod-schemas.test.ts`.                                           |
+| E2e   | Playwright (`npm run test:e2e`) | **7/7 passing**, run against a real production build in a real Chromium browser. Confirms the app shell, checkout empty state, both PWA manifest links, and the full staff-login redirect chain all work — including the app's graceful "table not found" handling with the migrations still unapplied. |
+| RLS   | pgTAP (`tests/pgtap/`)          | **Written, syntax-verified, not executed** — needs Docker or a `supabase login` token, neither available here. See `tests/pgtap/README.md` for the exact command to run them for real.                                                                                                                  |
 
 ## Known dependency advisory
 
