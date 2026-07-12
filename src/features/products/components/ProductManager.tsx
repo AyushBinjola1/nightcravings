@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useHostelCatalogueRealtime } from "@/hooks/useHostelCatalogueRealtime";
 import { useToastStore } from "@/stores/toast";
 import { adjustStock, setProductHidden } from "@/server/actions/products";
 import { ProductFormSheet } from "@/features/products/components/ProductFormSheet";
@@ -27,6 +28,7 @@ export function ProductManager({
   products: Product[];
 }) {
   const router = useRouter();
+  useHostelCatalogueRealtime(hostelId);
   const [isPending, startTransition] = useTransition();
   const [formOpen, setFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);

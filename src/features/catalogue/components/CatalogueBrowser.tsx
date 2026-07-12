@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 
 import { cn } from "@/lib/cn";
+import { useHostelCatalogueRealtime } from "@/hooks/useHostelCatalogueRealtime";
 import { CategoryTile } from "@/features/catalogue/components/CategoryTile";
 import { ProductCard } from "@/features/catalogue/components/ProductCard";
 import { ProductSheet } from "@/features/catalogue/components/ProductSheet";
@@ -26,14 +27,17 @@ function matchesQuery(product: Product, query: string): boolean {
  * component never fetches on its own.
  */
 export function CatalogueBrowser({
+  hostelId,
   categories,
   products,
   supportPhone,
 }: {
+  hostelId: string;
   categories: Category[];
   products: Product[];
   supportPhone: string | null;
 }) {
+  useHostelCatalogueRealtime(hostelId);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [openProduct, setOpenProduct] = useState<Product | null>(null);

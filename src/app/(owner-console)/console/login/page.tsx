@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { BackLink } from "@/components/ui/back-link";
 import { StaffLoginForm } from "@/features/auth";
 
 export const metadata: Metadata = {
@@ -10,6 +11,7 @@ export default function StaffLoginPage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center px-6 py-16">
       <div className="w-full max-w-sm">
+        <BackLink href="/" label="Back to storefront" />
         <p className="text-accent mb-2 font-mono text-xs tracking-[0.1em] uppercase">
           NightCravings
         </p>

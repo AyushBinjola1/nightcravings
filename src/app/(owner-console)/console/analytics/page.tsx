@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
-import { BarChart } from "@/features/analytics";
+import { BackLink } from "@/components/ui/back-link";
+import { AnalyticsRealtimeRefresher, BarChart } from "@/features/analytics";
 import { getCurrentHostel } from "@/server/queries/catalogue";
 import { getRevenueByDay, getTopProducts } from "@/server/queries/analytics";
 
@@ -33,6 +34,8 @@ export default async function AnalyticsPage() {
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-8">
+      <BackLink href="/console/dashboard" label="Dashboard" />
+      <AnalyticsRealtimeRefresher hostelId={hostel.id} />
       <h1 className="font-display text-ink mb-6 text-xl font-semibold">
         Analytics
       </h1>

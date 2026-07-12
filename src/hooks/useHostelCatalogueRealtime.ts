@@ -6,34 +6,31 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 /**
- * Shared by the Owner Console's Order Queue and Dashboard (Phase 4 §10):
- * re-fetches server data via `router.refresh()` whenever any order or
- * payment changes. `payments` has no `hostel_id` column of its own (it
- * hangs off `order_id`), so it can't be filtered the same way `orders`
- * is — left unfiltered, which is correct for this deployment's actual
- * scope (Stage 22: one hostel per deployment, so every payment row
- * already belongs to it).
+ * Keeps the customer-facing catalogue (stock levels, new/hidden
+ * products) and the Owner Console's Manage Menu live — a product going
+ * out of stock, or a staff edit from another tab, previously only
+ * appeared after a manual reload.
  */
-export function useHostelOrdersRealtime(hostelId: string) {
+export function useHostelCatalogueRealtime(hostelId: string) {
   const router = useRouter();
 
   useEffect(() => {
     const supabase = createClient();
     const channel = supabase
-      .channel(`hostel-orders-${hostelId}`)
+      .channel(`hostel-catalogue-${hostelId}`)
       .on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
-          table: "orders",
+          table: "products",
           filter: `hostel_id=eq.${hostelId}`,
         },
         () => router.refresh(),
       )
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "payments" },
+        { event: "*", schema: "public", table: "stock_history" },
         () => router.refresh(),
       )
       .subscribe();

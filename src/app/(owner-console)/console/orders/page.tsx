@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { BackLink } from "@/components/ui/back-link";
 import { OrderQueueBoard } from "@/features/order-queue";
 import { getCurrentHostel } from "@/server/queries/catalogue";
 import { getOrderQueue } from "@/server/queries/order-queue";
@@ -24,6 +25,7 @@ export default async function OrderQueuePage() {
 
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-6">
+      <BackLink href="/console/dashboard" label="Dashboard" />
       <h1 className="font-display text-ink mb-4 text-xl font-semibold">
         Order Queue
       </h1>

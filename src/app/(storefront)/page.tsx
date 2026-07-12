@@ -53,6 +53,7 @@ export default async function HomePage() {
         <DemandItemBar supportPhone={hostel.support_phone} />
       </div>
       <CatalogueBrowser
+        hostelId={hostel.id}
         categories={categories}
         products={products}
         supportPhone={hostel.support_phone}

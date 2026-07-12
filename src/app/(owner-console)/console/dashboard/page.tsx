@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { BackLink } from "@/components/ui/back-link";
 import { createClient } from "@/lib/supabase/server";
 import { SignOutButton } from "@/features/auth/components/SignOutButton";
 import {
@@ -39,6 +40,7 @@ export default async function DashboardPage() {
 
   return (
     <main className="mx-auto w-full max-w-3xl px-6 py-10">
+      <BackLink href="/" label="View storefront" />
       <p className="text-accent mb-3 font-mono text-xs tracking-[0.1em] uppercase">
         NightCravings — Owner Console
       </p>

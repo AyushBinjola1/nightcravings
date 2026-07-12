@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 
+import { BackLink } from "@/components/ui/back-link";
 import { ProductManager } from "@/features/products";
 import { getCurrentHostel } from "@/server/queries/catalogue";
 import {
@@ -33,13 +32,7 @@ export default async function ProductsPage() {
 
   return (
     <main className="mx-auto w-full max-w-4xl px-4 py-6">
-      <Link
-        href="/console/dashboard"
-        className="text-ink-soft mb-4 inline-flex items-center gap-1.5 text-sm"
-      >
-        <ArrowLeft size={14} aria-hidden="true" />
-        Dashboard
-      </Link>
+      <BackLink href="/console/dashboard" label="Dashboard" />
       <h1 className="font-display text-ink mb-4 text-xl font-semibold">
         Manage Menu
       </h1>

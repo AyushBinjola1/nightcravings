@@ -95,7 +95,6 @@ export function PaymentForm({
             type="file"
             name="screenshot"
             accept="image/jpeg,image/png,image/webp"
-            capture="environment"
             required
             onChange={(event) => {
               const file = event.target.files?.[0];

@@ -8,7 +8,14 @@ import { adjustStock } from "@/server/actions/products";
 
 /** A quick "restock/correct by N" control — every change still goes
  * through `adjustStock`'s `stock_history` insert, never a direct
- * `stock_qty` write (see that action's own comment). */
+ * `stock_qty` write (see that action's own comment).
+ *
+ * The amount is kept as a raw string, not a clamped number, while
+ * typing — clamping on every keystroke made the field impossible to
+ * clear and retype (deleting to an empty string parsed as `0`, got
+ * floored back to `1`, and any digit typed next appended to that
+ * stuck "1" instead of replacing it). Clamping only happens when a
+ * button is actually pressed. */
 export function StockAdjuster({
   productId,
   stockQty,
@@ -16,14 +23,16 @@ export function StockAdjuster({
   productId: string;
   stockQty: number;
 }) {
-  const [amount, setAmount] = useState(1);
+  const [amountInput, setAmountInput] = useState("1");
   const [isPending, startTransition] = useTransition();
 
   const apply = (sign: 1 | -1) => {
+    const parsed = Math.max(1, Math.trunc(Number(amountInput) || 1));
+    setAmountInput(String(parsed));
     startTransition(async () => {
       const result = await adjustStock({
         productId,
-        delta: sign * amount,
+        delta: sign * parsed,
       });
       if (!result.success) {
         useToastStore.getState().show(result.error, "danger");
@@ -37,10 +46,17 @@ export function StockAdjuster({
         {stockQty} in stock
       </span>
       <input
-        type="number"
-        min={1}
-        value={amount}
-        onChange={(event) => setAmount(Math.max(1, Number(event.target.value)))}
+        type="text"
+        inputMode="numeric"
+        pattern="[0-9]*"
+        value={amountInput}
+        onChange={(event) => {
+          const next = event.target.value;
+          if (/^[0-9]*$/.test(next)) setAmountInput(next);
+        }}
+        onBlur={() => {
+          if (amountInput.trim() === "") setAmountInput("1");
+        }}
         aria-label="Adjustment amount"
         className="border-border bg-paper text-ink w-14 rounded-md border px-1.5 py-1 text-center text-xs outline-none"
       />

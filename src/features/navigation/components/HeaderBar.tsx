@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { CircleUserRound, HelpCircle } from "lucide-react";
 
@@ -26,8 +27,16 @@ export function HeaderBar({ supportPhone }: { supportPhone: string | null }) {
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-3">
           <Link
             href="/"
-            className="font-display text-ink text-lg font-semibold"
+            className="font-display text-ink flex items-center gap-2 text-lg font-semibold"
           >
+            <Image
+              src="/logo.png"
+              alt=""
+              width={32}
+              height={32}
+              className="rounded-md"
+              priority
+            />
             Night<span className="text-accent">Cravings</span>
           </Link>
           <div className="flex items-center gap-1.5">

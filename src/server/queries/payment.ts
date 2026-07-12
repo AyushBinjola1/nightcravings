@@ -7,12 +7,22 @@ import { createClient } from "@/lib/supabase/server";
 import { buildUpiUri } from "@/lib/upi";
 
 /**
- * Drop a real QR export at this path (e.g. from your UPI app's "share QR"
- * screen) and it's served as-is — no environment here can read the bytes
- * of an image pasted into chat, so a file on disk is the only way to show
- * your literal QR image rather than one generated from your UPI id.
+ * Drop a real QR export at one of these paths (e.g. from your UPI app's
+ * "share QR" screen) and it's served as-is — no environment here can
+ * read the bytes of an image pasted into chat, so a file on disk is the
+ * only way to show your literal QR image rather than one generated from
+ * your UPI id. Checked in order; first one found wins.
  */
-const STATIC_QR_PATH = path.join(process.cwd(), "public", "upi-qr.png");
+const STATIC_QR_CANDIDATES = ["upi-qr.jpeg", "upi-qr.jpg", "upi-qr.png"];
+
+function findStaticQrUrl(): string | null {
+  for (const filename of STATIC_QR_CANDIDATES) {
+    if (existsSync(path.join(process.cwd(), "public", filename))) {
+      return `/${filename}`;
+    }
+  }
+  return null;
+}
 
 export type PaymentSummary = {
   id: string;
@@ -83,9 +93,10 @@ export async function getHostelPaymentInfo(
   const row = data[0];
   if (!row) return { upiId: null, upiNumber: null, qrDataUrl: null };
 
+  const staticQrUrl = findStaticQrUrl();
   let qrDataUrl: string | null = null;
-  if (existsSync(STATIC_QR_PATH)) {
-    qrDataUrl = "/upi-qr.png";
+  if (staticQrUrl) {
+    qrDataUrl = staticQrUrl;
   } else if (row.upi_qr_url) {
     qrDataUrl = row.upi_qr_url;
   } else if (row.upi_id) {
