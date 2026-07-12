@@ -1,7 +1,18 @@
+import { existsSync } from "node:fs";
+import path from "node:path";
+
 import QRCode from "qrcode";
 
 import { createClient } from "@/lib/supabase/server";
 import { buildUpiUri } from "@/lib/upi";
+
+/**
+ * Drop a real QR export at this path (e.g. from your UPI app's "share QR"
+ * screen) and it's served as-is — no environment here can read the bytes
+ * of an image pasted into chat, so a file on disk is the only way to show
+ * your literal QR image rather than one generated from your UPI id.
+ */
+const STATIC_QR_PATH = path.join(process.cwd(), "public", "upi-qr.png");
 
 export type PaymentSummary = {
   id: string;
@@ -38,12 +49,13 @@ export type HostelPaymentInfo = {
   upiId: string | null;
   upiNumber: string | null;
   /**
-   * A data: URI QR code, either the hostel's own uploaded image
-   * (`hostels.upi_qr_url`, if a Settings screen ever sets one) or —
-   * absent that — generated on the fly from the UPI id via the standard
-   * `upi://pay` deep link. Either way this is always a scannable, correct
-   * QR: it can never go stale the way a stored image would if the UPI id
-   * changed but nobody re-uploaded the picture.
+   * Resolved in priority order: a real QR file dropped at
+   * `public/upi-qr.png` (your literal, scanned image) → the hostel's own
+   * uploaded image (`hostels.upi_qr_url`, if a Settings screen ever sets
+   * one) → generated on the fly from the UPI id via the standard
+   * `upi://pay` deep link. The generated fallback can never go stale the
+   * way a stored image would if the UPI id changed but nobody
+   * re-uploaded the picture — but a real file always wins when present.
    */
   qrDataUrl: string | null;
 };
@@ -72,7 +84,9 @@ export async function getHostelPaymentInfo(
   if (!row) return { upiId: null, upiNumber: null, qrDataUrl: null };
 
   let qrDataUrl: string | null = null;
-  if (row.upi_qr_url) {
+  if (existsSync(STATIC_QR_PATH)) {
+    qrDataUrl = "/upi-qr.png";
+  } else if (row.upi_qr_url) {
     qrDataUrl = row.upi_qr_url;
   } else if (row.upi_id) {
     try {

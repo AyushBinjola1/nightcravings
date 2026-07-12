@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { LayoutGrid } from "lucide-react";
 
 import { cn } from "@/lib/cn";
 import { CategoryTile } from "@/features/catalogue/components/CategoryTile";
@@ -58,29 +57,13 @@ export function CatalogueBrowser({
             onClick={() => setActiveCategory(null)}
             aria-pressed={activeCategory === null}
             className={cn(
-              "flex shrink-0 flex-col items-center gap-1.5 rounded-md border px-3 py-2 transition-colors",
+              "shrink-0 rounded-md border px-4 py-2.5 text-sm font-medium transition-colors",
               activeCategory === null
-                ? "border-accent bg-accent-soft"
-                : "border-border bg-surface",
+                ? "border-accent bg-accent-soft text-accent"
+                : "border-border bg-surface text-ink",
             )}
           >
-            <div className="bg-surface-2 flex h-10 w-10 items-center justify-center rounded-full">
-              <LayoutGrid
-                size={18}
-                className={
-                  activeCategory === null ? "text-accent" : "text-ink-soft"
-                }
-                aria-hidden="true"
-              />
-            </div>
-            <span
-              className={cn(
-                "text-xs font-medium",
-                activeCategory === null ? "text-accent" : "text-ink",
-              )}
-            >
-              All
-            </span>
+            All
           </button>
           {categories.map((category) => (
             <CategoryTile

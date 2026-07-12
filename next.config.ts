@@ -11,6 +11,18 @@ const supabaseHostname = process.env.NEXT_PUBLIC_SUPABASE_URL
   : undefined;
 
 /**
+ * The current catalogue's product photos (20260712180000) are hosted on
+ * the owner's existing grocery-CDN image links rather than re-uploaded
+ * to Supabase Storage — real photos of the real SKUs, just not
+ * self-hosted. Both need explicit allowlisting here (next/image) and in
+ * the CSP's img-src below, or the browser/optimizer rejects them.
+ */
+const PRODUCT_IMAGE_HOSTNAMES = [
+  "cdn.zeptonow.com",
+  "instamart-media-assets.swiggy.com",
+];
+
+/**
  * Phase 4 §13 — security headers applied globally. CSP's connect-src is
  * scoped to exactly the origins this app talks to (Supabase, PostHog,
  * Sentry) rather than left open; img-src allows the Supabase Storage
@@ -39,7 +51,7 @@ const contentSecurityPolicy = [
   // production, so the real production CSP stays free of it.
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  `img-src 'self' data: blob: ${supabaseHostname ? `https://${supabaseHostname}` : ""}`,
+  `img-src 'self' data: blob: ${supabaseHostname ? `https://${supabaseHostname}` : ""} ${PRODUCT_IMAGE_HOSTNAMES.map((h) => `https://${h}`).join(" ")}`,
   `connect-src ${CSP_CONNECT_SOURCES.join(" ")}`,
   "font-src 'self'",
   "frame-ancestors 'none'",
@@ -68,16 +80,34 @@ const nextConfig: NextConfig = {
   // runtime errors regardless), just the static route/prerender status
   // overlay, which this project doesn't rely on.
   devIndicators: false,
+  // Server Actions default to a 1MB request body limit — too small for
+  // the payment-screenshot upload (`submitPaymentProof`), which already
+  // validates up to `MAX_SCREENSHOT_BYTES` (8MB,
+  // src/lib/zod-schemas/payment.ts) and was rejected by this ceiling
+  // before ever reaching that check. 10mb leaves headroom for
+  // multipart/form-data's own boundary/header overhead on top of the
+  // 8MB file itself.
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "10mb",
+    },
+  },
   images: {
-    remotePatterns: supabaseHostname
-      ? [
-          {
-            protocol: "https",
-            hostname: supabaseHostname,
-            pathname: "/storage/v1/object/public/**",
-          },
-        ]
-      : [],
+    remotePatterns: [
+      ...(supabaseHostname
+        ? [
+            {
+              protocol: "https" as const,
+              hostname: supabaseHostname,
+              pathname: "/storage/v1/object/public/**",
+            },
+          ]
+        : []),
+      ...PRODUCT_IMAGE_HOSTNAMES.map((hostname) => ({
+        protocol: "https" as const,
+        hostname,
+      })),
+    ],
   },
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
