@@ -1,3 +1,5 @@
+import { cache } from "react";
+
 import { createClient } from "@/lib/supabase/server";
 import { CURRENT_HOSTEL_SLUG } from "@/config/hostel";
 import type { Database } from "@/types/database";
@@ -18,8 +20,14 @@ export type Product = Omit<
  * `upi_number_secret_id` are revoked from anon/authenticated (Stage 12's
  * Vault migration), and `SELECT *` fails outright in Postgres if the
  * caller lacks privilege on even one column in the table.
+ *
+ * Wrapped in React's `cache()` — every storefront request already calls
+ * this twice (once in `(storefront)/layout.tsx` for the header's support
+ * phone, once in the page itself), and did so as two separate round
+ * trips to Supabase before this. `cache()` memoizes per-request, so the
+ * second call reuses the first's result instead of re-querying.
  */
-export async function getCurrentHostel(): Promise<Hostel | null> {
+export const getCurrentHostel = cache(async (): Promise<Hostel | null> => {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("hostels")
@@ -34,7 +42,7 @@ export async function getCurrentHostel(): Promise<Hostel | null> {
     return null;
   }
   return data;
-}
+});
 
 export async function getCategories(hostelId: string): Promise<Category[]> {
   const supabase = await createClient();

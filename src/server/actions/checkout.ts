@@ -45,12 +45,18 @@ export async function placeOrder(
 
     const { data: hostel, error: hostelError } = await supabase
       .from("hostels")
-      .select("id, delivery_fee, free_delivery_threshold")
+      .select("id, status, delivery_fee, free_delivery_threshold")
       .eq("slug", CURRENT_HOSTEL_SLUG)
       .maybeSingle();
 
     if (hostelError || !hostel) {
       return actionError("Store not found.");
+    }
+
+    if (hostel.status !== "open") {
+      return actionError(
+        "The store is currently closed — please check back during opening hours.",
+      );
     }
 
     // The cart is client-persisted (localStorage) and can outlive the

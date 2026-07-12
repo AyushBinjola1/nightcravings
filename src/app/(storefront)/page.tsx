@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { StatusBar } from "@/features/catalogue/components/StatusBar";
 import { CatalogueBrowser } from "@/features/catalogue/components/CatalogueBrowser";
 import { DemandItemBar } from "@/features/catalogue/components/DemandItemBar";
+import { StoreClosedModal } from "@/features/catalogue/components/StoreClosedModal";
 import { CartWidget } from "@/features/cart";
 import {
   getCategories,
@@ -62,6 +63,7 @@ export default async function HomePage() {
         deliveryFee={hostel.delivery_fee}
         freeDeliveryThreshold={hostel.free_delivery_threshold}
       />
+      {hostel.status !== "open" && <StoreClosedModal hostel={hostel} />}
     </main>
   );
 }

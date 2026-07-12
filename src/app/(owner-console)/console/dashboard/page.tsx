@@ -78,6 +78,12 @@ export default async function DashboardPage() {
         >
           Manage Menu
         </Link>
+        <Link
+          href="/console/settings"
+          className="border-border text-ink rounded-md border px-4 py-2.5 text-sm font-medium"
+        >
+          Store Settings
+        </Link>
         <SignOutButton />
       </div>
     </main>

@@ -23,8 +23,20 @@ import { useOrderHistoryStore } from "@/stores/order-history";
  * two-card delivery method choice, and an optional note. No address form,
  * no payment method picker (UPI is the only option, handled on the next
  * screen), no login of any kind.
+ *
+ * `isStoreOpen` blocks submission outright (confirmed reversal of Phase
+ * 2 §11's original "queue orders while closed" design — see the
+ * migration and `placeOrder`'s own comments for why).
  */
-export function CheckoutForm() {
+export function CheckoutForm({
+  isStoreOpen,
+  deliveryFee,
+  freeDeliveryThreshold,
+}: {
+  isStoreOpen: boolean;
+  deliveryFee: number;
+  freeDeliveryThreshold: number;
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const items = useCartStore((state) => state.items);
@@ -134,8 +146,15 @@ export function CheckoutForm() {
         >
           {(
             [
-              { value: "room_delivery", label: "Room Delivery" },
-              { value: "pickup", label: "Pickup" },
+              {
+                value: "room_delivery",
+                label: "Room Delivery",
+                hint:
+                  subtotal >= freeDeliveryThreshold
+                    ? "Free (order ≥ ₹" + freeDeliveryThreshold.toFixed(0) + ")"
+                    : `₹${deliveryFee.toFixed(0)} · Free above ₹${freeDeliveryThreshold.toFixed(0)}`,
+              },
+              { value: "pickup", label: "Pickup", hint: "Free" },
             ] as const
           ).map((option) => (
             <label
@@ -154,6 +173,9 @@ export function CheckoutForm() {
                 {...form.register("deliveryMethod")}
               />
               {option.label}
+              <div className="text-ink-soft mt-0.5 text-xs font-normal">
+                {option.hint}
+              </div>
             </label>
           ))}
         </div>
@@ -205,8 +227,21 @@ export function CheckoutForm() {
         </span>
       </div>
 
-      <Button type="submit" disabled={isPending}>
-        {isPending ? "Placing order…" : "Continue to payment"}
+      {!isStoreOpen && (
+        <p
+          role="alert"
+          className="bg-danger-soft text-danger rounded-md px-3 py-2 text-sm font-medium"
+        >
+          Store is currently closed — orders can&apos;t be placed right now.
+        </p>
+      )}
+
+      <Button type="submit" disabled={isPending || !isStoreOpen}>
+        {!isStoreOpen
+          ? "Store is Closed"
+          : isPending
+            ? "Placing order…"
+            : "Continue to payment"}
       </Button>
     </form>
   );
