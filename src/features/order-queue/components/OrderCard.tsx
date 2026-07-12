@@ -1,9 +1,10 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Sheet } from "@/components/ui/sheet";
 import { useToastStore } from "@/stores/toast";
 import type { OrderQueueRow } from "@/server/queries/order-queue";
 import {
@@ -27,6 +28,7 @@ function minutesAgo(iso: string): number {
  */
 export function OrderCard({ order }: { order: OrderQueueRow }) {
   const [isPending, startTransition] = useTransition();
+  const [screenshotOpen, setScreenshotOpen] = useState(false);
   const age = minutesAgo(order.createdAt);
   const isUrgent = age > 15;
 
@@ -75,6 +77,26 @@ export function OrderCard({ order }: { order: OrderQueueRow }) {
       {order.status === "awaiting_verification" && order.payment && (
         <div className="flex flex-wrap gap-2">
           <Badge variant="warning">Awaiting Verification</Badge>
+
+          {order.payment.screenshotUrl ? (
+            <button
+              type="button"
+              onClick={() => setScreenshotOpen(true)}
+              className="border-border block w-24 shrink-0 overflow-hidden rounded-md border"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element -- a private Supabase Storage signed URL, not an optimizable static asset */}
+              <img
+                src={order.payment.screenshotUrl}
+                alt="Payment screenshot — tap to enlarge"
+                className="aspect-square w-full object-cover"
+              />
+            </button>
+          ) : (
+            <span className="text-ink-soft text-xs italic">
+              No screenshot attached
+            </span>
+          )}
+
           <div className="flex w-full gap-2">
             <Button
               size="sm"
@@ -106,6 +128,22 @@ export function OrderCard({ order }: { order: OrderQueueRow }) {
               </span>
             )}
           </div>
+
+          {order.payment.screenshotUrl && (
+            <Sheet
+              open={screenshotOpen}
+              onOpenChange={setScreenshotOpen}
+              title="Payment screenshot"
+              contentClassName="flex flex-col items-center"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element -- a private Supabase Storage signed URL, not an optimizable static asset */}
+              <img
+                src={order.payment.screenshotUrl}
+                alt="Payment screenshot"
+                className="max-h-[70vh] w-full rounded-md object-contain"
+              />
+            </Sheet>
+          )}
         </div>
       )}
 

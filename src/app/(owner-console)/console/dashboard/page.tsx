@@ -70,6 +70,12 @@ export default async function DashboardPage() {
         >
           Analytics
         </Link>
+        <Link
+          href="/console/products"
+          className="border-border text-ink rounded-md border px-4 py-2.5 text-sm font-medium"
+        >
+          Manage Menu
+        </Link>
         <SignOutButton />
       </div>
     </main>

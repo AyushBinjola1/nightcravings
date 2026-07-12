@@ -179,9 +179,23 @@ export function CheckoutForm() {
       </Field>
 
       {form.formState.errors.root && (
-        <p role="alert" className="text-danger text-sm">
-          {form.formState.errors.root.message}
-        </p>
+        <div className="flex flex-col gap-2">
+          <p role="alert" className="text-danger text-sm">
+            {form.formState.errors.root.message}
+          </p>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="self-start"
+            onClick={() => {
+              clearCart();
+              form.clearErrors("root");
+            }}
+          >
+            Clear cart and start over
+          </Button>
+        </div>
       )}
 
       <div className="border-border flex items-center justify-between border-t pt-3 text-sm">

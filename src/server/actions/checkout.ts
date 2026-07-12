@@ -53,6 +53,37 @@ export async function placeOrder(
       return actionError("Store not found.");
     }
 
+    // The cart is client-persisted (localStorage) and can outlive the
+    // products it references — if the owner removes/replaces an item
+    // between add-to-cart and checkout, `order_items.product_id`'s FK
+    // rejects the insert *after* the order row already exists, leaving an
+    // orphaned order with no items and no payment (exactly what happened
+    // here). Checked up front instead, so a stale cart fails before
+    // anything is written.
+    const { data: validProducts, error: productsError } = await supabase
+      .from("products")
+      .select("id")
+      .eq("hostel_id", hostel.id)
+      .eq("status", "active")
+      .in(
+        "id",
+        items.map((item) => item.productId),
+      );
+
+    if (productsError) {
+      return actionError("Could not verify your cart — please try again.");
+    }
+
+    const validProductIds = new Set(validProducts.map((p) => p.id));
+    const hasStaleItem = items.some(
+      (item) => !validProductIds.has(item.productId),
+    );
+    if (hasStaleItem) {
+      return actionError(
+        "One or more items in your cart are no longer available — please clear your cart and add items again.",
+      );
+    }
+
     const subtotal = items.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0,
