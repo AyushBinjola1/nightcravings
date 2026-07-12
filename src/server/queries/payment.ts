@@ -1,4 +1,7 @@
+import QRCode from "qrcode";
+
 import { createClient } from "@/lib/supabase/server";
+import { buildUpiUri } from "@/lib/upi";
 
 export type PaymentSummary = {
   id: string;
@@ -34,7 +37,15 @@ export async function getPaymentForOrder(
 export type HostelPaymentInfo = {
   upiId: string | null;
   upiNumber: string | null;
-  upiQrUrl: string | null;
+  /**
+   * A data: URI QR code, either the hostel's own uploaded image
+   * (`hostels.upi_qr_url`, if a Settings screen ever sets one) or —
+   * absent that — generated on the fly from the UPI id via the standard
+   * `upi://pay` deep link. Either way this is always a scannable, correct
+   * QR: it can never go stale the way a stored image would if the UPI id
+   * changed but nobody re-uploaded the picture.
+   */
+  qrDataUrl: string | null;
 };
 
 /**
@@ -44,6 +55,7 @@ export type HostelPaymentInfo = {
  */
 export async function getHostelPaymentInfo(
   hostelId: string,
+  hostelName: string,
 ): Promise<HostelPaymentInfo> {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("get_hostel_payment_info", {
@@ -53,15 +65,30 @@ export async function getHostelPaymentInfo(
   if (error || !data || data.length === 0) {
     if (error)
       console.error("[payment] getHostelPaymentInfo failed:", error.message);
-    return { upiId: null, upiNumber: null, upiQrUrl: null };
+    return { upiId: null, upiNumber: null, qrDataUrl: null };
   }
 
   const row = data[0];
-  if (!row) return { upiId: null, upiNumber: null, upiQrUrl: null };
+  if (!row) return { upiId: null, upiNumber: null, qrDataUrl: null };
+
+  let qrDataUrl: string | null = null;
+  if (row.upi_qr_url) {
+    qrDataUrl = row.upi_qr_url;
+  } else if (row.upi_id) {
+    try {
+      qrDataUrl = await QRCode.toDataURL(buildUpiUri(row.upi_id, hostelName), {
+        width: 320,
+        margin: 2,
+        color: { dark: "#211C16", light: "#FBF7F0" },
+      });
+    } catch (qrError) {
+      console.error("[payment] QR generation failed:", qrError);
+    }
+  }
 
   return {
     upiId: row.upi_id,
     upiNumber: row.upi_number,
-    upiQrUrl: row.upi_qr_url,
+    qrDataUrl,
   };
 }

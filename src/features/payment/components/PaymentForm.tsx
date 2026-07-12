@@ -2,7 +2,6 @@
 
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { Check, Copy } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -60,7 +59,8 @@ export function PaymentForm({
             onClick={() => setQrEnlarged(true)}
             className="border-border mx-auto block w-48 overflow-hidden rounded-md border"
           >
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element -- data: URI generated server-side, not an optimizable remote image */}
+            <img
               src={upiQrUrl}
               alt="UPI QR code — tap to enlarge"
               width={192}
@@ -73,7 +73,8 @@ export function PaymentForm({
             title="Scan to pay"
             contentClassName="flex flex-col items-center"
           >
-            <Image src={upiQrUrl} alt="UPI QR code" width={320} height={320} />
+            {/* eslint-disable-next-line @next/next/no-img-element -- data: URI generated server-side, not an optimizable remote image */}
+            <img src={upiQrUrl} alt="UPI QR code" width={320} height={320} />
           </Sheet>
         </>
       )}

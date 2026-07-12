@@ -42,8 +42,8 @@ export default async function PaymentPage({
   }
 
   const paymentInfo = hostel
-    ? await getHostelPaymentInfo(hostel.id)
-    : { upiId: null, upiNumber: null, upiQrUrl: null };
+    ? await getHostelPaymentInfo(hostel.id, hostel.name)
+    : { upiId: null, upiNumber: null, qrDataUrl: null };
 
   return (
     <main className="mx-auto w-full max-w-md px-4 py-8">
@@ -55,7 +55,7 @@ export default async function PaymentPage({
         claimedAmount={payment.claimedAmount}
         upiId={paymentInfo.upiId}
         upiNumber={paymentInfo.upiNumber}
-        upiQrUrl={paymentInfo.upiQrUrl}
+        upiQrUrl={paymentInfo.qrDataUrl}
       />
     </main>
   );
