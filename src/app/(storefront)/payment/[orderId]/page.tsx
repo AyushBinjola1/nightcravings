@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
+import { BackLink } from "@/components/ui/back-link";
 import { PaymentForm } from "@/features/payment";
 import { getCurrentHostel } from "@/server/queries/catalogue";
 import {
@@ -47,6 +48,7 @@ export default async function PaymentPage({
 
   return (
     <main className="mx-auto w-full max-w-md px-4 py-8">
+      <BackLink href="/" label="Back to menu" />
       <h1 className="font-display text-ink mb-6 text-xl font-semibold">
         Pay ₹{payment.claimedAmount.toFixed(0)}
       </h1>

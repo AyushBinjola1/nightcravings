@@ -63,7 +63,7 @@ export function ProductCard({
             alt=""
             fill
             sizes="(max-width: 640px) 50vw, 25vw"
-            className="object-cover"
+            className={isOutOfStock ? "object-cover grayscale" : "object-cover"}
           />
         ) : (
           <div className="text-ink-soft flex h-full items-center justify-center text-xs">

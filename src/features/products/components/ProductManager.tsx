@@ -6,7 +6,7 @@ import { useState, useTransition } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToastStore } from "@/stores/toast";
-import { setProductHidden } from "@/server/actions/products";
+import { adjustStock, setProductHidden } from "@/server/actions/products";
 import { ProductFormSheet } from "@/features/products/components/ProductFormSheet";
 import { StockAdjuster } from "@/features/products/components/StockAdjuster";
 import type { Category, Product } from "@/server/queries/catalogue";
@@ -47,6 +47,23 @@ export function ProductManager({
         product.id,
         product.status !== "hidden",
       );
+      if (!result.success) {
+        useToastStore.getState().show(result.error, "danger");
+      }
+    });
+  };
+
+  /** Zeroes stock via the same append-only `stock_history` path
+   * `StockAdjuster` uses — "out of stock" here just means `stock_qty <=
+   * 0`, the same signal `ProductCard` already reads to gray out a
+   * product and disable Add on the customer side. */
+  const markOutOfStock = (product: Product) => {
+    if (product.stock_qty <= 0) return;
+    startTransition(async () => {
+      const result = await adjustStock({
+        productId: product.id,
+        delta: -product.stock_qty,
+      });
       if (!result.success) {
         useToastStore.getState().show(result.error, "danger");
       }
@@ -94,6 +111,9 @@ export function ProductManager({
                   {product.status === "hidden" && (
                     <Badge variant="neutral">Hidden</Badge>
                   )}
+                  {product.stock_qty <= 0 && (
+                    <Badge variant="danger">Out of stock</Badge>
+                  )}
                 </div>
                 <div className="text-ink-soft font-mono text-sm tabular-nums">
                   ₹{product.price.toFixed(0)}
@@ -113,6 +133,15 @@ export function ProductManager({
                 onClick={() => openEdit(product)}
               >
                 Edit
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                disabled={isPending || product.stock_qty <= 0}
+                onClick={() => markOutOfStock(product)}
+              >
+                Mark out of stock
               </Button>
               <Button
                 type="button"
