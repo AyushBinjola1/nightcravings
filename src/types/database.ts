@@ -1,7 +1,7 @@
 /**
  * Real generated output — `npx supabase gen types typescript --project-id
  * qwziuxkcbzrygmozqrad`, run against the actual linked project after all
- * 13 migrations were applied via `supabase db push`. This replaces the
+ * 16 migrations were applied via `supabase db push`. This replaces the
  * hand-authored version that stood in for it while the migrations were
  * unapplied (see git history on this file). Regenerate the same way after
  * any future schema change; do not hand-edit.
@@ -175,6 +175,7 @@ export type Database = {
           opening_time: string | null;
           slug: string;
           status: Database["public"]["Enums"]["hostel_status"];
+          support_phone: string | null;
           updated_at: string;
           upi_id_secret_id: string | null;
           upi_number_secret_id: string | null;
@@ -190,6 +191,7 @@ export type Database = {
           opening_time?: string | null;
           slug: string;
           status?: Database["public"]["Enums"]["hostel_status"];
+          support_phone?: string | null;
           updated_at?: string;
           upi_id_secret_id?: string | null;
           upi_number_secret_id?: string | null;
@@ -205,6 +207,7 @@ export type Database = {
           opening_time?: string | null;
           slug?: string;
           status?: Database["public"]["Enums"]["hostel_status"];
+          support_phone?: string | null;
           updated_at?: string;
           upi_id_secret_id?: string | null;
           upi_number_secret_id?: string | null;

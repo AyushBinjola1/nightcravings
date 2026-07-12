@@ -24,7 +24,7 @@ export async function getCurrentHostel(): Promise<Hostel | null> {
   const { data, error } = await supabase
     .from("hostels")
     .select(
-      "id, name, slug, status, opening_time, closing_time, delivery_fee, free_delivery_threshold, upi_qr_url, created_at, updated_at",
+      "id, name, slug, status, opening_time, closing_time, delivery_fee, free_delivery_threshold, upi_qr_url, support_phone, created_at, updated_at",
     )
     .eq("slug", CURRENT_HOSTEL_SLUG)
     .maybeSingle();
