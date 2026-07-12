@@ -5,22 +5,31 @@
  * This block is the single source of truth for these values; do not
  * redeclare them in TypeScript (see `src/design-tokens/colors.ts` for why).
  *
+ * Retuned from the original warm cream/terracotta palette to a purple/gold
+ * pairing matching the app's logo (a moonlit purple storefront, glowing
+ * gold) — a deliberate brand change, not an ad hoc token. `--color-night`
+ * was already a purple hue before this change; it keeps that role as the
+ * secondary accent, while `--color-accent` moves from terracotta to gold.
+ * Every ink/paper/accent/night pair below was checked against WCAG AA
+ * (4.5:1) before being set — see the design-review notes in git history
+ * on this file if the numbers ever need re-deriving.
+ *
  * Light is the default; dark redefines the same token names under
  * `prefers-color-scheme` AND under an explicit `data-theme` attribute so a
  * user's manual toggle always wins over the OS preference, in both
  * directions.
  */
 :root {
-  --color-ink: #211c16;
-  --color-ink-soft: #4a423a;
-  --color-paper: #fbf7f0;
-  --color-surface: #f3ece0;
-  --color-surface-2: #ede4d3;
-  --color-border: #dcd1be;
-  --color-accent: #b4520a;
-  --color-accent-soft: #e8dcc8;
-  --color-night: #2e2a6e;
-  --color-night-soft: #dedbf2;
+  --color-ink: #241b36;
+  --color-ink-soft: #5b4f72;
+  --color-paper: #faf8fc;
+  --color-surface: #f1ebf8;
+  --color-surface-2: #e8def4;
+  --color-border: #d7c7ea;
+  --color-accent: #8a5d07;
+  --color-accent-soft: #f2e6c4;
+  --color-night: #5b21b6;
+  --color-night-soft: #ede4fb;
   --color-success: #276a45;
   --color-success-soft: #e1eee4;
   --color-warning: #966400;
@@ -46,16 +55,16 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-ink: #eee7da;
-    --color-ink-soft: #b7ac9b;
-    --color-paper: #171310;
-    --color-surface: #221d18;
-    --color-surface-2: #2a231c;
-    --color-border: #3a322a;
-    --color-accent: #e08a3e;
-    --color-accent-soft: #3a2a18;
-    --color-night: #9c97e8;
-    --color-night-soft: #26244a;
+    --color-ink: #f1e9fb;
+    --color-ink-soft: #b7a9cf;
+    --color-paper: #140f1e;
+    --color-surface: #1e1730;
+    --color-surface-2: #281f3f;
+    --color-border: #3a2f57;
+    --color-accent: #eab308;
+    --color-accent-soft: #3d3111;
+    --color-night: #a78bfa;
+    --color-night-soft: #2c2350;
     --color-success: #5fae7f;
     --color-success-soft: #1e2e22;
     --color-warning: #d9a441;
@@ -68,16 +77,16 @@
 }
 
 :root[data-theme="dark"] {
-  --color-ink: #eee7da;
-  --color-ink-soft: #b7ac9b;
-  --color-paper: #171310;
-  --color-surface: #221d18;
-  --color-surface-2: #2a231c;
-  --color-border: #3a322a;
-  --color-accent: #e08a3e;
-  --color-accent-soft: #3a2a18;
-  --color-night: #9c97e8;
-  --color-night-soft: #26244a;
+  --color-ink: #f1e9fb;
+  --color-ink-soft: #b7a9cf;
+  --color-paper: #140f1e;
+  --color-surface: #1e1730;
+  --color-surface-2: #281f3f;
+  --color-border: #3a2f57;
+  --color-accent: #eab308;
+  --color-accent-soft: #3d3111;
+  --color-night: #a78bfa;
+  --color-night-soft: #2c2350;
   --color-success: #5fae7f;
   --color-success-soft: #1e2e22;
   --color-warning: #d9a441;
@@ -89,16 +98,16 @@
 }
 
 :root[data-theme="light"] {
-  --color-ink: #211c16;
-  --color-ink-soft: #4a423a;
-  --color-paper: #fbf7f0;
-  --color-surface: #f3ece0;
-  --color-surface-2: #ede4d3;
-  --color-border: #dcd1be;
-  --color-accent: #b4520a;
-  --color-accent-soft: #e8dcc8;
-  --color-night: #2e2a6e;
-  --color-night-soft: #dedbf2;
+  --color-ink: #241b36;
+  --color-ink-soft: #5b4f72;
+  --color-paper: #faf8fc;
+  --color-surface: #f1ebf8;
+  --color-surface-2: #e8def4;
+  --color-border: #d7c7ea;
+  --color-accent: #8a5d07;
+  --color-accent-soft: #f2e6c4;
+  --color-night: #5b21b6;
+  --color-night-soft: #ede4fb;
   --color-success: #276a45;
   --color-success-soft: #e1eee4;
   --color-warning: #966400;

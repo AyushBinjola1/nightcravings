@@ -63,6 +63,11 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // The dev-only route indicator ("N" badge, bottom-left) is disabled —
+  // it isn't Next.js's real error reporting (that still shows compile/
+  // runtime errors regardless), just the static route/prerender status
+  // overlay, which this project doesn't rely on.
+  devIndicators: false,
   images: {
     remotePatterns: supabaseHostname
       ? [

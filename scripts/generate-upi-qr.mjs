@@ -22,7 +22,7 @@ const upiUri = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponen
 await QRCode.toFile(outputPath, upiUri, {
   width: 512,
   margin: 2,
-  color: { dark: "#211C16", light: "#FBF7F0" },
+  color: { dark: "#241B36", light: "#FAF8FC" },
 });
 
 console.log(`Generated ${outputPath} encoding: ${upiUri}`);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -48,6 +48,18 @@ export function CheckoutForm() {
     name: "deliveryMethod",
   });
   const subtotal = cartSubtotal(items);
+
+  // `items` comes from a localStorage-persisted zustand store, which
+  // rehydrates asynchronously — on some navigations it's still `[]` at
+  // the exact moment `useForm`'s `defaultValues` is captured, and
+  // react-hook-form never re-reads a defaultValue after mount. Without
+  // this sync, a customer could click submit and have it silently
+  // rejected by the schema's `items.min(1)` with no visible error, since
+  // nothing renders a message for that field. Keeping it explicitly in
+  // sync avoids relying on defaultValues ever being correct at mount.
+  useEffect(() => {
+    form.setValue("items", items);
+  }, [items, form]);
 
   const onSubmit = form.handleSubmit((values) => {
     startTransition(async () => {

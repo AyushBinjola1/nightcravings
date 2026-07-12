@@ -15,8 +15,8 @@ export default function manifest(): MetadataRoute.Manifest {
       "The premium late-night convenience store inside every hostel.",
     start_url: "/",
     display: "standalone",
-    background_color: "#fbf7f0",
-    theme_color: "#b4520a",
+    background_color: "#faf8fc",
+    theme_color: "#8a5d07",
     icons: [
       {
         src: "/icons/icon-customer-192.png",

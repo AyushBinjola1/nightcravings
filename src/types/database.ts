@@ -1,7 +1,7 @@
 /**
  * Real generated output — `npx supabase gen types typescript --project-id
  * qwziuxkcbzrygmozqrad`, run against the actual linked project after all
- * 16 migrations were applied via `supabase db push`. This replaces the
+ * 18 migrations were applied via `supabase db push`. This replaces the
  * hand-authored version that stood in for it while the migrations were
  * unapplied (see git history on this file). Regenerate the same way after
  * any future schema change; do not hand-edit.
@@ -745,7 +745,9 @@ export type Database = {
         Returns: boolean;
       };
       is_staff_of: { Args: { target_hostel: string }; Returns: boolean };
+      order_row_exists: { Args: { p_order_id: string }; Returns: boolean };
       owns_row: { Args: { owner_id: string }; Returns: boolean };
+      payment_row_exists: { Args: { p_payment_id: string }; Returns: boolean };
       set_hostel_upi_details: {
         Args: { p_hostel_id: string; p_upi_id: string; p_upi_number: string };
         Returns: undefined;
@@ -753,6 +755,15 @@ export type Database = {
       submit_transaction_id: {
         Args: { p_order_id: string; p_transaction_id: string };
         Returns: undefined;
+      };
+      upsert_customer: {
+        Args: {
+          p_full_name: string;
+          p_hostel_id: string;
+          p_phone: string;
+          p_room_number: string;
+        };
+        Returns: string;
       };
     };
     Enums: {

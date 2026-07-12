@@ -79,7 +79,7 @@ export async function getHostelPaymentInfo(
       qrDataUrl = await QRCode.toDataURL(buildUpiUri(row.upi_id, hostelName), {
         width: 320,
         margin: 2,
-        color: { dark: "#211C16", light: "#FBF7F0" },
+        color: { dark: "#241B36", light: "#FAF8FC" },
       });
     } catch (qrError) {
       console.error("[payment] QR generation failed:", qrError);

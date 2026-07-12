@@ -7,12 +7,12 @@
 import sharp from "sharp";
 import { mkdirSync } from "node:fs";
 
-const AMBER = "#B4520A";
-const PAPER = "#FBF7F0";
-const NIGHT = "#2E2A6E";
+const GOLD = "#EAB308";
+const PAPER = "#FAF8FC";
+const NIGHT = "#5B21B6";
 
 /** A crescent + dot — "night" — the same mark for both apps, only the
- * background hue differs (amber for customers, night-indigo for staff),
+ * background hue differs (gold for customers, night-violet for staff),
  * so the two installed PWAs are visually distinguishable on a home screen. */
 function markSvg(background) {
   return `
@@ -44,7 +44,7 @@ function maskableSvg(background) {
 mkdirSync("public/icons", { recursive: true });
 
 const jobs = [
-  { name: "icon-customer", background: AMBER },
+  { name: "icon-customer", background: GOLD },
   { name: "icon-console", background: NIGHT },
 ];
 

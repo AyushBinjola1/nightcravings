@@ -14,6 +14,15 @@ import { CURRENT_HOSTEL_SLUG } from "@/config/hostel";
  * logical checkout, even though Supabase's JS client doesn't expose
  * multi-statement transactions (each insert relies on its own RLS check
  * passing; a failure partway through is reported, not silently ignored).
+ *
+ * Neither `orders` nor `customers` has an anon SELECT policy (both hold
+ * PII no other customer should be able to read), so this never chains
+ * `.select()` after an insert/upsert on them — that chain makes
+ * supabase-js ask Postgres to return the written row, which fails RLS
+ * even though the write itself was allowed. The order id is generated
+ * here instead of read back; the customer id comes from the
+ * `upsert_customer` RPC, a narrow SECURITY DEFINER function that returns
+ * only the id.
  */
 export async function placeOrder(
   input: unknown,
@@ -54,46 +63,47 @@ export async function placeOrder(
         : hostel.delivery_fee;
     const total = subtotal + deliveryFee;
 
-    const { data: customer } = await supabase
-      .from("customers")
-      .upsert(
-        {
-          hostel_id: hostel.id,
-          phone: profile.phone,
-          full_name: profile.fullName,
-          room_number: profile.roomNumber || null,
-        },
-        { onConflict: "hostel_id,phone" },
-      )
-      .select("id")
-      .single();
+    const { data: customerId, error: customerError } = await supabase.rpc(
+      "upsert_customer",
+      {
+        p_hostel_id: hostel.id,
+        p_phone: profile.phone,
+        p_full_name: profile.fullName,
+        p_room_number: profile.roomNumber,
+      },
+    );
 
-    const { data: order, error: orderError } = await supabase
-      .from("orders")
-      .insert({
-        hostel_id: hostel.id,
-        customer_id: customer?.id ?? null,
-        customer_name: profile.fullName,
-        customer_phone: profile.phone,
-        room_number:
-          deliveryMethod === "room_delivery" ? profile.roomNumber : null,
-        delivery_method: deliveryMethod,
-        subtotal,
-        delivery_fee: deliveryFee,
-        total,
-        notes: notes || null,
-      })
-      .select("id")
-      .single();
+    if (customerError) {
+      console.error(
+        "[checkout] upsert_customer failed:",
+        customerError.message,
+      );
+    }
 
-    if (orderError || !order) {
-      console.error("[checkout] order insert failed:", orderError?.message);
+    const orderId = crypto.randomUUID();
+    const { error: orderError } = await supabase.from("orders").insert({
+      id: orderId,
+      hostel_id: hostel.id,
+      customer_id: customerId ?? null,
+      customer_name: profile.fullName,
+      customer_phone: profile.phone,
+      room_number:
+        deliveryMethod === "room_delivery" ? profile.roomNumber : null,
+      delivery_method: deliveryMethod,
+      subtotal,
+      delivery_fee: deliveryFee,
+      total,
+      notes: notes || null,
+    });
+
+    if (orderError) {
+      console.error("[checkout] order insert failed:", orderError.message);
       return actionError("Could not place your order — please try again.");
     }
 
     const { error: itemsError } = await supabase.from("order_items").insert(
       items.map((item) => ({
-        order_id: order.id,
+        order_id: orderId,
         product_id: item.productId,
         product_name_snapshot: item.name,
         unit_price_snapshot: item.price,
@@ -112,7 +122,7 @@ export async function placeOrder(
     }
 
     const { error: paymentError } = await supabase.from("payments").insert({
-      order_id: order.id,
+      order_id: orderId,
       claimed_amount: total,
     });
 
@@ -126,13 +136,13 @@ export async function placeOrder(
     // Server-side capture (Phase 4 §15): a closed tab or an ad blocker
     // must never make the conversion funnel undercount a real order.
     captureServerEvent(profile.phone, "order_placed", {
-      orderId: order.id,
+      orderId,
       total,
       itemCount: items.length,
       deliveryMethod,
     });
 
-    return actionOk({ orderId: order.id });
+    return actionOk({ orderId });
   } catch (error) {
     console.error("[checkout] placeOrder unexpected failure:", error);
     return actionError("Something went wrong — please try again.");

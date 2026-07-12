@@ -18,8 +18,8 @@ export function GET() {
     description: "Run NightCravings — orders, payments, and the nightly queue.",
     start_url: "/console/dashboard",
     display: "standalone",
-    background_color: "#171310",
-    theme_color: "#2e2a6e",
+    background_color: "#140f1e",
+    theme_color: "#5b21b6",
     icons: [
       {
         src: "/icons/icon-console-192.png",
