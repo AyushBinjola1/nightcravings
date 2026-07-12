@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { StatusBar } from "@/features/catalogue/components/StatusBar";
 import { CatalogueBrowser } from "@/features/catalogue/components/CatalogueBrowser";
+import { DemandItemBar } from "@/features/catalogue/components/DemandItemBar";
 import { CartWidget } from "@/features/cart";
 import {
   getCategories,
@@ -47,10 +48,15 @@ export default async function HomePage() {
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-6 pb-28">
-      <div className="mb-4">
+      <div className="mb-4 flex flex-col gap-3">
         <StatusBar hostel={hostel} />
+        <DemandItemBar supportPhone={hostel.support_phone} />
       </div>
-      <CatalogueBrowser categories={categories} products={products} />
+      <CatalogueBrowser
+        categories={categories}
+        products={products}
+        supportPhone={hostel.support_phone}
+      />
       <CartWidget
         deliveryFee={hostel.delivery_fee}
         freeDeliveryThreshold={hostel.free_delivery_threshold}

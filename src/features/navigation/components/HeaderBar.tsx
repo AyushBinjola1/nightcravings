@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { CircleUserRound } from "lucide-react";
+import { CircleUserRound, HelpCircle } from "lucide-react";
 
-import { ProfileSheet } from "@/features/profile";
+import { HelpSheet, ProfileSheet } from "@/features/profile";
+import { InstallAppButton } from "@/features/pwa";
 
 /**
  * Phase 2 §1's Home "Top Navigation" (logo + cart, "nothing else") applied
@@ -17,6 +18,7 @@ import { ProfileSheet } from "@/features/profile";
  */
 export function HeaderBar({ supportPhone }: { supportPhone: string | null }) {
   const [profileOpen, setProfileOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   return (
     <>
@@ -28,16 +30,32 @@ export function HeaderBar({ supportPhone }: { supportPhone: string | null }) {
           >
             Night<span className="text-accent">Cravings</span>
           </Link>
-          <button
-            type="button"
-            onClick={() => setProfileOpen(true)}
-            aria-label="Open profile"
-            className="text-ink-soft hover:bg-surface hover:text-ink rounded-full p-2"
-          >
-            <CircleUserRound size={22} aria-hidden="true" />
-          </button>
+          <div className="flex items-center gap-1.5">
+            <InstallAppButton />
+            <button
+              type="button"
+              onClick={() => setHelpOpen(true)}
+              aria-label="Help"
+              className="text-ink-soft hover:bg-surface hover:text-ink rounded-full p-2"
+            >
+              <HelpCircle size={22} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setProfileOpen(true)}
+              aria-label="Open profile"
+              className="text-ink-soft hover:bg-surface hover:text-ink rounded-full p-2"
+            >
+              <CircleUserRound size={22} aria-hidden="true" />
+            </button>
+          </div>
         </div>
       </header>
+      <HelpSheet
+        open={helpOpen}
+        onOpenChange={setHelpOpen}
+        supportPhone={supportPhone}
+      />
       <ProfileSheet
         open={profileOpen}
         onOpenChange={setProfileOpen}

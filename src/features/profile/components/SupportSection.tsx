@@ -1,11 +1,7 @@
-"use client";
-
-import { useState } from "react";
 import { MessageCircle } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
+import { ItemRequestForm } from "@/features/profile/components/ItemRequestForm";
 
 /**
  * Phase 2 §10 (Profile) "Support" row: "Direct message/call to the
@@ -20,8 +16,6 @@ export function SupportSection({
 }: {
   supportPhone: string | null;
 }) {
-  const [item, setItem] = useState("");
-
   if (!supportPhone) {
     return (
       <p className="text-ink-soft text-sm">
@@ -45,43 +39,7 @@ export function SupportSection({
         Message the store
       </a>
 
-      <div>
-        <label
-          htmlFor="item-request"
-          className="text-ink mb-1.5 block text-sm font-medium"
-        >
-          Craving something we don&apos;t stock?
-        </label>
-        <div className="flex gap-2">
-          <Input
-            id="item-request"
-            placeholder="e.g. Oreo, Red Bull…"
-            value={item}
-            onChange={(event) => setItem(event.target.value)}
-          />
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={item.trim().length === 0}
-            asChild
-          >
-            <a
-              href={buildWhatsAppLink(
-                supportPhone,
-                `Hi! Could you stock ${item.trim()}?`,
-              )}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-disabled={item.trim().length === 0}
-              onClick={(event) => {
-                if (item.trim().length === 0) event.preventDefault();
-              }}
-            >
-              Ask
-            </a>
-          </Button>
-        </div>
-      </div>
+      <ItemRequestForm supportPhone={supportPhone} />
     </div>
   );
 }
