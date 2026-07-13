@@ -8,6 +8,10 @@
  * checks). Using the CSS custom property (not a JS hex constant) is what
  * makes the bar recolor correctly between light and dark themes.
  */
+"use client";
+
+import { motion } from "framer-motion";
+
 export function BarChart({
   data,
   formatValue = (v) => String(v),
@@ -20,26 +24,33 @@ export function BarChart({
   const max = Math.max(1, ...data.map((d) => d.value));
 
   if (data.length === 0) {
-    return <p className="text-ink-soft text-sm">No data yet.</p>;
+    return <p className="text-ink-soft text-sm font-semibold">No data yet.</p>;
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      {data.map((d) => (
-        <div key={d.label} className="flex items-center gap-3">
-          <span className="text-ink-soft w-24 shrink-0 truncate text-xs">
+    <div className="border-border/60 bg-surface/30 shadow-premium flex flex-col gap-3.5 rounded-3xl border p-6">
+      {data.map((d, index) => (
+        <div key={d.label} className="flex items-center gap-4">
+          <span className="text-ink w-24 shrink-0 truncate text-xs font-semibold sm:text-sm">
             {d.label}
           </span>
-          <div className="bg-surface-2 h-2.5 flex-1 overflow-hidden rounded-full">
-            <div
+          <div className="bg-surface-2/70 relative h-3 flex-1 overflow-hidden rounded-full">
+            <motion.div
               className="h-full rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${Math.max(2, (d.value / max) * 100)}%` }}
+              transition={{
+                type: "spring",
+                stiffness: 100,
+                damping: 15,
+                delay: index * 0.05,
+              }}
               style={{
-                width: `${Math.max(2, (d.value / max) * 100)}%`,
                 backgroundColor: color,
               }}
             />
           </div>
-          <span className="text-ink w-16 shrink-0 text-right font-mono text-xs tabular-nums">
+          <span className="text-ink w-18 shrink-0 text-right font-mono text-xs font-bold tabular-nums sm:text-sm">
             {formatValue(d.value)}
           </span>
         </div>

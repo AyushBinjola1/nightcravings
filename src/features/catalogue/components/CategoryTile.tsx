@@ -1,10 +1,9 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { cn } from "@/lib/cn";
 import type { Category } from "@/server/queries/catalogue";
 
-/** Phase 2 §1/§3 — a scannable row of category filters, text-only so the
- * label itself (not a photo) is what's scanned in under two seconds. */
 export function CategoryTile({
   category,
   isActive,
@@ -15,18 +14,21 @@ export function CategoryTile({
   onSelect: (categoryId: string | null) => void;
 }) {
   return (
-    <button
+    <motion.button
+      whileHover={{ scale: 1.02, y: -1 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
       type="button"
       onClick={() => onSelect(isActive ? null : category.id)}
       aria-pressed={isActive}
       className={cn(
-        "shrink-0 rounded-md border px-4 py-2.5 text-sm font-medium transition-colors",
+        "relative shrink-0 overflow-hidden rounded-full border px-5 py-2.5 text-xs font-medium shadow-sm transition-all sm:text-sm",
         isActive
-          ? "border-accent bg-accent-soft text-accent"
-          : "border-border bg-surface text-ink",
+          ? "border-accent bg-accent text-paper shadow-glow-gold"
+          : "border-border bg-surface/60 text-ink hover:bg-surface-2/80 hover:border-ink-soft/30",
       )}
     >
-      {category.name}
-    </button>
+      <span className="relative z-10">{category.name}</span>
+    </motion.button>
   );
 }

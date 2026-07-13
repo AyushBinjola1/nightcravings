@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { cn } from "@/lib/cn";
 import { useHostelCatalogueRealtime } from "@/hooks/useHostelCatalogueRealtime";
@@ -20,12 +21,6 @@ function matchesQuery(product: Product, query: string): boolean {
   );
 }
 
-/**
- * Client-side category filter + search + product grid + detail sheet.
- * Receives server-fetched data as props (Phase 4 §12: Server Components
- * own the fetch, client components own the interactivity) — this
- * component never fetches on its own.
- */
 export function CatalogueBrowser({
   hostelId,
   categories,
@@ -51,24 +46,27 @@ export function CatalogueBrowser({
   );
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <SearchBar value={query} onChange={setQuery} />
 
       {categories.length > 0 && (
-        <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
-          <button
+        <div className="-mx-4 flex scrollbar-thin gap-2.5 overflow-x-auto px-4 pb-2.5">
+          <motion.button
+            whileHover={{ scale: 1.02, y: -1 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
             type="button"
             onClick={() => setActiveCategory(null)}
             aria-pressed={activeCategory === null}
             className={cn(
-              "shrink-0 rounded-md border px-4 py-2.5 text-sm font-medium transition-colors",
+              "shrink-0 rounded-full border px-5 py-2.5 text-xs font-medium shadow-sm transition-all sm:text-sm",
               activeCategory === null
-                ? "border-accent bg-accent-soft text-accent"
-                : "border-border bg-surface text-ink",
+                ? "border-accent bg-accent text-paper shadow-glow-gold"
+                : "border-border bg-surface/60 text-ink hover:bg-surface-2/80 hover:border-ink-soft/30",
             )}
           >
             All
-          </button>
+          </motion.button>
           {categories.map((category) => (
             <CategoryTile
               key={category.id}
@@ -84,20 +82,34 @@ export function CatalogueBrowser({
         query.trim().length > 0 ? (
           <SearchEmptyState query={query.trim()} supportPhone={supportPhone} />
         ) : (
-          <p className="text-ink-soft py-12 text-center text-sm">
+          <p className="text-ink-soft py-16 text-center text-sm font-medium">
             Nothing here yet.
           </p>
         )
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {visibleProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onOpenDetail={setOpenProduct}
-            />
-          ))}
-        </div>
+        <motion.div
+          layout
+          className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
+        >
+          <AnimatePresence mode="popLayout">
+            {visibleProducts.map((product) => (
+              <motion.div
+                layout
+                key={product.id}
+                initial={{ opacity: 0, scale: 0.92, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.92, y: 10 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 380,
+                  damping: 30,
+                }}
+              >
+                <ProductCard product={product} onOpenDetail={setOpenProduct} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
       )}
 
       <ProductSheet

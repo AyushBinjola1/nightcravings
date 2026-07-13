@@ -20,106 +20,106 @@
  * directions.
  */
 :root {
-  --color-ink: #241b36;
-  --color-ink-soft: #5b4f72;
-  --color-paper: #faf8fc;
-  --color-surface: #f1ebf8;
-  --color-surface-2: #e8def4;
-  --color-border: #d7c7ea;
-  --color-accent: #8a5d07;
-  --color-accent-soft: #f2e6c4;
-  --color-night: #5b21b6;
-  --color-night-soft: #ede4fb;
-  --color-success: #276a45;
-  --color-success-soft: #e1eee4;
-  --color-warning: #966400;
-  --color-warning-soft: #f3e7ce;
-  --color-danger: #a32626;
-  --color-danger-soft: #f5e1df;
+  --color-ink: #1e152d;
+  --color-ink-soft: #63557e;
+  --color-paper: #fbfafd;
+  --color-surface: #f4f0fb;
+  --color-surface-2: #eae3f7;
+  --color-border: #e0d4f2;
+  --color-accent: #b45309;
+  --color-accent-soft: #fef3c7;
+  --color-night: #6d28d9;
+  --color-night-soft: #f5f3ff;
+  --color-success: #15803d;
+  --color-success-soft: #f0fdf4;
+  --color-warning: #b45309;
+  --color-warning-soft: #fef3c7;
+  --color-danger: #b91c1c;
+  --color-danger-soft: #fef2f2;
 
-  /* Chart-only tokens (Phase 4 §15) — validated separately from the brand
-     hues above; never substitute --color-accent/--color-night into a
-     chart series (see src/design-tokens/colors.ts). */
-  --chart-1: #2a78d6;
-  --chart-2: #1baf7a;
+  /* Chart-only tokens */
+  --chart-1: #3b82f6;
+  --chart-2: #10b981;
 
   --font-display:
-    Charter, "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+    "Charter", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
   --font-body:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
   --font-mono:
-    ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
 
-  --radius-token: 4px;
+  --radius-token: 12px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-ink: #f1e9fb;
-    --color-ink-soft: #b7a9cf;
-    --color-paper: #140f1e;
-    --color-surface: #1e1730;
-    --color-surface-2: #281f3f;
-    --color-border: #3a2f57;
-    --color-accent: #eab308;
-    --color-accent-soft: #3d3111;
-    --color-night: #a78bfa;
-    --color-night-soft: #2c2350;
-    --color-success: #5fae7f;
-    --color-success-soft: #1e2e22;
-    --color-warning: #d9a441;
-    --color-warning-soft: #332711;
-    --color-danger: #e07575;
-    --color-danger-soft: #3a2020;
-    --chart-1: #3987e5;
-    --chart-2: #199e70;
+    --color-ink: #f5f3ff;
+    --color-ink-soft: #a78bfa;
+    --color-paper: #090511;
+    --color-surface: #130a21;
+    --color-surface-2: #1f1136;
+    --color-border: #2e1d4b;
+    --color-accent: #fbbf24;
+    --color-accent-soft: #241400;
+    --color-night: #c084fc;
+    --color-night-soft: #1c0e33;
+    --color-success: #34d399;
+    --color-success-soft: #062f22;
+    --color-warning: #fbbf24;
+    --color-warning-soft: #241400;
+    --color-danger: #f87171;
+    --color-danger-soft: #3b0707;
+    --chart-1: #60a5fa;
+    --chart-2: #34d399;
   }
 }
 
 :root[data-theme="dark"] {
-  --color-ink: #f1e9fb;
-  --color-ink-soft: #b7a9cf;
-  --color-paper: #140f1e;
-  --color-surface: #1e1730;
-  --color-surface-2: #281f3f;
-  --color-border: #3a2f57;
-  --color-accent: #eab308;
-  --color-accent-soft: #3d3111;
-  --color-night: #a78bfa;
-  --color-night-soft: #2c2350;
-  --color-success: #5fae7f;
-  --color-success-soft: #1e2e22;
-  --color-warning: #d9a441;
-  --color-warning-soft: #332711;
-  --color-danger: #e07575;
-  --color-danger-soft: #3a2020;
-  --chart-1: #3987e5;
-  --chart-2: #199e70;
+  --color-ink: #f5f3ff;
+  --color-ink-soft: #a78bfa;
+  --color-paper: #090511;
+  --color-surface: #130a21;
+  --color-surface-2: #1f1136;
+  --color-border: #2e1d4b;
+  --color-accent: #fbbf24;
+  --color-accent-soft: #241400;
+  --color-night: #c084fc;
+  --color-night-soft: #1c0e33;
+  --color-success: #34d399;
+  --color-success-soft: #062f22;
+  --color-warning: #fbbf24;
+  --color-warning-soft: #241400;
+  --color-danger: #f87171;
+  --color-danger-soft: #3b0707;
+  --chart-1: #60a5fa;
+  --chart-2: #34d399;
 }
 
 :root[data-theme="light"] {
-  --color-ink: #241b36;
-  --color-ink-soft: #5b4f72;
-  --color-paper: #faf8fc;
-  --color-surface: #f1ebf8;
-  --color-surface-2: #e8def4;
-  --color-border: #d7c7ea;
-  --color-accent: #8a5d07;
-  --color-accent-soft: #f2e6c4;
-  --color-night: #5b21b6;
-  --color-night-soft: #ede4fb;
-  --color-success: #276a45;
-  --color-success-soft: #e1eee4;
-  --color-warning: #966400;
-  --color-warning-soft: #f3e7ce;
-  --color-danger: #a32626;
-  --color-danger-soft: #f5e1df;
-  --chart-1: #2a78d6;
-  --chart-2: #1baf7a;
+  --color-ink: #1e152d;
+  --color-ink-soft: #63557e;
+  --color-paper: #fbfafd;
+  --color-surface: #f4f0fb;
+  --color-surface-2: #eae3f7;
+  --color-border: #e0d4f2;
+  --color-accent: #b45309;
+  --color-accent-soft: #fef3c7;
+  --color-night: #6d28d9;
+  --color-night-soft: #f5f3ff;
+  --color-success: #15803d;
+  --color-success-soft: #f0fdf4;
+  --color-warning: #b45309;
+  --color-warning-soft: #fef3c7;
+  --color-danger: #b91c1c;
+  --color-danger-soft: #fef2f2;
+  --chart-1: #3b82f6;
+  --chart-2: #10b981;
 }
 
-/* Maps the brand tokens above to Tailwind utilities: bg-ink, text-accent,
-   border-border, etc. — Tailwind v4 reads its theme from this CSS block. */
 @theme inline {
   --color-ink: var(--color-ink);
   --color-ink-soft: var(--color-ink-soft);
@@ -145,21 +145,55 @@
   --font-mono: var(--font-mono);
 
   --radius-token: var(--radius-token);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
+  --shadow-premium:
+    0 4px 20px -2px rgba(138, 92, 246, 0.08),
+    0 2px 8px -1px rgba(138, 92, 246, 0.04);
+  --shadow-premium-hover:
+    0 20px 40px -8px rgba(138, 92, 246, 0.16),
+    0 8px 16px -4px rgba(138, 92, 246, 0.08);
+  --shadow-glow-gold: 0 0 20px rgba(251, 191, 36, 0.25);
+  --shadow-glow-purple: 0 0 20px rgba(167, 139, 250, 0.25);
 }
 
 @layer base {
   * {
     border-color: var(--color-border);
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease;
   }
 
   html {
     color-scheme: light dark;
+    scroll-behavior: smooth;
   }
 
   body {
     background: var(--color-paper);
     color: var(--color-ink);
     font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Custom subtle premium scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-ink-soft);
   }
 
   ::selection {
@@ -182,4 +216,42 @@
       scroll-behavior: auto !important;
     }
   }
+}
+
+/* Glassmorphism & premium UI helpers */
+.glass-panel {
+  background: rgba(var(--color-surface), 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(var(--color-border), 0.5);
+}
+
+.dark .glass-panel {
+  background: rgba(19, 10, 33, 0.75);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(46, 29, 75, 0.4);
+}
+
+.gold-gradient-bg {
+  background: linear-gradient(135deg, #fbbf24 0%, #b45309 100%);
+}
+
+.purple-gradient-bg {
+  background: linear-gradient(135deg, #c084fc 0%, #6d28d9 100%);
+}
+
+.ambient-glow-purple {
+  position: relative;
+}
+.ambient-glow-purple::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: var(--shadow-glow-purple);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+.ambient-glow-purple:hover::before {
+  opacity: 1;
 }

@@ -62,6 +62,7 @@ export default async function HomePage() {
       <CartWidget
         deliveryFee={hostel.delivery_fee}
         freeDeliveryThreshold={hostel.free_delivery_threshold}
+        products={products}
       />
       {hostel.status !== "open" && <StoreClosedModal hostel={hostel} />}
     </main>
